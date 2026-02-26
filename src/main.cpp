@@ -1,23 +1,45 @@
 #include <Arduino.h>
 #include <WiFi.h>
 
-#include "config/krConfig.h"
+#include <AudioLogger.h>
 
-#include "webserver/krWebserver.h"
+#include "configuration/krConfig.h"
+#include "information/krInformation.h"
+
+#include "hmi/krCli.h"
 #include "hmi/krDisplay.h"
+#include "webserver/krWebserver.h"
+#include "audioplayer/krWebradio.h"
+
+#include "audioplayer/krAudioplayer.h"
+
+/*
+TaskHandle_t copyTask = NULL;
+
+void ProcessDevices(void* parameter)
+{
+    Serial.println("!COPY");
+    audioplayer_copy();
+}
+*/
 
 void setup() 
 {
   Serial.begin(115200);
+  AudioToolsLogger.begin(Serial, AudioToolsLogLevel::Warning);
 
   delay(100);
 
   Serial.print("KitchenRadio 3!");
   delay(100);  
 
+  // Display
   Serial.println("Init display");
   display_begin();
+  display_draw_startup();
 
+  // CLI
+  cli_begin();
 
   // WiFi
   Serial.println("Connect to WiFi");
@@ -37,17 +59,39 @@ void setup()
   }
   Serial.println("Connected");
 
+  // Webserver
   Serial.println("Init webserver");
   webserver_begin();
 
+  // Webradio
+  webradio_begin();
+  //audioplayer_begin();
   
 
+  // tasik
+ /* xTaskCreatePinnedToCore(
+    ProcessDevices,
+    "Device",
+    1024*100, // Reduced for just wled and device controls
+    NULL,
+    1,
+    &copyTask,
+    0); // Core 0 (shared with WiFi & system tasks)  */
+
+    
 }
 
 int timer =0;
 
 void loop() 
 {
+
+  cli_handle();
+
+  
+  webradio_handle();
+  //audioplayer_copy();
+
   if((millis() - timer) > 1000)
   {
     Serial.println("A" );

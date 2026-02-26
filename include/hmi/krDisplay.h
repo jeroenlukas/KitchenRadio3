@@ -3,5 +3,6 @@
 
 extern void display_begin();
 extern void display_draw();
+extern void display_draw_startup();
 
 #endif

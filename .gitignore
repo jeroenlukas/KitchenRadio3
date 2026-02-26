@@ -5,3 +5,5 @@
 .vscode/ipch
 
 include/config/krConfigSecrets.h
+
+include/configuration/krConfigSecrets.h
