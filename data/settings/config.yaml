@@ -1,0 +1,14 @@
+devicename: "KitchenRadio-keuken"
+location: "Keuken"
+clock:
+  timezone: "Europe/Amsterdam"
+audio:
+  tonecontrol:
+    treble: 5
+    treble_freq: 5
+    bass: 5
+    bass_freq: 15
+display:
+  homedisplay: "normal"
+  brightness_min: 10
+  brightness_max: 100
