@@ -5,6 +5,6 @@
 #include "ConfigSecrets.h"
 
 // Misc configuration
-#define DEFAULT_BUFFER_SIZE (1024*100)
+#define DEFAULT_BUFFER_SIZE 36864//(1024*100)
 
 #endif

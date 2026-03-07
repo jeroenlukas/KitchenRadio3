@@ -10,6 +10,7 @@
 
 //#include "configuration/constants.h"
 #include "../audio/Audioplayer.h"
+#include "../audio/I2SReceiver.h"
 //#include "information/krWeather.h"
 //#include "information/krTime.h"
 //#include "logger.h"
@@ -75,18 +76,18 @@ void cb_radio(cmd* c)
 
 }
 
-/*
+
 void cb_soundmode(cmd* c)
 {
     Command cmd(c);
 
-    if(cmd.getArg("r").isSet()) audioplayer_set_soundmode(SOUNDMODE_WEBRADIO);
-    else if(cmd.getArg("o").isSet()) audioplayer_set_soundmode(SOUNDMODE_OFF);
-    else if(cmd.getArg("b").isSet()) audioplayer_set_soundmode(SOUNDMODE_BLUETOOTH);
+    if(cmd.getArg("r").isSet()) audioplayer_mode_set(WEBRADIO);
+    else if(cmd.getArg("o").isSet()) audioplayer_mode_set(OFF);
+    else if(cmd.getArg("b").isSet()) audioplayer_mode_set(BLUETOOTH);
     
     else Serial.println("Error: invalid soundmode");   
 }
-*/
+
 void cb_volume(cmd* c)
 {
     Command cmd(c);    
@@ -226,40 +227,40 @@ void cb_buzzer(cmd* c)
     
     return;
 }
-
+*/
 void cb_bt(cmd* c)
 {
     Command cmd(c);
 
     if(cmd.getArgument("reset").isSet())
     {
-        slavei2s_send("AT+RESET");
+        i2sreceiver_send("AT+RESET");
     }
     if(cmd.getArgument("pause").isSet())
     {
-        slavei2s_send("AT+PAUSE");
+        i2sreceiver_send("AT+PAUSE");
     }
     if(cmd.getArgument("play").isSet())
     {
-        slavei2s_send("AT+PLAY");
+        i2sreceiver_send("AT+PLAY");
     }
     if(cmd.getArgument("stop").isSet())
     {
-        slavei2s_send("AT+STOP");
+        i2sreceiver_send("AT+STOP");
     }
     if(cmd.getArgument("start").isSet())
     {
-        slavei2s_send("AT+START");
+        i2sreceiver_send("AT+START");
     }
     if(cmd.getArgument("end").isSet())
     {
-        slavei2s_send("AT+END");
+        i2sreceiver_send("AT+END");
     }
     
     
     
 }
-
+/*
 void cb_bootlog(cmd* c)
 {
     Serial.print(bootlog);
@@ -346,7 +347,7 @@ void cli_begin(void)
     cmd_cat = kr_cli.addSingleArgumentCommand("cat", cb_cat);
     cmd_cat.setDescription("- Print contents of a file. Example: cat /settings/stations.json");
 
-/*
+
     // > soundmode
     cmd_soundmode = kr_cli.addCommand("soundmode", cb_soundmode);
     cmd_soundmode.addFlagArgument("o/ff");
@@ -354,6 +355,7 @@ void cli_begin(void)
     cmd_soundmode.addFlagArgument("b/luetooth");    
     cmd_soundmode.setDescription("- Set the soundmode");
 
+/*
     // > bootlog
     cmd_bootlog = kr_cli.addCommand("bootlog", cb_bootlog);
     cmd_bootlog.setDescription("- Print the boot log with timestamps");
@@ -401,7 +403,7 @@ void cli_begin(void)
 
     // > buzzer
     cmd_buzzer = kr_cli.addSingleArgCmd("buzzer", cb_buzzer);
-
+*/
     // > bt
     cmd_bt = kr_cli.addCmd("bt", cb_bt);
     cmd_bt.addFlagArgument("reset");
@@ -410,7 +412,7 @@ void cli_begin(void)
     cmd_bt.addFlagArgument("stop");
     cmd_bt.addFlagArgument("start");
     cmd_bt.addFlagArgument("end");
-*/
+
 
 }
 

@@ -13,9 +13,10 @@
 #include "src/hmi/Cli.h"
 #include "src/hmi/Display.h"
 #include "src/webserver/Webserver.h"
-#include "src/audio/Webradio.h"
 
+#include "src/audio/Webradio.h"
 #include "src/audio/Audioplayer.h"
+#include "src/audio/I2SReceiver.h"
 
 void setup() {
   Serial.begin(115200);
@@ -67,6 +68,9 @@ void setup() {
   // Webradio
   webradio_init();
 
+  // I2S
+  i2sreceiver_init();
+
   Serial.println("Init done!");
 }
 
@@ -78,7 +82,9 @@ void loop() {
 
   webradio_handle();
 
-  if ((millis() - timer) > 1000) {
+  i2sreceiver_handle();
+
+  if ((millis() - timer) > 2000) {
     Serial.println("A");
     timer = millis();
 
