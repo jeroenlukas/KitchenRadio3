@@ -25,7 +25,23 @@ void display_draw()
       u8g2.setFont(u8g2_font_likeminecraft_te);
             
       u8g2.drawStr(10, 26, String("millis: " + String(millis()/1000) ).c_str());
-      u8g2.drawStr(10, 36, String("Radio: " + information.webRadio.title).c_str());
+      
+      switch(information.audioPlayer.soundMode)
+      {
+        case OFF:
+          u8g2.drawStr(10, 36, "-Off-");
+          break;
+        case WEBRADIO:
+          u8g2.drawStr(10, 36, String("Radio: " + information.webRadio.title).c_str());
+          break;
+        case BLUETOOTH:
+          u8g2.drawStr(10, 36, String("Bt: " + information.audioPlayer.bluetoothTitle).c_str());
+          break;
+        default:
+          break;
+
+      }
+      
       u8g2.drawStr(10, 46, String("Vol: " + String(information.audioPlayer.volume) ).c_str());
       u8g2.drawLine(0, 48, 256, 48);      
       

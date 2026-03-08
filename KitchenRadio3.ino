@@ -76,15 +76,20 @@ void setup() {
 
 int timer = 0;
 
-void loop() {
+void loop() 
+{
 
   cli_handle();
 
-  webradio_handle();
+  audioplayer_handle();
 
-  i2sreceiver_handle();
+  // Receive AT commands from Bluetooth slave
+  i2sreceiver_serial_handle();
 
-  if ((millis() - timer) > 2000) {
+
+
+  if ((millis() - timer) > 1000) 
+  {
     Serial.println("A");
     timer = millis();
 

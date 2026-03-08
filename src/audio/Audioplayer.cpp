@@ -28,6 +28,23 @@ void audioplayer_init()
     audioplayer_volume_set(40);
 }
 
+void audioplayer_handle()
+{
+    switch(information.audioPlayer.soundMode)
+    {
+        case OFF:
+            break;
+        case WEBRADIO:
+            webradio_handle();
+            break;
+        case BLUETOOTH:
+            i2sreceiver_handle();
+            break;
+        default:
+            break;
+    }
+}
+
 // Set volume (0..100)
 void audioplayer_volume_set(int volume)
 {
@@ -54,14 +71,20 @@ void audioplayer_mode_set( soundMode_t mode)
         i2sreceiver_stop();
     }
 
+    // Reset the VS1053
+    vs1053.end();
+    delay(100);
+    vs1053.begin();
+    audioplayer_volume_set(information.audioPlayer.volume);
+
     // Begin the new sound mode
     switch(mode)
     {
         case WEBRADIO:
-            webradio_connect(0);
+            if(webradio_connect(0))
+                information.audioPlayer.soundMode = WEBRADIO;  
             break;
-        case BLUETOOTH:
-        
+        case BLUETOOTH:        
             information.audioPlayer.soundMode = BLUETOOTH;
             i2sreceiver_start();
             break;

@@ -8,6 +8,8 @@
 
 extern void audioplayer_init();
 
+extern void audioplayer_handle();
+
 extern void audioplayer_volume_set(int volume);
 
 extern void audioplayer_mode_set( soundMode_t mode);

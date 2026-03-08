@@ -52,17 +52,19 @@ void webradio_handle()
     }
 }
 
-void webradio_connect(int station_idx)
+bool webradio_connect(int station_idx)
 {
     Serial.println("CONNECT");
     
     if(streamUrl.begin(gUrl.c_str(),"audio/mp3"))
     {
         Serial.println("OK");        
-        information.audioPlayer.soundMode = WEBRADIO;  
-        return;      
+        
+        return true;      
     }
+
     Serial.println("FAIL");
+    return false;
 }
 
 void webradio_disconnect()

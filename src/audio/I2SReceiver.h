@@ -6,7 +6,8 @@ extern void i2sreceiver_handle();
 
 extern void i2sreceiver_start();
 extern void i2sreceiver_stop();
-
+extern void i2sreceiver_serial_handle();
 extern void i2sreceiver_send(String str);
+
 
 #endif

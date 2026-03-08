@@ -3,7 +3,8 @@
 
 #include <Arduino.h>
 
-enum soundMode_t { OFF, WEBRADIO, BLUETOOTH};
+enum soundMode_t { OFF, WEBRADIO, BLUETOOTH };
+enum bluetoothMode_t { PLAYING, PAUSED, STOPPED };
 
 class Information {
     public:
