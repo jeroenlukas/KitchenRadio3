@@ -16,8 +16,9 @@
 
 // https://github.com/andyvans/ultimate-radio/blob/main/src/AudioOut.cpp
 //https://github.com/clogboy/EspWebradioPlayer/blob/main/AudioModule.cpp
+//https://github.com/PeterDHabermehl/ESP32_bt_mono_speaker/blob/main/AudioTools_MonoSpeaker_rev2_fork.ino
 
-ICYStreamBuffered streamUrl(1024*512);  
+ICYStreamBuffered streamUrl(1024*64);  //(1024*512);  
 StreamCopy copier(vs1053, streamUrl, 1024); // copy url to decoder
 
 String gUrl;

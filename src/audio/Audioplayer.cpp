@@ -14,6 +14,7 @@ void audioplayer_volume_set(int volume);
 
 void audioplayer_init()
 {
+    Serial.println("Audioplayer init!");
     // Setup VS1053    
     auto cfg = vs1053.defaultConfig();
     cfg.is_encoded_data = true; // vs1053 is accepting encoded data
@@ -21,8 +22,9 @@ void audioplayer_init()
     cfg.cs_pin = CONFIG_PIN_VS1053_CS; 
     cfg.dcs_pin = CONFIG_PIN_VS1053_DCS;
     cfg.dreq_pin = CONFIG_PIN_VS1053_DREQ;
-    //cfg.reset_pin = VS1053_RESET;
+    cfg.reset_pin = -1;
     vs1053.begin(cfg);
+    Serial.println("Audioplayer begun!");
 
     // Set volume
     audioplayer_volume_set(40);
@@ -70,11 +72,13 @@ void audioplayer_mode_set( soundMode_t mode)
     {
         i2sreceiver_stop();
     }
-
+    Serial.println("end vs");
     // Reset the VS1053
     vs1053.end();
-    delay(100);
+    delay(10);
+    Serial.println("begin vs");
     vs1053.begin();
+    Serial.println("vs has begin");
     audioplayer_volume_set(information.audioPlayer.volume);
 
     // Begin the new sound mode

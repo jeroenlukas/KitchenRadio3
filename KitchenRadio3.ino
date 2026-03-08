@@ -4,21 +4,38 @@
 #include <WiFi.h>
 
 #include <AudioLogger.h>
+#include <AudioTools/Concurrency/RTOS.h>
+
 
 #include "src/configuration/Config.h"
 #include "src/settings/Settings.h"
 #include "src/information/Information.h"
+#include "src/events/Flags.h"
+#include "src/events/Events.h"
 #include "version.h"
 
 #include "src/hmi/Cli.h"
 #include "src/hmi/Display.h"
+#include "src/hmi/Frontpanel.h"
 #include "src/webserver/Webserver.h"
 
 #include "src/audio/Webradio.h"
 #include "src/audio/Audioplayer.h"
 #include "src/audio/I2SReceiver.h"
 
-void setup() {
+TaskHandle_t taskFrontpanel = NULL;
+
+void taskFrontpanel_loop(void* parameter)
+{
+  for (;;)
+  {
+    frontpanel_handle();
+    vTaskDelay(pdMS_TO_TICKS(5));
+  }
+}
+
+void setup() 
+{
   Serial.begin(115200);
   AudioToolsLogger.begin(Serial, AudioToolsLogLevel::Warning);
 
@@ -42,6 +59,9 @@ void setup() {
 
   // CLI
   cli_begin();
+
+  // Frontpanel
+  frontpanel_begin();
 
   // WiFi
   Serial.println("Connect to WiFi");
@@ -72,16 +92,39 @@ void setup() {
   i2sreceiver_init();
 
   Serial.println("Init done!");
+
+  // Start task for front panel
+  xTaskCreatePinnedToCore(
+      taskFrontpanel_loop,
+      "Frontpanel",
+      4096, // Stack size
+      NULL,
+      1,
+      &taskFrontpanel,
+      0); // Run on Core 0 (shared with WiFi & system tasks)  
 }
 
+
 int timer = 0;
+
+// Note:
+// Time-sensitive tasks should be run in RTOS tasks since the audio copy functions take quite some time.
+// All others are run in the main loop.
 
 void loop() 
 {
 
+  // Receive command line commands
   cli_handle();
 
+  // Handle events
+  events_handle();
+
+  // Handle audio stuff
   audioplayer_handle();
+
+  // Handle buttons etc
+  // frontpanel_handle();
 
   // Receive AT commands from Bluetooth slave
   i2sreceiver_serial_handle();
@@ -95,4 +138,6 @@ void loop()
 
     display_draw();
   }
+
+  
 }

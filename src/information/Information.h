@@ -6,9 +6,9 @@
 enum soundMode_t { OFF, WEBRADIO, BLUETOOTH };
 enum bluetoothMode_t { PLAYING, PAUSED, STOPPED };
 
-class Information {
+class Information_t {
     public:
-        Information()
+        Information_t()
         {
             Serial.println("Information constructor!");
             system.deviceName = "constructorTime!";
@@ -106,7 +106,7 @@ class Information {
 
 };
 
-extern Information information;
+extern Information_t information;
 
 
 #endif

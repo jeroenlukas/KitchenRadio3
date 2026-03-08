@@ -2,4 +2,4 @@
 
 #include "Information.h"
 
-Information information;
+Information_t information;
