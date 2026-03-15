@@ -5,6 +5,7 @@
 #include "ConfigSecrets.h"
 
 // Misc configuration
-#define DEFAULT_BUFFER_SIZE 4096//(1024*100)
+#define DEFAULT_BUFFER_SIZE 10*4096//(1024*100)
+#define VS1053_EXT 0
 
 #endif

@@ -32,6 +32,12 @@ void audioplayer_init()
 
 void audioplayer_handle()
 {
+    if(information.audioPlayer.changing)
+    {
+        //Serial.println("chaning");
+        return;
+    }
+
     switch(information.audioPlayer.soundMode)
     {
         case OFF:
@@ -63,6 +69,8 @@ void audioplayer_mode_set( soundMode_t mode)
 {
     Serial.println("Set mode to " + String(mode));
 
+    information.audioPlayer.changing = true;
+
     // Stop the current sound mode
     if(information.audioPlayer.soundMode == WEBRADIO)
     {
@@ -72,12 +80,19 @@ void audioplayer_mode_set( soundMode_t mode)
     {
         i2sreceiver_stop();
     }
+
     Serial.println("end vs");
     // Reset the VS1053
-    vs1053.end();
-    delay(10);
+    /*vs1053.end();
+    delay(1);
     Serial.println("begin vs");
-    vs1053.begin();
+    vs1053.begin();*/
+
+    vs1053.softReset();
+
+    
+    
+
     Serial.println("vs has begin");
     audioplayer_volume_set(information.audioPlayer.volume);
 
@@ -100,5 +115,6 @@ void audioplayer_mode_set( soundMode_t mode)
 
     }
 
+     information.audioPlayer.changing = false;
 
 }

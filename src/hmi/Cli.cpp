@@ -11,7 +11,7 @@
 //#include "configuration/constants.h"
 #include "../audio/Audioplayer.h"
 #include "../audio/I2SReceiver.h"
-//#include "information/krWeather.h"
+#include "../information/Weather.h"
 //#include "information/krTime.h"
 //#include "logger.h"
 //#include "hmi/krLamp.h"
@@ -40,7 +40,7 @@ Command cmd_fake;
 Command cmd_oled;
 Command cmd_buzzer;
 Command cmd_bt;
-
+Command cmd_weather;
 
 
 void cli_begin();
@@ -275,6 +275,11 @@ void cb_log(cmd* c)
     log_debug(line);
 }
 */
+void cb_weather(cmd* c)
+{
+    weather_retrieve();
+}
+
 void cb_help(cmd* c)
 {
     Serial.println("--- Commands ---");
@@ -354,6 +359,10 @@ void cli_begin(void)
     cmd_soundmode.addFlagArgument("r/adio");
     cmd_soundmode.addFlagArgument("b/luetooth");    
     cmd_soundmode.setDescription("- Set the soundmode");
+
+    // > weather
+    cmd_weather = kr_cli.addCommand("weather", cb_weather);
+
 
 /*
     // > bootlog

@@ -30,7 +30,8 @@ void taskFrontpanel_loop(void* parameter)
   for (;;)
   {
     frontpanel_handle();
-    vTaskDelay(pdMS_TO_TICKS(5));
+    //audioplayer_handle();
+    vTaskDelay(pdMS_TO_TICKS(3));
   }
 }
 
@@ -97,11 +98,11 @@ void setup()
   xTaskCreatePinnedToCore(
       taskFrontpanel_loop,
       "Frontpanel",
-      4096, // Stack size
+      10000, //4096, // Stack size
       NULL,
       1,
       &taskFrontpanel,
-      0); // Run on Core 0 (shared with WiFi & system tasks)  
+      1); // core0 = wifi/system, core1 = arduino //  Run on Core 0 (shared with WiFi & system tasks)  
 }
 
 
@@ -124,12 +125,10 @@ void loop()
   audioplayer_handle();
 
   // Handle buttons etc
-  // frontpanel_handle();
+  //frontpanel_handle();
 
   // Receive AT commands from Bluetooth slave
   i2sreceiver_serial_handle();
-
-
 
   if ((millis() - timer) > 1000) 
   {
@@ -137,6 +136,7 @@ void loop()
     timer = millis();
 
     display_draw();
+
   }
 
   

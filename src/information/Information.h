@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-enum soundMode_t { OFF, WEBRADIO, BLUETOOTH };
+enum soundMode_t { OFF, WEBRADIO, BLUETOOTH, CHANGING };
 enum bluetoothMode_t { PLAYING, PAUSED, STOPPED };
 
 class Information_t {
@@ -38,6 +38,7 @@ class Information_t {
         struct AudioPlayer
         {
             enum soundMode_t soundMode;
+            bool changing = false;
 
             int channels;
             int bitRate;
@@ -73,6 +74,7 @@ class Information_t {
             String station_name;
             uint8_t station_count;
             uint8_t buffer_pct;
+            uint32_t bytesAvailable;
 
             String title;
         };
