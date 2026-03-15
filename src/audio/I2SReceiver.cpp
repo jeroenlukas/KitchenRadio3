@@ -112,17 +112,17 @@ void i2sreceiver_command_parse(String command)
   if(command == "AT+AUDIOSTATE=PLAYING")
   {
     Serial.println("Playing");
-    information.audioPlayer.bluetoothMode = PLAYING;
+    information.audioPlayer.bluetoothMode = BT_PLAYING;
   }
   else if(command == "AT+AUDIOSTATE=PAUSED")
   {
     Serial.println("Paused");
-    information.audioPlayer.bluetoothMode = PAUSED;
+    information.audioPlayer.bluetoothMode = BT_PAUSED;
   }
   else if(command == "AT+AUDIOSTATE=STOPPED")
   {
     Serial.println("Stopped");
-    information.audioPlayer.bluetoothMode = STOPPED;
+    information.audioPlayer.bluetoothMode = BT_STOPPED;
   }
   else if(command.startsWith("AT+TITLE"))
   {

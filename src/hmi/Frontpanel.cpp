@@ -10,20 +10,183 @@
 RotaryEncoder encoder1(CONFIG_PIN_ROTARY1_A, CONFIG_PIN_ROTARY1_B, RotaryEncoder::LatchMode::FOUR3);
 RotaryEncoder encoder2(CONFIG_PIN_ROTARY2_A, CONFIG_PIN_ROTARY2_B, RotaryEncoder::LatchMode::FOUR3);
 
+Adafruit_MCP23X17 mcp;
+
 void frontpanel_encoders_read();
+void front_buttons_read();
+void front_i2c_ping();
 
 // -----------------------------------------------------------------------
 
 void frontpanel_begin()
 {
+    // LDR
+    pinMode(CONFIG_PIN_LDR, INPUT);
 
+    // MCP interrupts
+    pinMode(CONFIG_PIN_MCP_INTA, INPUT);
+    pinMode(CONFIG_PIN_MCP_INTB, INPUT);
+
+    Wire.setPins(CONFIG_PIN_SDA, CONFIG_PIN_SCL);
+    Wire.begin();
+
+    #ifdef MCP_PING
+    delay(1000);
+    front_i2c_ping();
+    #endif
+    
+    mcp.begin_I2C();    
+
+    // Buttons
+    mcp.pinMode(CONFIG_PIN_MCP_BTN_OFF, INPUT_PULLUP);
+    mcp.pinMode(CONFIG_PIN_MCP_BTN_WEBRADIO, INPUT_PULLUP);
+    mcp.pinMode(CONFIG_PIN_MCP_BTN_BLUETOOTH, INPUT_PULLUP);
+    mcp.pinMode(CONFIG_PIN_MCP_BTN_SYSTEM, INPUT_PULLUP);
+    mcp.pinMode(CONFIG_PIN_MCP_BTN_ALARM, INPUT_PULLUP);
+    mcp.pinMode(CONFIG_PIN_MCP_BTN_LAMP, INPUT_PULLUP);
+    mcp.pinMode(CONFIG_PIN_MCP_BTN_ENC1, INPUT_PULLUP);
+    mcp.pinMode(CONFIG_PIN_MCP_BTN_ENC2, INPUT_PULLUP);
+
+    // Interrupts are disabled by default
+    mcp.setupInterruptPin(CONFIG_PIN_MCP_BTN_OFF, CHANGE);
+    mcp.setupInterruptPin(CONFIG_PIN_MCP_BTN_WEBRADIO, CHANGE);
+    mcp.setupInterruptPin(CONFIG_PIN_MCP_BTN_BLUETOOTH, CHANGE);
+    mcp.setupInterruptPin(CONFIG_PIN_MCP_BTN_SYSTEM, CHANGE);
+    mcp.setupInterruptPin(CONFIG_PIN_MCP_BTN_ALARM, CHANGE);
+    mcp.setupInterruptPin(CONFIG_PIN_MCP_BTN_LAMP, CHANGE);
+    mcp.setupInterruptPin(CONFIG_PIN_MCP_BTN_ENC1, CHANGE);
+    mcp.setupInterruptPin(CONFIG_PIN_MCP_BTN_ENC2, CHANGE);
+    mcp.clearInterrupts();
+
+    // LEDs
+    mcp.pinMode(CONFIG_PIN_MCP_LED_WEBRADIO, OUTPUT);
+    mcp.pinMode(CONFIG_PIN_MCP_LED_BLUETOOTH, OUTPUT);    
+    mcp.pinMode(CONFIG_PIN_MCP_LED_ALARM, OUTPUT);
+    mcp.pinMode(CONFIG_PIN_MCP_LED_LAMP, OUTPUT);
+    mcp.digitalWrite(CONFIG_PIN_MCP_LED_WEBRADIO, HIGH);    
+    mcp.digitalWrite(CONFIG_PIN_MCP_LED_BLUETOOTH, HIGH);
+    
 }
 
 void frontpanel_handle()
 {
-  frontpanel_encoders_read();
+  frontpanel_encoders_read();  
 }
 
+// Read buttons. Should be read every 100ms
+void frontpanel_buttons_read()
+{
+    static uint8_t lastbutton = 0xFF;
+    static uint32_t lastpressdown = 0;
+
+
+    int mcp_inta = !digitalRead(CONFIG_PIN_MCP_INTA); // Interrupt for encoder switches
+    int mcp_intb = !digitalRead(CONFIG_PIN_MCP_INTB); // Interrupt
+    
+    // Handle long press stuff
+    if((lastpressdown > 0) && (lastbutton != 0xFF))
+    {
+        if((millis() - lastpressdown) > 1000)
+        {
+            //Serial.println("LONG press " + String(lastbutton));
+            lastpressdown = 0;
+
+            switch(lastbutton)
+                {
+                    case CONFIG_PIN_MCP_BTN_OFF:
+                        flags.frontPanel.buttonOffLongPressed = true;
+                        break;
+                    case CONFIG_PIN_MCP_BTN_WEBRADIO:
+                        flags.frontPanel.buttonRadioLongPressed = true;
+                        break;
+                    case CONFIG_PIN_MCP_BTN_BLUETOOTH:
+                        flags.frontPanel.buttonBluetoothLongPressed = true;
+                        break;
+                    case CONFIG_PIN_MCP_BTN_SYSTEM:
+                        flags.frontPanel.buttonSystemLongPressed = true;
+                        break;
+                    case CONFIG_PIN_MCP_BTN_ALARM:
+                        flags.frontPanel.buttonAlarmLongPressed = true;
+                        break;
+                    case CONFIG_PIN_MCP_BTN_LAMP:
+                        flags.frontPanel.buttonLampLongPressed = true;
+                        break;    
+                    case CONFIG_PIN_MCP_BTN_ENC1:
+                        //flags.frontPanel.encoder1ButtonLongPressed = true;
+                        break;
+                    case CONFIG_PIN_MCP_BTN_ENC2:
+                        //flags.frontPanel.encoder2ButtonLongPressed = true;
+                        break;                
+                    default:
+                        break;
+
+                }
+
+             lastbutton = 0xff;
+        }
+    }
+
+    if(mcp_inta || mcp_intb) // Button was pushed or released
+    {        
+        uint8_t button = mcp.getLastInterruptPin();
+        uint16_t value = !((mcp.getCapturedInterrupt() >> button) & 1);
+
+        
+        
+        
+        if(value) // Button was pushed
+        {
+            lastbutton = button;
+            lastpressdown = millis(); // button is pushed
+            Serial.println("PUSH" );
+        }
+        else  // Button was released
+        {
+            Serial.println("RELEASE" );
+            if(button == lastbutton) 
+            {
+                Serial.println("Short press " + String(button));
+                lastpressdown = 0; // 'reset' 
+
+                switch(button)
+                {
+                    case CONFIG_PIN_MCP_BTN_OFF:
+                        Serial.println("Off!!!");
+                        flags.frontPanel.buttonOffPressed = true;
+                        break;
+                    case CONFIG_PIN_MCP_BTN_WEBRADIO:
+                        flags.frontPanel.buttonRadioPressed = true;
+                        break;
+                    case CONFIG_PIN_MCP_BTN_BLUETOOTH:
+                        flags.frontPanel.buttonBluetoothPressed = true;
+                        break;
+                    case CONFIG_PIN_MCP_BTN_SYSTEM:
+                        flags.frontPanel.buttonSystemPressed = true;
+                        break;
+                    case CONFIG_PIN_MCP_BTN_ALARM:
+                        flags.frontPanel.buttonAlarmPressed = true;
+                        break;
+                    case CONFIG_PIN_MCP_BTN_LAMP:
+                        flags.frontPanel.buttonLampPressed = true;
+                        break;    
+                    case CONFIG_PIN_MCP_BTN_ENC1:
+                        flags.frontPanel.encoder1ButtonPressed = true;
+                        break;
+                    case CONFIG_PIN_MCP_BTN_ENC2:
+                        flags.frontPanel.encoder2ButtonPressed = true;
+                        break;                
+                    default:
+                        break;
+
+                }
+            }
+        }
+                
+        mcp.clearInterrupts(); 
+
+        flags.frontPanel.buttonAnyPressed = true;
+    }
+}
 
 void frontpanel_encoders_read()
 {
@@ -65,5 +228,42 @@ void frontpanel_encoders_read()
         }
         flags.frontPanel.buttonAnyPressed = true;
         pos2 = newPos2;
+    }
+}
+
+void frontpanel_i2c_ping()
+{
+    Serial.println("Wire ping");
+    delay(100);
+
+    byte error, address;
+    int nDevices;
+    Serial.println("Scanning...");
+    nDevices = 0;
+    for(address = 1; address < 127; address++ ) 
+    {
+        Wire.beginTransmission(address);
+        error = Wire.endTransmission();
+        if (error == 0) {
+        Serial.print("I2C device found at address 0x");
+        if (address<16) {
+            Serial.print("0");
+        }
+        Serial.println(address,HEX);
+        nDevices++;
+        }
+        else if (error==4) {
+        Serial.print("Unknow error at address 0x");
+        if (address<16) {
+            Serial.print("0");
+        }
+        Serial.println(address,HEX);
+        }    
+    }
+    if (nDevices == 0) {
+        Serial.println("No I2C devices found\n");
+    }
+    else {
+        Serial.println("done\n");
     }
 }

@@ -57,14 +57,14 @@ void webradio_handle()
 
     if(streamUrl.available() > (DEFAULT_BUFFER_SIZE * 0.8))
     {
-        Serial.println("Started = true!");
+        //Serial.println("Started = true!");
         started = true;
     }
-    else Serial.println("available < default buffer size/2!");
+    //else Serial.println("available < default buffer size/2!");
 
     if(streamUrl.available() < 100 )
     {
-        Serial.println("Started = false!");
+        //Serial.println("Started = false!");
         started = false;
     }
 

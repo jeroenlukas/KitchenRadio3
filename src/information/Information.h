@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 enum soundMode_t { OFF, WEBRADIO, BLUETOOTH, CHANGING };
-enum bluetoothMode_t { PLAYING, PAUSED, STOPPED };
+enum bluetoothMode_t { BT_PLAYING, BT_PAUSED, BT_STOPPED };
 
 class Information_t {
     public:

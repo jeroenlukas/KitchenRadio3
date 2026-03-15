@@ -16,6 +16,7 @@
 //#include "logger.h"
 //#include "hmi/krLamp.h"
 #include "../hmi/Display.h"
+#include "Frontpanel.h"
 //#include "hmi/krBuzzer.h"
 //#include "audioplayer/krI2S.h"
 
@@ -41,6 +42,7 @@ Command cmd_oled;
 Command cmd_buzzer;
 Command cmd_bt;
 Command cmd_weather;
+Command cmd_i2cping;
 
 
 void cli_begin();
@@ -74,6 +76,11 @@ void cb_radio(cmd* c)
         webradio_url_set(cmd.getArg("url").getValue());
 
 
+}
+
+void cb_i2cping(cmd* c)
+{
+    frontpanel_i2c_ping();
 }
 
 
@@ -363,6 +370,8 @@ void cli_begin(void)
     // > weather
     cmd_weather = kr_cli.addCommand("weather", cb_weather);
 
+    // > i2cping
+    cmd_i2cping = kr_cli.addCommand("i2cping", cb_i2cping);
 
 /*
     // > bootlog

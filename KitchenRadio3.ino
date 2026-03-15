@@ -5,6 +5,7 @@
 
 #include <AudioLogger.h>
 #include <AudioTools/Concurrency/RTOS.h>
+#include <TickTwo.h>
 
 
 #include "src/configuration/Config.h"
@@ -25,12 +26,22 @@
 
 TaskHandle_t taskFrontpanel = NULL;
 
+void ticker_100ms();
+
+TickTwo ticker_100ms_ref(ticker_100ms, 100);
+
+void ticker_100ms()
+{
+  frontpanel_buttons_read();
+}
+
 void taskFrontpanel_loop(void* parameter)
 {
   for (;;)
   {
     frontpanel_handle();
     //audioplayer_handle();
+    ticker_100ms_ref.update();
     vTaskDelay(pdMS_TO_TICKS(3));
   }
 }
@@ -103,6 +114,9 @@ void setup()
       1,
       &taskFrontpanel,
       1); // core0 = wifi/system, core1 = arduino //  Run on Core 0 (shared with WiFi & system tasks)  
+
+  // Tickers
+  ticker_100ms_ref.start();
 }
 
 
@@ -130,8 +144,9 @@ void loop()
   // Receive AT commands from Bluetooth slave
   i2sreceiver_serial_handle();
 
-  if ((millis() - timer) > 1000) 
+  if (((millis() - timer) > 1000) || flags.frontPanel.buttonAnyPressed)
   {
+    flags.frontPanel.buttonAnyPressed = false;
     Serial.println("A");
     timer = millis();
 
