@@ -5,6 +5,7 @@
 #include <AudioTools/AudioLibs/VS1053Stream.h>
 #include <AudioTools/Communication/AudioHttp.h>
 
+#include "cbuf_ps.h"
 #include "Audioplayer.h"
 
 #include "../information/Information.h"
@@ -19,13 +20,19 @@
 //https://github.com/clogboy/EspWebradioPlayer/blob/main/AudioModule.cpp
 //https://github.com/PeterDHabermehl/ESP32_bt_mono_speaker/blob/main/AudioTools_MonoSpeaker_rev2_fork.ino
 
-ICYStreamBuffered streamUrl(1024 * 10);  //(1024*512);  
-StreamCopy copier(vs1053, streamUrl, 1024); // copy url to decoder
+ICYStream streamUrl(DEFAULT_BUFFER_SIZE); 
+//StreamCopy copier(vs1053, streamUrl, 1024); // copy url to decoder
+
+// Circular buffer for the radio stream. Will be resized later!
+cbuf_ps circBuffer(1024); 
 
 String gUrl;
 
+bool docopy = false;
+
 void webradio_metadata_cb(MetaDataType type, const char* str, int len);
 void webradio_handle();
+bool webradio_connect(int station_idx);
 
 void webradio_url_set(String urlNew)
 {
@@ -35,7 +42,8 @@ void webradio_url_set(String urlNew)
 
 void webradio_init()
 {
-    
+    // Resize circular buffer
+    circBuffer.resize(CONF_WEBRADIO_BUFFERSIZE);
 
     gUrl = "http://samcloud.spacial.com/api/listen?sid=93462&m=sc&rid=168006";
 
@@ -43,45 +51,61 @@ void webradio_init()
     streamUrl.setMetadataCallback(webradio_metadata_cb);
     
     // Request metadata
-    streamUrl.httpRequest().header().put("Icy-MetaData","1");    
+    //streamUrl.httpRequest().header().put("Icy-MetaData","1");    
 }
 
 void webradio_handle()
 {
-    static bool started = false;
+    if(information.audioPlayer.soundMode != WEBRADIO)
+        return;
+    
+    // We implement our own copying function to have more control over the buffering
+    uint8_t buffin[CONF_WEBRADIO_BYTESTOGET];
+    uint8_t buffout[1024];
+    size_t read = 0;    
 
-    if((information.audioPlayer.soundMode == WEBRADIO) && started)
+    if(circBuffer.room() > CONF_WEBRADIO_BYTESTOGET)
     {
-        copier.copy();              
+      read = streamUrl.readBytes(buffin, min(CONF_WEBRADIO_BYTESTOGET, streamUrl.available()));
+      if(read > 0)
+      {
+        circBuffer.write(buffin, read);
+
+        if((circBuffer.available() > CONF_WEBRADIO_MIN_BYTES) && !docopy)
+        {
+          Serial.println("Buffer pre-fill complete");
+          docopy = true;
+        }
+      }
+    }   
+    else Serial.println("No more room in buffer: " + String(circBuffer.available()));
+
+    // Copy from circular buffer to output, when the buffer is full enough
+    if(docopy)
+    {        
+        size_t readout = circBuffer.read(buffout, 100);
+        vs1053.write(buffout, readout);
     }
 
-    if(streamUrl.available() > (DEFAULT_BUFFER_SIZE * 0.8))
+    // If buffer runs empty, disable docopy temporarily to refill the circ buffer
+    if(docopy && circBuffer.available() < CONF_WEBRADIO_MIN_BYTES_HALT)
     {
-        //Serial.println("Started = true!");
-        started = true;
-    }
-    //else Serial.println("available < default buffer size/2!");
-
-    if(streamUrl.available() < 100 )
-    {
-        //Serial.println("Started = false!");
-        started = false;
+      Serial.println("Buffer underrun!");
+      
+      information.webRadio.cntUnderruns++;
+      docopy = false;
+     // webradio_connect(0);
     }
 
-    information.webRadio.bytesAvailable = streamUrl.available();
+    information.webRadio.bytesAvailable = circBuffer.available();
 }
 
-void webradio_buffer_size_set(uint32_t size)
-{
-    Serial.println("Setting urlStream buffer size to " + String(size));
-    streamUrl.setBufferSize(size,8);
-}
-
+// Connect to a radio stream
 bool webradio_connect(int station_idx)
 {
     Serial.println("CONNECT");
 
-    streamUrl.httpRequest().header().put("Icy-MetaData","1");    
+    circBuffer.flush();
     
     if(streamUrl.begin(gUrl.c_str(),"audio/mp3"))
     {
@@ -94,23 +118,24 @@ bool webradio_connect(int station_idx)
     return false;
 }
 
+// Stop the current radio stream
 void webradio_disconnect()
 {
     Serial.println("DISCONNECT");
     if(information.audioPlayer.soundMode == WEBRADIO)
     {
         Serial.println("Flushing buffers");
-        streamUrl.end();       
-        streamUrl.flush();
+            
+        docopy = false;  
+        streamUrl.end();  
+        circBuffer.flush();
         vs1053.flush();
-        
-        //copier.
-        
-        
-        information.audioPlayer.soundMode = OFF;
+
+        Serial.println("flushed");        
     }
 }
 
+// Callback for Icecast metadata
 void webradio_metadata_cb(MetaDataType type, const char* str, int len)
 {
   Serial.print("==> ");

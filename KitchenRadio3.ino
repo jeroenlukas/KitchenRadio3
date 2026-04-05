@@ -147,7 +147,7 @@ void loop()
   if (((millis() - timer) > 1000) || flags.frontPanel.buttonAnyPressed)
   {
     flags.frontPanel.buttonAnyPressed = false;
-    Serial.println("A");
+    //Serial.println("A");
     timer = millis();
 
     display_draw();

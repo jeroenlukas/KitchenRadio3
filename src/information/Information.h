@@ -75,6 +75,7 @@ class Information_t {
             uint8_t station_count;
             uint8_t buffer_pct;
             uint32_t bytesAvailable;
+            uint32_t cntUnderruns;
 
             String title;
         };

@@ -88,7 +88,7 @@ void frontpanel_buttons_read()
     {
         if((millis() - lastpressdown) > 1000)
         {
-            //Serial.println("LONG press " + String(lastbutton));
+            Serial.println("LONG press " + String(lastbutton));
             lastpressdown = 0;
 
             switch(lastbutton)

@@ -351,9 +351,11 @@ void cli_begin(void)
     cmd_radio.addFlagArg("start");
     cmd_radio.addFlagArg("stop");
     cmd_radio.addArgument("url", "");
+    cmd_log.setDescription("- Control the web radio");
 
     // > volume
     cmd_volume = kr_cli.addSingleArgCmd("volume", cb_volume);
+    cmd_volume.setDescription("- Set the volume (0..100)");
 
     // > cat
     cmd_cat = kr_cli.addSingleArgumentCommand("cat", cb_cat);
@@ -369,9 +371,15 @@ void cli_begin(void)
 
     // > weather
     cmd_weather = kr_cli.addCommand("weather", cb_weather);
+    cmd_weather.setDescription("- Update weather info");
 
     // > i2cping
     cmd_i2cping = kr_cli.addCommand("i2cping", cb_i2cping);
+    cmd_i2cping.setDescription("- Scan the I2C bus for devices");
+
+
+    
+    
 
 /*
     // > bootlog

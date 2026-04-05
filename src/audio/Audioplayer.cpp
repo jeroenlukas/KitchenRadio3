@@ -75,6 +75,7 @@ void audioplayer_mode_set( soundMode_t mode)
     if(information.audioPlayer.soundMode == WEBRADIO)
     {
         webradio_disconnect();
+        
     }
     else if(information.audioPlayer.soundMode == BLUETOOTH)
     {

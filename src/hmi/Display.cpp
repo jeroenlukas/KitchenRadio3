@@ -24,7 +24,7 @@ void display_draw()
     {      
       u8g2.setFont(u8g2_font_likeminecraft_te);
             
-      u8g2.drawStr(10, 26, String("millis: " + String(millis()/1000) + " bytes: " + String(information.webRadio.bytesAvailable)).c_str());
+      u8g2.drawStr(10, 26, String("millis: " + String(millis()/1000) + " bytes: " + String(information.webRadio.bytesAvailable) + " underrun: " + String(information.webRadio.cntUnderruns)   ).c_str());
       
       switch(information.audioPlayer.soundMode)
       {
