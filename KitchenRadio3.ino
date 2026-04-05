@@ -10,6 +10,7 @@
 
 #include "src/configuration/Config.h"
 #include "src/settings/Settings.h"
+#include "src/settings/Stations.h"
 #include "src/information/Information.h"
 #include "src/events/Flags.h"
 #include "src/events/Events.h"
@@ -63,6 +64,7 @@ void setup()
 
   // Settings
   settings_load();
+  stations_load();
 
   // Display
   Serial.println("Init display");

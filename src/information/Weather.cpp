@@ -12,7 +12,6 @@ int weather_windkmh_to_beaufort(double wind_kmh);
 
 HTTPClient http;
 
-const String endpoint = "http://api.openweathermap.org/data/2.5/weather?q=Ouwerkerk,nl&units=metric&lang=nl&APPID=";
 const String key = CONFIG_SECRETS_OPENWEATHER_KEY;
 
 float weather_temperature = 0.0;
@@ -24,6 +23,7 @@ int weather_temperature_int = 0;
 
 bool weather_retrieve()
 {
+    String endpoint = "http://api.openweathermap.org/data/2.5/weather?q=Ouwerkerk,nl&units=metric&lang=nl&APPID=";
     bool ret = false;
     http.begin(endpoint + key);
 
@@ -32,7 +32,7 @@ bool weather_retrieve()
     if (httpCode > 0)
     {
         String payload = http.getString();
-        DynamicJsonDocument doc(1024);
+        JsonDocument doc;
 
         deserializeJson(doc, payload);
         Serial.print(payload);
@@ -57,7 +57,7 @@ bool weather_retrieve()
         information.weather.icon = weather_icon;
         
 
-        Serial.println("\nWeather icon:" + information.weather.icon);
+        Serial.println("Weather icon:" + information.weather.icon);
         
         
         ret = true;

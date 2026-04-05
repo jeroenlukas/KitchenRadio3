@@ -12,5 +12,6 @@
 #define CONF_WEBRADIO_MIN_BYTES_HALT  (10*1024)   // Low treshold, at this point we stop playing (and reconnect?)
 #define CONF_WEBRADIO_BYTESTOGET (512)            // How much bytes do we copy from the stream each time. Keeping this value low seems to increase reliability?
 #define CONF_WEBRADIO_BUFFERSIZE (2*1024 * 1024)  // Size of the circular buffer for radio streams
+#define CONF_WEBRADIO_STATIONS_MAX  50
 
 #endif

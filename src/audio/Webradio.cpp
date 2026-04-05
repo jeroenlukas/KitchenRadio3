@@ -1,4 +1,5 @@
 #include "../configuration/Config.h"
+#include "../information/Information.h"
 
 #include <Arduino.h>
 #include <AudioTools.h>
@@ -8,7 +9,8 @@
 #include "cbuf_ps.h"
 #include "Audioplayer.h"
 
-#include "../information/Information.h"
+
+#include "../settings/Stations.h"
 
 // NOTE: do not use https urls! This will cause problems when reconnecting.
 // Examples:
@@ -103,11 +105,11 @@ void webradio_handle()
 // Connect to a radio stream
 bool webradio_connect(int station_idx)
 {
-    Serial.println("CONNECT");
+    Serial.println("CONNECT:" + stations[station_idx].name);
 
     circBuffer.flush();
-    
-    if(streamUrl.begin(gUrl.c_str(),"audio/mp3"))
+   
+    if(streamUrl.begin(stations[station_idx].url.c_str(),"audio/mp3"))
     {
         Serial.println("OK");        
         

@@ -6,10 +6,16 @@
 #include <LittleFS.h>
 #include <YAMLDuino.h>
 
-DynamicJsonDocument settings(2048);
+#include "Settings.h"
+
+Settings_t settings;
+
+bool settings_load();
 
 bool settings_load()
 {
+    JsonDocument docSettings;
+
     Serial.println("Loading YAML config");
 
     File file_config = LittleFS.open("/settings/config.yaml", "r");
@@ -39,18 +45,31 @@ bool settings_load()
 
     serializeYml(yaml_config.getDocument(), json_config, OUTPUT_JSON_PRETTY);
 
-    auto error = deserializeJson(settings, json_config);
+    auto error = deserializeJson(docSettings, json_config);
 
     if(error) {
-        Serial.printf("Unable to deserialize demo YAML to JsonObject: %s", error.c_str() );
+        Serial.printf("Unable to deserialize YAML to JsonObject: %s", error.c_str() );
         return false;
     }
 
-    if(deserializeJson(settings, json_config) != DeserializationError::Ok)
+    if(deserializeJson(docSettings, json_config) != DeserializationError::Ok)
     {
         Serial.println("Error: deser error!");
         return false;
     }
     Serial.println("Deserialization ok");
+
+    // Copy settings values to settings object
+    settings.deviceName = String(docSettings["devicename"]);
+    settings.location = String(docSettings["location"]);
+    settings.clock.timezone = String(docSettings["clock"]["timezone"]);
+    settings.audio.tonecontrol.treble = docSettings["audio"]["tonecontrol"]["treble"];
+
+    Serial.println("Devicename: " + settings.deviceName);
+    Serial.println("Timezone: " + settings.clock.timezone);
+    Serial.println("Location:" + settings.location);
+    Serial.println("Treble: " + String(settings.audio.tonecontrol.treble) );
+
+
     return true;
 }

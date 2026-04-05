@@ -10,8 +10,7 @@ class Information_t {
     public:
         Information_t()
         {
-            Serial.println("Information constructor!");
-            system.deviceName = "constructorTime!";
+            Serial.println("Information constructor!");            
             webRadio.title = "";
             audioPlayer.soundMode = OFF;
         }
@@ -25,7 +24,7 @@ class Information_t {
 
         struct System
         {
-            String deviceName;
+            //String deviceName;
 
             uint32_t uptimeSeconds;
             int8_t wifiRSSI;

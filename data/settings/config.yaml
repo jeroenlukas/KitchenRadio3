@@ -1,5 +1,5 @@
-devicename: "KitchenRadio-keuken"
-location: "Keuken"
+devicename: "KitchenRadio-slaapkamer"
+location: "Ouwerkerk,nl"
 clock:
   timezone: "Europe/Amsterdam"
 audio:
