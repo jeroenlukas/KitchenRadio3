@@ -1,9 +1,14 @@
+
 #include "../configuration/Config.h"
 #include "../information/Information.h"
 
 #include <Arduino.h>
+#include <AudioLogger.h>
 #include <AudioTools.h>
+#include <AudioToolsConfig.h>
 #include <AudioTools/AudioLibs/VS1053Stream.h>
+#include <AdvancedLogger.h>
+
 
 #include "Webradio.h"
 #include "I2SReceiver.h"
@@ -14,7 +19,7 @@ void audioplayer_volume_set(int volume);
 
 void audioplayer_init()
 {
-    Serial.println("Audioplayer init!");
+    LOG_INFO("Audioplayer init");
     // Setup VS1053    
     auto cfg = vs1053.defaultConfig();
     cfg.is_encoded_data = true; // vs1053 is accepting encoded data
@@ -24,7 +29,7 @@ void audioplayer_init()
     cfg.dreq_pin = CONFIG_PIN_VS1053_DREQ;
     cfg.reset_pin = -1;
     vs1053.begin(cfg);
-    Serial.println("Audioplayer begun!");
+    LOG_INFO("Audioplayer started");
 
     // Set volume
     audioplayer_volume_set(40);
@@ -34,7 +39,6 @@ void audioplayer_handle()
 {
     if(information.audioPlayer.changing)
     {
-        //Serial.println("chaning");
         return;
     }
 
@@ -67,7 +71,7 @@ void audioplayer_volume_set(int volume)
 
 void audioplayer_mode_set( soundMode_t mode)
 {
-    Serial.println("Set mode to " + String(mode));
+    LOG_INFO("Set mode to %d", mode);
 
     information.audioPlayer.changing = true;
 
@@ -82,19 +86,10 @@ void audioplayer_mode_set( soundMode_t mode)
         i2sreceiver_stop();
     }
 
-    Serial.println("end vs");
-    // Reset the VS1053
-    /*vs1053.end();
-    delay(1);
-    Serial.println("begin vs");
-    vs1053.begin();*/
+    LOG_INFO("Soft reset VS1053");
 
     vs1053.softReset();
 
-    
-    
-
-    Serial.println("vs has begin");
     audioplayer_volume_set(information.audioPlayer.volume);
 
     // Begin the new sound mode

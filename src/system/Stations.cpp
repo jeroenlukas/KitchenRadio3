@@ -5,8 +5,11 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 #include <YAMLDuino.h>
+#include <AdvancedLogger.h>
 
 #include "Stations.h"
+
+#include "Filemanager.h"
 
 Station_t stations[CONF_WEBRADIO_STATIONS_MAX];
 
@@ -16,9 +19,9 @@ bool stations_load()
 {
     JsonDocument docStations;
 
-    Serial.println("Loading YAML stations");
+    LOG_INFO("Loading YAML stations");
 
-    File file_stations = LittleFS.open("/settings/stations.yaml", "r");
+    /*File file_stations = LittleFS.open("/settings/stations.yaml", "r");
 
     if(!file_stations)
     {
@@ -36,7 +39,9 @@ bool stations_load()
     }
     Serial.print("\n(end)\n");
 
-    file_stations.close();
+    file_stations.close();*/
+    
+    String file_content = filemgr_readfile("/settings/stations.yaml");
 
     // Convert yaml to json
     YAMLNode yaml_config = YAMLNode::loadString(file_content.c_str());
@@ -47,27 +52,28 @@ bool stations_load()
 
     auto error = deserializeJson(docStations, json_config);
 
-    if(error) {
-        Serial.printf("Unable to deserialize YAML to JsonObject: %s", error.c_str() );
+    if(error) 
+    {
+        LOG_ERROR("Unable to deserialize YAML to JsonObject: %s", error.c_str() );
         return false;
     }
 
     if(deserializeJson(docStations, json_config) != DeserializationError::Ok)
     {
-        Serial.println("Error: deser error!");
+        LOG_ERROR("Error: deser error!");
         return false;
     }
-    Serial.println("Deserialization ok");
+    LOG_INFO("Deserialization ok");
 
     information.webRadio.station_count = docStations.size();
-    Serial.println("Loaed " + String(information.webRadio.station_count) + " stations:");
+    LOG_INFO("Load %d stations:", information.webRadio.station_count);
 
     // Copy stations data to stations struct
     for(int i = 0; i < docStations.size(); i++)
     {
       stations[i].name = String(docStations[i]["name"]);
       stations[i].url = String(docStations[i]["url"]);
-      Serial.println(" - "  + stations[i].name);
+      LOG_INFO(" - %02d: %s", i, stations[i].name);
     }
 
 

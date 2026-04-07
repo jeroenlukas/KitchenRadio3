@@ -1,12 +1,12 @@
 #include "../configuration/Config.h"
+#include "../information/Information.h"
 
 #include <Arduino.h>
 #include <AudioTools.h>
-//#include <driver/i2s.h>
+#include <AdvancedLogger.h>
 
 #include "Audioplayer.h"
 
-#include "../information/Information.h"
 
 HardwareSerial serial_bt(2);
 
@@ -35,7 +35,7 @@ void i2sreceiver_send(String str);
 
 void i2sreceiver_init()
 {
-    Serial.println("I2SReceiver init");
+    LOG_INFO("I2SReceiver init");
 
     auto config = i2sStream.defaultConfig(RX_MODE);
     config.i2s_format = I2S_STD_FORMAT;//I2S_STD_FORMAT; // if quality is bad change to I2S_LSB_FORMAT https://github.com/pschatzmann/arduino-audio-tools/issues/23
@@ -50,7 +50,7 @@ void i2sreceiver_init()
     config.buffer_size = 512;
     config.use_apll = false;
     i2sStream.begin(config);
-    Serial.println("I2S started");
+    LOG_INFO("I2S started");
 
     // Init UART
     serial_bt.begin(115200, SERIAL_8N1, CONFIG_PIN_UART_BT_RX, CONFIG_PIN_UART_BT_TX);
@@ -67,23 +67,19 @@ void i2sreceiver_handle()
 
 void i2sreceiver_start()
 {
-    //copier.begin();
-    Serial.println("i2sreceiver_start!");
+    LOG_DEBUG("i2sreceiver_start!");
     i2sreceiver_send("AT+START");
 
     i2sStream.begin();
     i2scopier.begin();
     
-    vs1053.write(bt_wav_header, 44);
-    
+    vs1053.write(bt_wav_header, 44); 
     
 }
 
 void i2sreceiver_stop()
 {
-    Serial.println("i2sreceiver_stop!");
-    //i2sStream.end();
-    //i2scopier.end();
+    LOG_DEBUG("i2sreceiver_stop!");
     
     i2sreceiver_send("AT+END");
 }
@@ -96,14 +92,14 @@ void i2sreceiver_serial_handle()
     {
         String str = serial_bt.readStringUntil('\n');      
     
-        Serial.println("Recv: "  + str);
+        LOG_DEBUG("Recv: %s", str);
         i2sreceiver_command_parse(str);
     }
 }
 
 void i2sreceiver_send(String str)
 {
-    Serial.println("Sending: " + str);
+    LOG_DEBUG("Sending: %s", str);
     serial_bt.print(str + '\n');
 }
 
@@ -111,17 +107,17 @@ void i2sreceiver_command_parse(String command)
 {
   if(command == "AT+AUDIOSTATE=PLAYING")
   {
-    Serial.println("Playing");
+    LOG_INFO("Playing");
     information.audioPlayer.bluetoothMode = BT_PLAYING;
   }
   else if(command == "AT+AUDIOSTATE=PAUSED")
   {
-    Serial.println("Paused");
+    LOG_INFO("Paused");
     information.audioPlayer.bluetoothMode = BT_PAUSED;
   }
   else if(command == "AT+AUDIOSTATE=STOPPED")
   {
-    Serial.println("Stopped");
+    LOG_INFO("Stopped");
     information.audioPlayer.bluetoothMode = BT_STOPPED;
   }
   else if(command.startsWith("AT+TITLE"))

@@ -5,12 +5,13 @@
 #include <AudioTools.h>
 #include <AudioTools/AudioLibs/VS1053Stream.h>
 #include <AudioTools/Communication/AudioHttp.h>
+#include <AdvancedLogger.h>
 
 #include "cbuf_ps.h"
 #include "Audioplayer.h"
 
 
-#include "../settings/Stations.h"
+#include "../system/Stations.h"
 
 // NOTE: do not use https urls! This will cause problems when reconnecting.
 // Examples:
@@ -50,10 +51,7 @@ void webradio_init()
     gUrl = "http://samcloud.spacial.com/api/listen?sid=93462&m=sc&rid=168006";
 
     // Setup callback
-    streamUrl.setMetadataCallback(webradio_metadata_cb);
-    
-    // Request metadata
-    //streamUrl.httpRequest().header().put("Icy-MetaData","1");    
+    streamUrl.setMetadataCallback(webradio_metadata_cb);    
 }
 
 void webradio_handle()
@@ -75,12 +73,12 @@ void webradio_handle()
 
         if((circBuffer.available() > CONF_WEBRADIO_MIN_BYTES) && !docopy)
         {
-          Serial.println("Buffer pre-fill complete");
+          LOG_DEBUG("Buffer pre-fill complete");
           docopy = true;
         }
       }
     }   
-    else Serial.println("No more room in buffer: " + String(circBuffer.available()));
+    else LOG_WARNING("No more room in buffer: %d",  circBuffer.available());
 
     // Copy from circular buffer to output, when the buffer is full enough
     if(docopy)
@@ -92,7 +90,7 @@ void webradio_handle()
     // If buffer runs empty, disable docopy temporarily to refill the circ buffer
     if(docopy && circBuffer.available() < CONF_WEBRADIO_MIN_BYTES_HALT)
     {
-      Serial.println("Buffer underrun!");
+      LOG_ERROR("Buffer underrun!");
       
       information.webRadio.cntUnderruns++;
       docopy = false;
@@ -105,45 +103,45 @@ void webradio_handle()
 // Connect to a radio stream
 bool webradio_connect(int station_idx)
 {
-    Serial.println("CONNECT:" + stations[station_idx].name);
+    LOG_INFO("CONNECT: %s" , stations[station_idx].name);
 
     circBuffer.flush();
    
     if(streamUrl.begin(stations[station_idx].url.c_str(),"audio/mp3"))
     {
-        Serial.println("OK");        
+        LOG_INFO("OK");        
         
         return true;      
     }
 
-    Serial.println("FAIL");
+    LOG_ERROR("FAIL");
     return false;
 }
 
 // Stop the current radio stream
 void webradio_disconnect()
 {
-    Serial.println("DISCONNECT");
+    LOG_INFO("Disconnect the stream");
     if(information.audioPlayer.soundMode == WEBRADIO)
     {
-        Serial.println("Flushing buffers");
+        LOG_DEBUG("Flushing buffers...");
             
         docopy = false;  
         streamUrl.end();  
         circBuffer.flush();
         vs1053.flush();
 
-        Serial.println("flushed");        
+        LOG_DEBUG("Done");        
     }
 }
 
 // Callback for Icecast metadata
 void webradio_metadata_cb(MetaDataType type, const char* str, int len)
 {
-  Serial.print("==> ");
-  Serial.print(toStr(type));
-  Serial.print(": ");
-  Serial.println(str);
+  LOG_INFO("Metadata received: %s: %s", toStr(type), str);
+  //Serial.print(toStr(type));
+  //Serial.print(": ");
+  //Serial.println(str);
 
   information.webRadio.title = String(str);
 }

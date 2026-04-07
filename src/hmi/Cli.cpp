@@ -1,11 +1,11 @@
+#include "../configuration/Config.h"
+#include "../information/Information.h"
+
 #include <Arduino.h>
 #include <LittleFS.h>
 #include <SimpleCLI.h>
+#include <AdvancedLogger.h>
 
-//#include "rCLI.h"
-
-#include "../configuration/Config.h"
-#include "../information/Information.h"
 #include "../audio/Webradio.h"
 
 //#include "configuration/constants.h"
@@ -53,7 +53,7 @@ void cb_reset(cmd* c)
 {
     Command cmd(c);
 
-    Serial.println("I will be resetting!");
+    LOG_INFO("I will be resetting!");
 
     delay(1000);
 
@@ -65,12 +65,10 @@ void cb_radio(cmd* c)
     Command cmd(c);
     
     if(cmd.getArg("start").isSet())
-        ///audioplayer_start();
         webradio_connect(0);
 
     else if(cmd.getArg("stop").isSet())
         webradio_disconnect();
-        //audioplayer_stop();
 
     else if(cmd.getArg("url").isSet())
         webradio_url_set(cmd.getArg("url").getValue());
@@ -92,7 +90,7 @@ void cb_soundmode(cmd* c)
     else if(cmd.getArg("o").isSet()) audioplayer_mode_set(OFF);
     else if(cmd.getArg("b").isSet()) audioplayer_mode_set(BLUETOOTH);
     
-    else Serial.println("Error: invalid soundmode");   
+    else LOG_ERROR("Error: invalid soundmode");   
 }
 
 void cb_volume(cmd* c)
@@ -289,8 +287,9 @@ void cb_weather(cmd* c)
 
 void cb_help(cmd* c)
 {
-    Serial.println("--- Commands ---");
-    Serial.println(kr_cli.toString());
+    LOG_INFO("--- Commands ---");
+    LOG_INFO("%s", kr_cli.toString());
+    LOG_INFO("--- (end) ---");
 }
 
 void cb_cat(cmd* c)
@@ -301,20 +300,20 @@ void cb_cat(cmd* c)
 
     if(!file_cat)
     {
-        Serial.print("Error: could not open file " + filename);
+        LOG_ERROR("Could not open file %s", filename);
         return;
     }
 
     String file_content;
-    Serial.println("\n--- " + filename + " ---\n");
+    LOG_INFO("--- %s ---", filename);
 
     while(file_cat.available())
     {
         String data = file_cat.readString();
         //file_content += data;
-        Serial.print(data);
+        LOG_INFO("%s", data);
     }
-    Serial.print("\n--- end ---\n");
+    LOG_INFO("--- (end) ---");
 
     file_cat.close();
 }
@@ -324,13 +323,11 @@ void cb_cat(cmd* c)
 void cb_error(cmd_error* e) {
     CommandError cmdError(e); // Create wrapper object
 
-    Serial.print("ERROR: ");
-    Serial.println(cmdError.toString());
+    LOG_ERROR("CLI: %s", cmdError.toString());
 
     if (cmdError.hasCommand()) {
         Serial.print("Did you mean \"");
-        Serial.print(cmdError.getCommand().toString());
-        Serial.println("\"?");
+        LOG_INFO("Did you mean: %s ?", cmdError.getCommand().toString());
     }
 }
 
@@ -444,7 +441,7 @@ void cli_begin(void)
 
 void cli_parse(String input)
 {
-    Serial.println("Parse: " + input);
+    LOG_DEBUG("Parse: [%s]", input);
     kr_cli.parse(input);
 }
 

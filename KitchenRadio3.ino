@@ -2,15 +2,16 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
+#include <AdvancedLogger.h>
 
-#include <AudioLogger.h>
-#include <AudioTools/Concurrency/RTOS.h>
 #include <TickTwo.h>
 
 
 #include "src/configuration/Config.h"
-#include "src/settings/Settings.h"
-#include "src/settings/Stations.h"
+#include "src/system/Settings.h"
+#include "src/system/Stations.h"
+#include "src/system/Logger.h"
+#include "src/system/Filemanager.h"
 #include "src/information/Information.h"
 #include "src/events/Flags.h"
 #include "src/events/Events.h"
@@ -41,7 +42,6 @@ void taskFrontpanel_loop(void* parameter)
   for (;;)
   {
     frontpanel_handle();
-    //audioplayer_handle();
     ticker_100ms_ref.update();
     vTaskDelay(pdMS_TO_TICKS(3));
   }
@@ -50,24 +50,24 @@ void taskFrontpanel_loop(void* parameter)
 void setup() 
 {
   Serial.begin(115200);
-  AudioToolsLogger.begin(Serial, AudioToolsLogLevel::Warning);
+
+  // Logger
+  logger_begin();
 
   delay(100);
 
-  Serial.println("=== KitchenRadio 3! ===");
-  Serial.println("Version: " + String(KR_VERSION));
+  LOG_INFO("=== KitchenRadio 3! ===");
+  LOG_INFO("Version: %s", KR_VERSION);
   delay(100);
 
-  // Filesystem
-  Serial.println("Start littlefs");
-  Serial.println(LittleFS.begin());
+  // File manager
+  filemgr_begin();
 
   // Settings
   settings_load();
   stations_load();
 
   // Display
-  Serial.println("Init display");
   display_begin();
   display_draw_startup();
 
@@ -78,7 +78,7 @@ void setup()
   frontpanel_begin();
 
   // WiFi
-  Serial.println("Connect to WiFi");
+  LOG_INFO("Connect to WiFi");
   WiFi.mode(WIFI_STA);
   WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
   WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
@@ -87,11 +87,12 @@ void setup()
   WiFi.disconnect();
   WiFi.begin(CONFIG_SECRETS_WIFI_SSID, CONFIG_SECRETS_WIFI_PASSWORD);
 
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED) 
+  {
     Serial.print('.');
     delay(500);
   }
-  Serial.println("Connected");
+  LOG_INFO("Connected");
 
   // Webserver
   webserver_begin();
@@ -105,8 +106,6 @@ void setup()
   // I2S
   i2sreceiver_init();
 
-  Serial.println("Init done!");
-
   // Start task for front panel
   xTaskCreatePinnedToCore(
       taskFrontpanel_loop,
@@ -119,6 +118,8 @@ void setup()
 
   // Tickers
   ticker_100ms_ref.start();
+
+  LOG_INFO("Init done!");
 }
 
 

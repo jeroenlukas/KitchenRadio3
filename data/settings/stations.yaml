@@ -1,3 +1,4 @@
+# Note: use http, not https!
 - name: "NPO Radio 1"
   url: "http://icecast.omroep.nl/radio1-bb-mp3"
 - name: "NPO Radio 2"

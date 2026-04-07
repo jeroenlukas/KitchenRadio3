@@ -1,9 +1,10 @@
 #include <Arduino.h>
-#include <RotaryEncoder.h>
-#include <Adafruit_MCP23X17.h>
-
 #include "../configuration/Config.h"
 #include "../information/Information.h"
+
+#include <RotaryEncoder.h>
+#include <Adafruit_MCP23X17.h>
+#include <AdvancedLogger.h>
 
 #include "../events/Flags.h"
 
@@ -29,11 +30,6 @@ void frontpanel_begin()
 
     Wire.setPins(CONFIG_PIN_SDA, CONFIG_PIN_SCL);
     Wire.begin();
-
-    #ifdef MCP_PING
-    delay(1000);
-    front_i2c_ping();
-    #endif
     
     mcp.begin_I2C();    
 
@@ -88,7 +84,7 @@ void frontpanel_buttons_read()
     {
         if((millis() - lastpressdown) > 1000)
         {
-            Serial.println("LONG press " + String(lastbutton));
+            LOG_DEBUG("LONG press %d", lastbutton);
             lastpressdown = 0;
 
             switch(lastbutton)
@@ -130,28 +126,26 @@ void frontpanel_buttons_read()
     {        
         uint8_t button = mcp.getLastInterruptPin();
         uint16_t value = !((mcp.getCapturedInterrupt() >> button) & 1);
-
-        
-        
+   
         
         if(value) // Button was pushed
         {
             lastbutton = button;
             lastpressdown = millis(); // button is pushed
-            Serial.println("PUSH" );
+            LOG_DEBUG("PUSH" );
         }
         else  // Button was released
         {
-            Serial.println("RELEASE" );
+            LOG_DEBUG("RELEASE" );
             if(button == lastbutton) 
             {
-                Serial.println("Short press " + String(button));
+                LOG_DEBUG("Short press %d", button);
                 lastpressdown = 0; // 'reset' 
 
                 switch(button)
                 {
                     case CONFIG_PIN_MCP_BTN_OFF:
-                        Serial.println("Off!!!");
+                        LOG_INFO("Off!!!");
                         flags.frontPanel.buttonOffPressed = true;
                         break;
                     case CONFIG_PIN_MCP_BTN_WEBRADIO:
@@ -199,12 +193,12 @@ void frontpanel_encoders_read()
         if ((int)(encoder1.getDirection()) == -1)
         {
             flags.frontPanel.encoder1TurnRight = true;
-            Serial.println("1 right");
+           LOG_DEBUG("1 right");
         }
         else
         {
             flags.frontPanel.encoder1TurnLeft = true;            
-            Serial.println("1 left");
+            LOG_DEBUG("1 left");
         }
         pos1 = newPos1;
         flags.frontPanel.buttonAnyPressed = true;
@@ -219,12 +213,12 @@ void frontpanel_encoders_read()
         if ((int)(encoder2.getDirection()) == 1)
         {
             flags.frontPanel.encoder2TurnRight = true;
-            Serial.println("2 right");
+            LOG_DEBUG("2 right");
         }
         else
         {
             flags.frontPanel.encoder2TurnLeft = true;           
-            Serial.println("2 left");
+            LOG_DEBUG("2 left");
         }
         flags.frontPanel.buttonAnyPressed = true;
         pos2 = newPos2;
@@ -233,37 +227,36 @@ void frontpanel_encoders_read()
 
 void frontpanel_i2c_ping()
 {
-    Serial.println("Wire ping");
+    LOG_INFO("Wire ping");
     delay(100);
 
     byte error, address;
     int nDevices;
-    Serial.println("Scanning...");
+    LOG_INFO("Scanning...");
     nDevices = 0;
     for(address = 1; address < 127; address++ ) 
     {
         Wire.beginTransmission(address);
         error = Wire.endTransmission();
         if (error == 0) {
-        Serial.print("I2C device found at address 0x");
-        if (address<16) {
-            Serial.print("0");
+            LOG_INFO("I2C device found at address 0x%02x", address);
+            //if (address<16) {
+            //  LOG_INFO("0");
+            //}
+            //Serial.println(address,HEX);
+            nDevices++;
         }
-        Serial.println(address,HEX);
-        nDevices++;
-        }
-        else if (error==4) {
-        Serial.print("Unknow error at address 0x");
-        if (address<16) {
-            Serial.print("0");
-        }
-        Serial.println(address,HEX);
+        else if (error==4) 
+        {
+            LOG_INFO("Unknown error at address 0x%02x", address);
         }    
     }
-    if (nDevices == 0) {
-        Serial.println("No I2C devices found\n");
+    if (nDevices == 0) 
+    {
+        LOG_INFO("No I2C devices found");
     }
-    else {
-        Serial.println("done\n");
+    else 
+    {
+        LOG_INFO("Done");
     }
 }

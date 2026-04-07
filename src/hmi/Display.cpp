@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <SPI.h>
-
+#include <AdvancedLogger.h>
 #include <U8g2lib.h>
 
 #include "../configuration/Config.h"
@@ -12,9 +12,10 @@ SPIClass *hspi = NULL;
 
 void display_begin()
 {
-    hspi = new SPIClass(HSPI);
-    hspi->begin(CONFIG_PIN_HSPI_SCK, CONFIG_PIN_HSPI_MISO, CONFIG_PIN_HSPI_MOSI, CONFIG_PIN_HSPI_CS);  
-    u8g2.begin();
+  LOG_INFO("Display init");
+  hspi = new SPIClass(HSPI);
+  hspi->begin(CONFIG_PIN_HSPI_SCK, CONFIG_PIN_HSPI_MISO, CONFIG_PIN_HSPI_MOSI, CONFIG_PIN_HSPI_CS);  
+  u8g2.begin();
 }
 
 void display_draw()

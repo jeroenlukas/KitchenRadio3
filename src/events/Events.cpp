@@ -1,7 +1,8 @@
-#include <Arduino.h>
-
 #include "../configuration/Config.h"
 #include "../information/Information.h"
+
+#include <Arduino.h>
+#include <AdvancedLogger.h>
 
 #include "Flags.h"
 #include "Events.h"

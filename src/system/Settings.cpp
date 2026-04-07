@@ -5,7 +5,9 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 #include <YAMLDuino.h>
+#include <AdvancedLogger.h>
 
+#include "Filemanager.h"
 #include "Settings.h"
 
 Settings_t settings;
@@ -16,9 +18,9 @@ bool settings_load()
 {
     JsonDocument docSettings;
 
-    Serial.println("Loading YAML config");
+    LOG_INFO("Loading YAML config");
 
-    File file_config = LittleFS.open("/settings/config.yaml", "r");
+    /*File file_config = LittleFS.open("/settings/config.yaml", "r");
 
     if(!file_config)
     {
@@ -36,7 +38,9 @@ bool settings_load()
     }
     Serial.print("\n(end)\n");
 
-    file_config.close();
+    file_config.close();-*/
+
+    String file_content = filemgr_readfile("/settings/config.yaml");
 
     // Convert yaml to json
     YAMLNode yaml_config = YAMLNode::loadString(file_content.c_str());
@@ -48,16 +52,16 @@ bool settings_load()
     auto error = deserializeJson(docSettings, json_config);
 
     if(error) {
-        Serial.printf("Unable to deserialize YAML to JsonObject: %s", error.c_str() );
+        LOG_ERROR("Unable to deserialize YAML to JsonObject: %s", error.c_str() );
         return false;
     }
 
     if(deserializeJson(docSettings, json_config) != DeserializationError::Ok)
     {
-        Serial.println("Error: deser error!");
+        LOG_ERROR("Error: deser error!");
         return false;
     }
-    Serial.println("Deserialization ok");
+    LOG_INFO("Deserialization ok");
 
     // Copy settings values to settings object
     settings.deviceName = String(docSettings["devicename"]);
@@ -65,11 +69,10 @@ bool settings_load()
     settings.clock.timezone = String(docSettings["clock"]["timezone"]);
     settings.audio.tonecontrol.treble = docSettings["audio"]["tonecontrol"]["treble"];
 
-    Serial.println("Devicename: " + settings.deviceName);
-    Serial.println("Timezone: " + settings.clock.timezone);
-    Serial.println("Location:" + settings.location);
-    Serial.println("Treble: " + String(settings.audio.tonecontrol.treble) );
-
+    LOG_INFO("Devicename: %s", settings.deviceName);
+    LOG_INFO("Timezone: %s", settings.clock.timezone);
+    LOG_INFO("Location: %s", settings.location);
+    LOG_INFO("Treble: %d", settings.audio.tonecontrol.treble);
 
     return true;
 }
