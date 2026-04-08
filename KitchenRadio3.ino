@@ -13,6 +13,7 @@
 #include "src/system/Logger.h"
 #include "src/system/Filemanager.h"
 #include "src/information/Information.h"
+#include "src/information/Time.h"
 #include "src/events/Flags.h"
 #include "src/events/Events.h"
 #include "version.h"
@@ -58,6 +59,7 @@ void setup()
 
   LOG_INFO("=== KitchenRadio 3! ===");
   LOG_INFO("Version: %s", KR_VERSION);
+  LOG_INFO("Compilation: %s", information.system.compilationDateTime);
   delay(100);
 
   // File manager
@@ -73,6 +75,9 @@ void setup()
 
   // CLI
   cli_begin();
+
+  // Time
+  time_begin();
 
   // Frontpanel
   frontpanel_begin();

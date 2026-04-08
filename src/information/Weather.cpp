@@ -3,7 +3,6 @@
 #include <ezTime.h>
 #include <ArduinoJson.h>
 #include "Information.h"
-//#include "information/krTime.h"
 #include "../configuration/Config.h"
 
 int weather_statecode_to_glyph(int statecode);

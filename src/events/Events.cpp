@@ -2,13 +2,14 @@
 #include "../information/Information.h"
 
 #include <Arduino.h>
-#include <AdvancedLogger.h>
 
 #include "Flags.h"
 #include "Events.h"
 
 #include "../audio/Audioplayer.h"
 #include "../audio/Webradio.h"
+
+#include "../system/Logger.h"
 
 void events_encoders();
 void events_buttons();

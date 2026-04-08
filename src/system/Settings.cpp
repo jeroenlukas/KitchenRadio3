@@ -5,7 +5,8 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 #include <YAMLDuino.h>
-#include <AdvancedLogger.h>
+
+#include "Logger.h"
 
 #include "Filemanager.h"
 #include "Settings.h"
@@ -18,27 +19,7 @@ bool settings_load()
 {
     JsonDocument docSettings;
 
-    LOG_INFO("Loading YAML config");
-
-    /*File file_config = LittleFS.open("/settings/config.yaml", "r");
-
-    if(!file_config)
-    {
-        Serial.print("Error: could not open config.yaml");
-        return false;
-    }
-
-    String file_content;
-
-    while(file_config.available())
-    {
-        String data = file_config.readString();
-        file_content += data;
-        Serial.print(data);
-    }
-    Serial.print("\n(end)\n");
-
-    file_config.close();-*/
+    LOGG_INFO("Loading YAML config");
 
     String file_content = filemgr_readfile("/settings/config.yaml");
 
@@ -49,30 +30,37 @@ bool settings_load()
 
     serializeYml(yaml_config.getDocument(), json_config, OUTPUT_JSON_PRETTY);
 
+    Serial.println("json_config= " + json_config);
+
     auto error = deserializeJson(docSettings, json_config);
 
     if(error) {
-        LOG_ERROR("Unable to deserialize YAML to JsonObject: %s", error.c_str() );
+        LOGG_ERROR("Unable to deserialize YAML to JsonObject: " + String(error.c_str()) );
         return false;
     }
 
     if(deserializeJson(docSettings, json_config) != DeserializationError::Ok)
     {
-        LOG_ERROR("Error: deser error!");
+        LOGG_ERROR("Error: deser error!");
         return false;
     }
-    LOG_INFO("Deserialization ok");
+    LOGG_INFO("Deserialization ok");
+
+    Serial.println("json deviceName="  + String(docSettings["devicename"]));
 
     // Copy settings values to settings object
     settings.deviceName = String(docSettings["devicename"]);
+    Serial.println("settigs.deviceName="  + settings.deviceName);
     settings.location = String(docSettings["location"]);
     settings.clock.timezone = String(docSettings["clock"]["timezone"]);
     settings.audio.tonecontrol.treble = docSettings["audio"]["tonecontrol"]["treble"];
 
-    LOG_INFO("Devicename: %s", settings.deviceName);
-    LOG_INFO("Timezone: %s", settings.clock.timezone);
-    LOG_INFO("Location: %s", settings.location);
-    LOG_INFO("Treble: %d", settings.audio.tonecontrol.treble);
+    Serial.println("settigs.deviceName2="  + settings.deviceName);
+
+    LOGG_INFO("Devicename: " + settings.deviceName);
+    LOGG_INFO("Timezone: " + settings.clock.timezone);
+    LOGG_INFO("Location: " + settings.location);
+    LOGG_INFO("Treble: " + String(settings.audio.tonecontrol.treble));
 
     return true;
 }

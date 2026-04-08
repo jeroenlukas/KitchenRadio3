@@ -7,7 +7,8 @@
 #include <AudioTools.h>
 #include <AudioToolsConfig.h>
 #include <AudioTools/AudioLibs/VS1053Stream.h>
-#include <AdvancedLogger.h>
+
+#include "../system/Logger.h"
 
 
 #include "Webradio.h"
@@ -19,7 +20,7 @@ void audioplayer_volume_set(int volume);
 
 void audioplayer_init()
 {
-    LOG_INFO("Audioplayer init");
+    LOGG_INFO("Audioplayer init");
     // Setup VS1053    
     auto cfg = vs1053.defaultConfig();
     cfg.is_encoded_data = true; // vs1053 is accepting encoded data
@@ -29,7 +30,7 @@ void audioplayer_init()
     cfg.dreq_pin = CONFIG_PIN_VS1053_DREQ;
     cfg.reset_pin = -1;
     vs1053.begin(cfg);
-    LOG_INFO("Audioplayer started");
+    LOGG_INFO("Audioplayer started");
 
     // Set volume
     audioplayer_volume_set(40);
@@ -71,7 +72,7 @@ void audioplayer_volume_set(int volume)
 
 void audioplayer_mode_set( soundMode_t mode)
 {
-    LOG_INFO("Set mode to %d", mode);
+    //LOGG_INFO("Set mode to " + String(mode));
 
     information.audioPlayer.changing = true;
 
@@ -86,7 +87,7 @@ void audioplayer_mode_set( soundMode_t mode)
         i2sreceiver_stop();
     }
 
-    LOG_INFO("Soft reset VS1053");
+    LOGG_INFO("Soft reset VS1053");
 
     vs1053.softReset();
 

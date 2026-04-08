@@ -13,6 +13,7 @@ class Information_t {
             Serial.println("Information constructor!");            
             webRadio.title = "";
             audioPlayer.soundMode = OFF;
+            system.compilationDateTime = __DATE__ ;
         }
 
         int hour;
@@ -33,6 +34,8 @@ class Information_t {
             uint8_t ldr;
 
             int lastResetReason;
+
+            String compilationDateTime;
         };
         struct AudioPlayer
         {

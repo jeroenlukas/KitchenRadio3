@@ -5,8 +5,8 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 #include <YAMLDuino.h>
-#include <AdvancedLogger.h>
 
+#include "Logger.h"
 #include "Stations.h"
 
 #include "Filemanager.h"
@@ -19,27 +19,7 @@ bool stations_load()
 {
     JsonDocument docStations;
 
-    LOG_INFO("Loading YAML stations");
-
-    /*File file_stations = LittleFS.open("/settings/stations.yaml", "r");
-
-    if(!file_stations)
-    {
-        Serial.print("Error: could not open config.yaml");
-        return false;
-    }
-
-    String file_content;
-
-    while(file_stations.available())
-    {
-        String data = file_stations.readString();
-        file_content += data;
-        Serial.print(data);
-    }
-    Serial.print("\n(end)\n");
-
-    file_stations.close();*/
+    LOGG_INFO("Loading YAML stations");
     
     String file_content = filemgr_readfile("/settings/stations.yaml");
 
@@ -54,26 +34,26 @@ bool stations_load()
 
     if(error) 
     {
-        LOG_ERROR("Unable to deserialize YAML to JsonObject: %s", error.c_str() );
+        LOGG_ERROR("Unable to deserialize YAML to JsonObject: " + String(error.c_str()) );
         return false;
     }
 
     if(deserializeJson(docStations, json_config) != DeserializationError::Ok)
     {
-        LOG_ERROR("Error: deser error!");
+        LOGG_ERROR("Error: deser error!");
         return false;
     }
-    LOG_INFO("Deserialization ok");
+    LOGG_INFO("Deserialization ok");
 
     information.webRadio.station_count = docStations.size();
-    LOG_INFO("Load %d stations:", information.webRadio.station_count);
+    LOGG_INFO("Load " + String(information.webRadio.station_count) + " stations:");
 
     // Copy stations data to stations struct
     for(int i = 0; i < docStations.size(); i++)
     {
       stations[i].name = String(docStations[i]["name"]);
       stations[i].url = String(docStations[i]["url"]);
-      LOG_INFO(" - %02d: %s", i, stations[i].name);
+      LOGG_INFO(" - " + String(i) + ": " + stations[i].name);
     }
 
 

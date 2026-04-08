@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <AudioTools.h>
-#include <AdvancedLogger.h>
+#include "../system/Logger.h"
 
 #include "Audioplayer.h"
 
@@ -35,7 +35,7 @@ void i2sreceiver_send(String str);
 
 void i2sreceiver_init()
 {
-    LOG_INFO("I2SReceiver init");
+    LOGG_INFO("I2SReceiver init");
 
     auto config = i2sStream.defaultConfig(RX_MODE);
     config.i2s_format = I2S_STD_FORMAT;//I2S_STD_FORMAT; // if quality is bad change to I2S_LSB_FORMAT https://github.com/pschatzmann/arduino-audio-tools/issues/23
@@ -50,7 +50,7 @@ void i2sreceiver_init()
     config.buffer_size = 512;
     config.use_apll = false;
     i2sStream.begin(config);
-    LOG_INFO("I2S started");
+    LOGG_INFO("I2S started");
 
     // Init UART
     serial_bt.begin(115200, SERIAL_8N1, CONFIG_PIN_UART_BT_RX, CONFIG_PIN_UART_BT_TX);
@@ -67,7 +67,7 @@ void i2sreceiver_handle()
 
 void i2sreceiver_start()
 {
-    LOG_DEBUG("i2sreceiver_start!");
+    LOGG_DEBUG("i2sreceiver_start!");
     i2sreceiver_send("AT+START");
 
     i2sStream.begin();
@@ -79,7 +79,7 @@ void i2sreceiver_start()
 
 void i2sreceiver_stop()
 {
-    LOG_DEBUG("i2sreceiver_stop!");
+    LOGG_DEBUG("i2sreceiver_stop!");
     
     i2sreceiver_send("AT+END");
 }
@@ -92,14 +92,14 @@ void i2sreceiver_serial_handle()
     {
         String str = serial_bt.readStringUntil('\n');      
     
-        LOG_DEBUG("Recv: %s", str);
+        LOGG_DEBUG("Recv: " + str);
         i2sreceiver_command_parse(str);
     }
 }
 
 void i2sreceiver_send(String str)
 {
-    LOG_DEBUG("Sending: %s", str);
+    LOGG_DEBUG("Sending: " + str);
     serial_bt.print(str + '\n');
 }
 
@@ -107,17 +107,17 @@ void i2sreceiver_command_parse(String command)
 {
   if(command == "AT+AUDIOSTATE=PLAYING")
   {
-    LOG_INFO("Playing");
+    LOGG_INFO("Playing");
     information.audioPlayer.bluetoothMode = BT_PLAYING;
   }
   else if(command == "AT+AUDIOSTATE=PAUSED")
   {
-    LOG_INFO("Paused");
+    LOGG_INFO("Paused");
     information.audioPlayer.bluetoothMode = BT_PAUSED;
   }
   else if(command == "AT+AUDIOSTATE=STOPPED")
   {
-    LOG_INFO("Stopped");
+    LOGG_INFO("Stopped");
     information.audioPlayer.bluetoothMode = BT_STOPPED;
   }
   else if(command.startsWith("AT+TITLE"))

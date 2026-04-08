@@ -1,10 +1,12 @@
-#include <Arduino.h>
-#include <SPI.h>
-#include <AdvancedLogger.h>
-#include <U8g2lib.h>
-
 #include "../configuration/Config.h"
 #include "../information/Information.h"
+
+#include <Arduino.h>
+#include <SPI.h>
+#include <U8g2lib.h>
+
+#include "../system/Logger.h"
+
 
 U8G2_SSD1322_NHD_256X64_1_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ CONFIG_PIN_HSPI_CS, /* dc=*/ CONFIG_PIN_HSPI_DC, /* reset=*/ 9);	// Enable U8G2_16BIT in u8g2.h
 
@@ -12,7 +14,7 @@ SPIClass *hspi = NULL;
 
 void display_begin()
 {
-  LOG_INFO("Display init");
+  LOGG_INFO("Display init");
   hspi = new SPIClass(HSPI);
   hspi->begin(CONFIG_PIN_HSPI_SCK, CONFIG_PIN_HSPI_MISO, CONFIG_PIN_HSPI_MOSI, CONFIG_PIN_HSPI_CS);  
   u8g2.begin();

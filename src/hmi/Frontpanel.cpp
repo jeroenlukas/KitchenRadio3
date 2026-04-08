@@ -4,8 +4,8 @@
 
 #include <RotaryEncoder.h>
 #include <Adafruit_MCP23X17.h>
-#include <AdvancedLogger.h>
 
+#include "../system/Logger.h"
 #include "../events/Flags.h"
 
 RotaryEncoder encoder1(CONFIG_PIN_ROTARY1_A, CONFIG_PIN_ROTARY1_B, RotaryEncoder::LatchMode::FOUR3);
@@ -21,6 +21,7 @@ void front_i2c_ping();
 
 void frontpanel_begin()
 {
+    //LOGG_INFO("")
     // LDR
     pinMode(CONFIG_PIN_LDR, INPUT);
 
@@ -84,7 +85,7 @@ void frontpanel_buttons_read()
     {
         if((millis() - lastpressdown) > 1000)
         {
-            LOG_DEBUG("LONG press %d", lastbutton);
+            LOGG_DEBUG("LONG press " + String(lastbutton));
             lastpressdown = 0;
 
             switch(lastbutton)
@@ -132,20 +133,20 @@ void frontpanel_buttons_read()
         {
             lastbutton = button;
             lastpressdown = millis(); // button is pushed
-            LOG_DEBUG("PUSH" );
+            LOGG_DEBUG("PUSH" );
         }
         else  // Button was released
         {
-            LOG_DEBUG("RELEASE" );
+            LOGG_DEBUG("RELEASE" );
             if(button == lastbutton) 
             {
-                LOG_DEBUG("Short press %d", button);
+                LOGG_DEBUG("Short press " + String(button));
                 lastpressdown = 0; // 'reset' 
 
                 switch(button)
                 {
                     case CONFIG_PIN_MCP_BTN_OFF:
-                        LOG_INFO("Off!!!");
+                        LOGG_INFO("Off!!!");
                         flags.frontPanel.buttonOffPressed = true;
                         break;
                     case CONFIG_PIN_MCP_BTN_WEBRADIO:
@@ -193,12 +194,12 @@ void frontpanel_encoders_read()
         if ((int)(encoder1.getDirection()) == -1)
         {
             flags.frontPanel.encoder1TurnRight = true;
-           LOG_DEBUG("1 right");
+           LOGG_DEBUG("1 right");
         }
         else
         {
             flags.frontPanel.encoder1TurnLeft = true;            
-            LOG_DEBUG("1 left");
+            LOGG_DEBUG("1 left");
         }
         pos1 = newPos1;
         flags.frontPanel.buttonAnyPressed = true;
@@ -213,12 +214,12 @@ void frontpanel_encoders_read()
         if ((int)(encoder2.getDirection()) == 1)
         {
             flags.frontPanel.encoder2TurnRight = true;
-            LOG_DEBUG("2 right");
+            LOGG_DEBUG("2 right");
         }
         else
         {
             flags.frontPanel.encoder2TurnLeft = true;           
-            LOG_DEBUG("2 left");
+            LOGG_DEBUG("2 left");
         }
         flags.frontPanel.buttonAnyPressed = true;
         pos2 = newPos2;
@@ -227,19 +228,19 @@ void frontpanel_encoders_read()
 
 void frontpanel_i2c_ping()
 {
-    LOG_INFO("Wire ping");
+    LOGG_INFO("Wire ping");
     delay(100);
 
     byte error, address;
     int nDevices;
-    LOG_INFO("Scanning...");
+    LOGG_INFO("Scanning...");
     nDevices = 0;
     for(address = 1; address < 127; address++ ) 
     {
         Wire.beginTransmission(address);
         error = Wire.endTransmission();
         if (error == 0) {
-            LOG_INFO("I2C device found at address 0x%02x", address);
+            LOGG_INFO("I2C device found at address " + address);
             //if (address<16) {
             //  LOG_INFO("0");
             //}
@@ -248,15 +249,15 @@ void frontpanel_i2c_ping()
         }
         else if (error==4) 
         {
-            LOG_INFO("Unknown error at address 0x%02x", address);
+            LOGG_INFO("Unknown error at address " + address);
         }    
     }
     if (nDevices == 0) 
     {
-        LOG_INFO("No I2C devices found");
+        LOGG_INFO("No I2C devices found");
     }
     else 
     {
-        LOG_INFO("Done");
+        LOGG_INFO("Done");
     }
 }

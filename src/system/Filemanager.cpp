@@ -3,13 +3,14 @@
 
 #include <Arduino.h>
 #include <LittleFS.h>
-#include <AdvancedLogger.h>
+
+#include "Logger.h"
 
 #include "Filemanager.h"
 
 void filemgr_begin()
 {
-  LOG_INFO("Start LittleFS: %d", LittleFS.begin());
+  LOGG_INFO("Start LittleFS: " + String(LittleFS.begin()));
 }
 
 String filemgr_readfile(String path)
@@ -18,7 +19,7 @@ String filemgr_readfile(String path)
 
   if(!file)
   {
-      LOG_ERROR("Error: could not open %s", path);
+      LOGG_ERROR("Error: could not open " + path);
       return "";
   }
 
@@ -28,9 +29,9 @@ String filemgr_readfile(String path)
   {
       String data = file.readString();
       file_content += data;
-      LOG_INFO("%s", data);
+      LOGG_INFO(data);
   }
-  LOG_INFO("--- (end) ---");
+  LOGG_INFO("--- (end) ---");
 
   file.close();
 

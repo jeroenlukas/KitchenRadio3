@@ -4,23 +4,16 @@
 #include <Arduino.h>
 #include <LittleFS.h>
 #include <SimpleCLI.h>
-#include <AdvancedLogger.h>
 
 #include "../audio/Webradio.h"
 
-//#include "configuration/constants.h"
 #include "../audio/Audioplayer.h"
 #include "../audio/I2SReceiver.h"
 #include "../information/Weather.h"
-//#include "information/krTime.h"
-//#include "logger.h"
-//#include "hmi/krLamp.h"
+
+#include "../system/Logger.h"
 #include "../hmi/Display.h"
 #include "Frontpanel.h"
-//#include "hmi/krBuzzer.h"
-//#include "audioplayer/krI2S.h"
-
-
 
 
 SimpleCLI kr_cli;
@@ -53,7 +46,7 @@ void cb_reset(cmd* c)
 {
     Command cmd(c);
 
-    LOG_INFO("I will be resetting!");
+    LOGG_INFO("I will be resetting!");
 
     delay(1000);
 
@@ -90,7 +83,7 @@ void cb_soundmode(cmd* c)
     else if(cmd.getArg("o").isSet()) audioplayer_mode_set(OFF);
     else if(cmd.getArg("b").isSet()) audioplayer_mode_set(BLUETOOTH);
     
-    else LOG_ERROR("Error: invalid soundmode");   
+    else LOGG_ERROR("Error: invalid soundmode");   
 }
 
 void cb_volume(cmd* c)
@@ -287,9 +280,9 @@ void cb_weather(cmd* c)
 
 void cb_help(cmd* c)
 {
-    LOG_INFO("--- Commands ---");
-    LOG_INFO("%s", kr_cli.toString());
-    LOG_INFO("--- (end) ---");
+    LOGG_INFO("--- Commands ---");
+    LOGG_INFO(kr_cli.toString());
+    LOGG_INFO("--- (end) ---");
 }
 
 void cb_cat(cmd* c)
@@ -300,20 +293,19 @@ void cb_cat(cmd* c)
 
     if(!file_cat)
     {
-        LOG_ERROR("Could not open file %s", filename);
+        LOGG_ERROR("Could not open file " + filename);
         return;
     }
 
     String file_content;
-    LOG_INFO("--- %s ---", filename);
+    LOGG_INFO("--- " + filename + " ---");
 
     while(file_cat.available())
     {
         String data = file_cat.readString();
-        //file_content += data;
-        LOG_INFO("%s", data);
+        LOGG_INFO(data);
     }
-    LOG_INFO("--- (end) ---");
+    LOGG_INFO("--- (end) ---");
 
     file_cat.close();
 }
@@ -323,11 +315,11 @@ void cb_cat(cmd* c)
 void cb_error(cmd_error* e) {
     CommandError cmdError(e); // Create wrapper object
 
-    LOG_ERROR("CLI: %s", cmdError.toString());
+    LOGG_ERROR("CLI: " + cmdError.toString());
 
     if (cmdError.hasCommand()) {
         Serial.print("Did you mean \"");
-        LOG_INFO("Did you mean: %s ?", cmdError.getCommand().toString());
+        LOGG_INFO("Did you mean: " + cmdError.getCommand().toString() + " ?");
     }
 }
 
@@ -441,7 +433,7 @@ void cli_begin(void)
 
 void cli_parse(String input)
 {
-    LOG_DEBUG("Parse: [%s]", input);
+    LOGG_DEBUG(" >> " + input);
     kr_cli.parse(input);
 }
 
