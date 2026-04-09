@@ -10,8 +10,11 @@
 #include "../audio/Audioplayer.h"
 #include "../audio/I2SReceiver.h"
 #include "../information/Weather.h"
+#include "../information/Time.h"
 
 #include "../system/Logger.h"
+#include "../system/Filemanager.h"
+
 #include "../hmi/Display.h"
 #include "Frontpanel.h"
 
@@ -36,6 +39,7 @@ Command cmd_buzzer;
 Command cmd_bt;
 Command cmd_weather;
 Command cmd_i2cping;
+Command cmd_time;
 
 
 void cli_begin();
@@ -216,16 +220,16 @@ void cb_oled(cmd* c)
         u8g2.sendF("ca", 0xB3, val);
     }
 
-}
+}*/
 
 void cb_buzzer(cmd* c)
 {
-    log_debug("Beep");
-    buzzer_beep(500);
+    LOGG_DEBUG("Beep");
+    //buzzer_beep(500);
     
     return;
 }
-*/
+
 void cb_bt(cmd* c)
 {
     Command cmd(c);
@@ -285,29 +289,21 @@ void cb_help(cmd* c)
     LOGG_INFO("--- (end) ---");
 }
 
+void cb_time(cmd* c)
+{
+    time_waitForSync();
+}
+
 void cb_cat(cmd* c)
 {
     Command cmd(c);
     String filename = cmd.getArgument(0).getValue();
-    File file_cat = LittleFS.open(filename, "r");
 
-    if(!file_cat)
-    {
-        LOGG_ERROR("Could not open file " + filename);
-        return;
-    }
+    String content = filemgr_readfile(filename);
 
-    String file_content;
     LOGG_INFO("--- " + filename + " ---");
-
-    while(file_cat.available())
-    {
-        String data = file_cat.readString();
-        LOGG_INFO(data);
-    }
+    LOGG_INFO("\n" + content);
     LOGG_INFO("--- (end) ---");
-
-    file_cat.close();
 }
 
 
@@ -415,18 +411,24 @@ void cli_begin(void)
     cmd_oled.addArgument("mcurr", "0");  // Master current
 
     
+*/
 
     // > buzzer
     cmd_buzzer = kr_cli.addSingleArgCmd("buzzer", cb_buzzer);
-*/
+
     // > bt
     cmd_bt = kr_cli.addCmd("bt", cb_bt);
+    cmd_bt.setDescription("- Control bluetooth module");
     cmd_bt.addFlagArgument("reset");
     cmd_bt.addFlagArgument("pause");
     cmd_bt.addFlagArgument("play");
     cmd_bt.addFlagArgument("stop");
     cmd_bt.addFlagArgument("start");
     cmd_bt.addFlagArgument("end");
+
+    // > time
+    cmd_time = kr_cli.addCmd("time", cb_time);
+    cmd_time.setDescription("- Update time from the internet");
 
 
 }

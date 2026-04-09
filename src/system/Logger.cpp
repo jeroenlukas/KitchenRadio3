@@ -10,11 +10,8 @@
 
 void logger_begin()
 {
-    AudioToolsLogger.begin(Serial, AudioToolsLogLevel::Warning);
-    AdvancedLogger::begin();
-
-    LOGG_INFO("INFO log!!!");
-    LOGG_ERROR("Error log!");
+    AudioToolsLogger.begin(Serial, AudioToolsLogLevel::Warning);   
+    
 }
 
 void log_info(String message, String func)

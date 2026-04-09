@@ -4,5 +4,7 @@
 #include <Arduino.h>
 
 extern void time_begin();
+extern void time_update();
+extern void time_waitForSync();
 
 #endif

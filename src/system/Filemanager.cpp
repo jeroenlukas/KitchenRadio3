@@ -29,9 +29,9 @@ String filemgr_readfile(String path)
   {
       String data = file.readString();
       file_content += data;
-      LOGG_INFO(data);
+      //LOGG_INFO(data);
   }
-  LOGG_INFO("--- (end) ---");
+  //LOGG_INFO("--- (end) ---");
 
   file.close();
 

@@ -4,6 +4,8 @@
 #include <ArduinoJson.h>
 #include "Information.h"
 #include "../configuration/Config.h"
+#include "../system/Settings.h"
+#include "../system/Logger.h"
 
 int weather_statecode_to_glyph(int statecode);
 int weather_icon_to_glyph(String icon);
@@ -22,7 +24,9 @@ int weather_temperature_int = 0;
 
 bool weather_retrieve()
 {
-    String endpoint = "http://api.openweathermap.org/data/2.5/weather?q=Ouwerkerk,nl&units=metric&lang=nl&APPID=";
+    LOGG_INFO("Retrieving weather info");
+    String endpoint = "http://api.openweathermap.org/data/2.5/weather?q=" + settings.location +"&units=metric&lang=nl&APPID=";
+    LOGG_DEBUG("Endpoint: " + endpoint);
     bool ret = false;
     http.begin(endpoint + key);
 

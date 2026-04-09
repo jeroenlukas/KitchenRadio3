@@ -2,7 +2,6 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
-#include <AdvancedLogger.h>
 
 #include <TickTwo.h>
 
@@ -22,6 +21,7 @@
 #include "src/hmi/Display.h"
 #include "src/hmi/Frontpanel.h"
 #include "src/webserver/Webserver.h"
+#include "src/system/Logger.h"
 
 #include "src/audio/Webradio.h"
 #include "src/audio/Audioplayer.h"
@@ -57,9 +57,9 @@ void setup()
 
   delay(100);
 
-  LOG_INFO("=== KitchenRadio 3! ===");
-  LOG_INFO("Version: %s", KR_VERSION);
-  LOG_INFO("Compilation: %s", information.system.compilationDateTime);
+  LOGG_INFO("=== KitchenRadio 3! ===");
+  LOGG_INFO("Version: " + String(KR_VERSION));
+  LOGG_INFO("Compilation: " + String(__DATE__) + " " + String(__TIME__) );
   delay(100);
 
   // File manager
@@ -76,14 +76,11 @@ void setup()
   // CLI
   cli_begin();
 
-  // Time
-  time_begin();
-
   // Frontpanel
   frontpanel_begin();
 
   // WiFi
-  LOG_INFO("Connect to WiFi");
+  LOGG_INFO("Connect to WiFi ...");
   WiFi.mode(WIFI_STA);
   WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
   WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
@@ -97,13 +94,17 @@ void setup()
     Serial.print('.');
     delay(500);
   }
-  LOG_INFO("Connected");
+  LOGG_INFO("Connected");
 
   // Webserver
   webserver_begin();
 
   // Audio
   audioplayer_init();
+
+  // Time
+  time_begin();
+  time_waitForSync();
 
   // Webradio
   webradio_init();
@@ -124,7 +125,7 @@ void setup()
   // Tickers
   ticker_100ms_ref.start();
 
-  LOG_INFO("Init done!");
+  LOGG_INFO("Init done!");
 }
 
 
@@ -159,8 +160,5 @@ void loop()
     timer = millis();
 
     display_draw();
-
-  }
-
-  
+  }  
 }
