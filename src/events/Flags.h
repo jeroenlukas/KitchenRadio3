@@ -24,6 +24,7 @@ class Flags_t
         bool passed1min;
 
         bool updateLog;
+        bool displayRedraw;
     };
 
     struct flagsFrontpanel_t

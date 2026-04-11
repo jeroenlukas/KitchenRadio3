@@ -6,6 +6,7 @@
 #include <U8g2lib.h>
 
 #include "../system/Logger.h"
+#include "Menu.h"
 
 
 U8G2_SSD1322_NHD_256X64_1_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ CONFIG_PIN_HSPI_CS, /* dc=*/ CONFIG_PIN_HSPI_DC, /* reset=*/ 9);	// Enable U8G2_16BIT in u8g2.h
@@ -20,33 +21,55 @@ void display_begin()
   u8g2.begin();
 }
 
+void display_draw_home()
+{
+  u8g2.setFont(u8g2_font_likeminecraft_te);
+            
+  u8g2.drawStr(10, 26, String("millis: " + String(millis()/1000) + " bytes: " + String(information.webRadio.bytesAvailable) + " underrun: " + String(information.webRadio.cntUnderruns)).c_str());
+  
+  switch(information.audioPlayer.soundMode)
+  {
+    case OFF:
+      u8g2.drawStr(10, 36, "-Off-");
+      break;
+    case WEBRADIO:
+      u8g2.drawStr(10, 36, String("Radio: " + information.webRadio.title).c_str());
+      break;
+    case BLUETOOTH:
+      u8g2.drawStr(10, 36, String("Bt: " + information.audioPlayer.bluetoothTitle).c_str());
+      break;
+    default:
+      break;
+
+  }
+  
+  u8g2.drawStr(10, 46, String("Vol: " + String(information.audioPlayer.volume) ).c_str());
+  u8g2.drawLine(0, 48, 256, 48);      
+}
+
+void display_draw_menu()
+{
+   u8g2.setFont(u8g2_font_likeminecraft_te);
+   u8g2.drawStr(10, 15, menuMgr.currentMenu()->getName());
+   MenuItem* item = menuMgr.currentMenu()->getSelectedItem();
+   u8g2.drawStr(10, 36, item->getName());
+
+  if (item->getType() == VALUE_ITEM) {
+    ValueItem* val = (ValueItem*)item;  // safe now
+    u8g2.drawStr(70, 36, String(val->getValue()).c_str());
+   }
+}
+
 void display_draw()
 {
     u8g2.firstPage();
     do 
     {      
-      u8g2.setFont(u8g2_font_likeminecraft_te);
-            
-      u8g2.drawStr(10, 26, String("millis: " + String(millis()/1000) + " bytes: " + String(information.webRadio.bytesAvailable) + " underrun: " + String(information.webRadio.cntUnderruns)).c_str());
-      
-      switch(information.audioPlayer.soundMode)
+      if(menuMgr.isActive())
       {
-        case OFF:
-          u8g2.drawStr(10, 36, "-Off-");
-          break;
-        case WEBRADIO:
-          u8g2.drawStr(10, 36, String("Radio: " + information.webRadio.title).c_str());
-          break;
-        case BLUETOOTH:
-          u8g2.drawStr(10, 36, String("Bt: " + information.audioPlayer.bluetoothTitle).c_str());
-          break;
-        default:
-          break;
-
+        display_draw_menu();
       }
-      
-      u8g2.drawStr(10, 46, String("Vol: " + String(information.audioPlayer.volume) ).c_str());
-      u8g2.drawLine(0, 48, 256, 48);      
+      else display_draw_home();
       
     } while ( u8g2.nextPage() );
 

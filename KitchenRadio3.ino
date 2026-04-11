@@ -20,6 +20,7 @@
 #include "src/hmi/Cli.h"
 #include "src/hmi/Display.h"
 #include "src/hmi/Frontpanel.h"
+#include "src/hmi/Menu.h"
 #include "src/webserver/Webserver.h"
 #include "src/system/Logger.h"
 
@@ -112,6 +113,9 @@ void setup()
   // I2S
   i2sreceiver_init();
 
+  // Menu system
+  menu_begin();
+
   // Start task for front panel
   xTaskCreatePinnedToCore(
       taskFrontpanel_loop,
@@ -153,10 +157,17 @@ void loop()
   // Receive AT commands from Bluetooth slave
   i2sreceiver_serial_handle();
 
-  if (((millis() - timer) > 1000) || flags.frontPanel.buttonAnyPressed)
+  if(flags.main.displayRedraw)
   {
-    flags.frontPanel.buttonAnyPressed = false;
-    //Serial.println("A");
+    flags.main.displayRedraw = false;
+    Serial.println("DRAW2");
+    display_draw();
+  }
+
+  else if (((millis() - timer) > 1000) )//|| flags.frontPanel.buttonAnyPressed)
+  {
+    
+    //Serial.println("DRAW");
     timer = millis();
 
     display_draw();
