@@ -10,6 +10,8 @@
 
 #include "../system/Logger.h"
 
+#include "../system/Settings.h"
+
 
 #include "Webradio.h"
 #include "I2SReceiver.h"
@@ -113,5 +115,20 @@ void audioplayer_mode_set( soundMode_t mode)
     }
 
      information.audioPlayer.changing = false;
+
+}
+
+void audioplayer_bass_set(int bass)
+{
+    LOGG_DEBUG("Setting bass to "  + String(bass));
+    settings.audio.tonecontrol.bass = bass;
+}
+
+void audioplayer_treble_set(int treble)
+{
+    LOGG_DEBUG("Setting treble to "  + String(treble));
+    settings.audio.tonecontrol.treble = treble;
+    vs1053.setTreble((float)treble / 100.0);
+    LOGG_DEBUG("Setting real treble to "  + String((float)treble / 100.0));
 
 }

@@ -40,6 +40,8 @@ Command cmd_bt;
 Command cmd_weather;
 Command cmd_i2cping;
 Command cmd_time;
+Command cmd_treble;
+Command cmd_bass;
 
 
 void cli_begin();
@@ -78,6 +80,27 @@ void cb_i2cping(cmd* c)
     frontpanel_i2c_ping();
 }
 
+void cb_treble(cmd* c)
+{
+    Command cmd(c);    
+
+    if(cmd.getArgument(0).isSet())
+    {
+        uint8_t treble = cmd.getArgument(0).getValue().toInt();
+        audioplayer_treble_set(treble);
+    }
+}
+
+void cb_bass(cmd* c)
+{
+    Command cmd(c);    
+
+    if(cmd.getArgument(0).isSet())
+    {
+        uint8_t bass = cmd.getArgument(0).getValue().toInt();
+        audioplayer_bass_set(bass);
+    }
+}
 
 void cb_soundmode(cmd* c)
 {
@@ -362,6 +385,11 @@ void cli_begin(void)
     cmd_i2cping = kr_cli.addCommand("i2cping", cb_i2cping);
     cmd_i2cping.setDescription("- Scan the I2C bus for devices");
 
+    // > treble
+    cmd_treble = kr_cli.addSingleArgCmd("treble", cb_treble);
+    cmd_treble.setDescription("- Set the treble (0..100)");
+
+    // > bass
 
     
     

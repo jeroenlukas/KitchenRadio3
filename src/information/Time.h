@@ -6,5 +6,6 @@
 extern void time_begin();
 extern void time_update();
 extern void time_waitForSync();
+extern String time_convert(uint32_t timeInSeconds);
 
 #endif

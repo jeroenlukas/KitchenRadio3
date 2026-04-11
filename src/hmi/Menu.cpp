@@ -3,6 +3,10 @@
 
 #include <Arduino.h>
 
+#include "../audio/Audioplayer.h"
+#include "../system/Settings.h"
+#include "Display.h"
+
 #include "Menu.h"
 
 // Three main menus: System, Alarm, Bluetooth
@@ -13,30 +17,50 @@ Menu menuAlarm("Alarm");
 Menu menuLamp("Lamp");
 
 // Settings items
-ValueItem brightness("Brightness", 5, 1,100);
-ValueItem treble("Treble", 3, -5,10);
-ValueItem bass("Bass", 4, 0,10);
+ValueItem viTreble("Treble", &(settings.audio.tonecontrol.treble), 1,100);
+ValueItem viBass("Bass", &(settings.audio.tonecontrol.bass), 1 ,100);
+InfoItem iiSystem("System Info");
+InfoItem iiSmiley("Smiley");
+InfoItem iiWeather("Weather");
 
 // Alarm items
-ValueItem alarmDummy("(dummy)",3,0,10);
+int dummy;
+ValueItem alarmDummy("(dummy)",&dummy,0,10);
 
 // Lamp items
-ValueItem lampHue("Hue", 0, 0, 100);
+int dummy2;
+ValueItem lampHue("Hue", &dummy2, 0, 100);
 
+// The menu manager
 MenuManager menuMgr;
 
-//menuId_t menuId = MENU_HOME;
+
 
 void menu_begin()
-{
-  menuSettings.addItem(&brightness);
-  menuSettings.addItem(&treble);
-  menuSettings.addItem(&bass);
+{  
+  // Settings menu
+  menuSettings.addItem(&iiSystem);
+  iiSystem.setOnShowCallback(display_draw_custominfo_system);
 
+  menuSettings.addItem(&iiSmiley);
+  iiSmiley.setOnShowCallback(display_draw_custominfo_smiley);
+
+  menuSettings.addItem(&iiWeather);
+  iiWeather.setOnShowCallback(display_draw_custominfo_weather);
+
+  menuSettings.addItem(&viTreble);
+  viTreble.setCallback(audioplayer_treble_set);
+  
+  menuSettings.addItem(&viBass);
+  viBass.setCallback(audioplayer_bass_set);
+
+  // Alarm menu
   menuAlarm.addItem(&alarmDummy);
 
+  // Lamp menu
   menuLamp.addItem(&lampHue);
 
+  // Add the menus to the manager
   menuMgr.addMenu(&menuSettings);
   menuMgr.addMenu(&menuAlarm);
   menuMgr.addMenu(&menuLamp);

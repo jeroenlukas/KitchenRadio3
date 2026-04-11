@@ -16,6 +16,7 @@ Adafruit_MCP23X17 mcp;
 void frontpanel_encoders_read();
 void front_buttons_read();
 void front_i2c_ping();
+void front_ldr_read();
 
 // -----------------------------------------------------------------------
 
@@ -68,6 +69,14 @@ void frontpanel_begin()
 void frontpanel_handle()
 {
   frontpanel_encoders_read();  
+}
+
+void front_ldr_read()
+{
+    uint16_t an = analogRead(CONFIG_PIN_LDR);
+    uint16_t adc = 4095 - an;
+
+    information.system.ldr = map(adc, 0, 4095, 0, 100);    
 }
 
 // Read buttons. Should be read every 100ms

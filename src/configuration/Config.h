@@ -3,6 +3,7 @@
 
 #include "ConfigPinout.h"
 #include "ConfigSecrets.h"
+#include "ConfigScreens.h"
 
 // AudioTools configuration
 #define DEFAULT_BUFFER_SIZE 10*4096//(1024*100)
