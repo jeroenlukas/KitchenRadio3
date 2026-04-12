@@ -92,7 +92,7 @@ void webradio_handle()
       
       information.webRadio.cntUnderruns++;
       docopy = false;
-     // webradio_connect(0);
+      webradio_connect(0);
     }
 
     information.webRadio.bytesAvailable = circBuffer.available();
@@ -101,19 +101,23 @@ void webradio_handle()
 // Connect to a radio stream
 bool webradio_connect(int station_idx)
 {
-    LOGG_INFO("CONNECT: " + stations[station_idx].name);
+  information.webRadio.station_index = station_idx;
+  LOGG_INFO("CONNECT: " + stations[station_idx].name);
 
-    circBuffer.flush();
-   
-    if(streamUrl.begin(stations[station_idx].url.c_str(),"audio/mp3"))
-    {
-        LOGG_INFO("OK");        
-        
-        return true;      
-    }
+  circBuffer.flush();
+  
+  if(streamUrl.begin(stations[station_idx].url.c_str(),"audio/mp3"))
+  {
+      LOGG_INFO("OK");        
 
-    LOGG_ERROR("FAIL");
-    return false;
+      // Set the station name as metadata title. If the station does not provide metadata (yet), at least something is shown about the station.
+      information.webRadio.metadataName = stations[station_idx].name;
+      
+      return true;      
+  }
+
+  LOGG_ERROR("FAIL");
+  return false;
 }
 
 // Stop the current radio stream
@@ -130,6 +134,10 @@ void webradio_disconnect()
         vs1053.flush();
 
         LOGG_DEBUG("Done");        
+
+        // Clear the metadata
+        information.webRadio.metadataName = "";
+        information.webRadio.metadataTitle = "";
     }
 }
 
@@ -137,9 +145,9 @@ void webradio_disconnect()
 void webradio_metadata_cb(MetaDataType type, const char* str, int len)
 {
   LOGG_INFO("Metadata received: " + String(toStr(type)) + " => " + String(str));
-  //Serial.print(toStr(type));
-  //Serial.print(": ");
-  //Serial.println(str);
-
-  information.webRadio.title = String(str);
+  
+  if(type == Title)
+    information.webRadio.metadataTitle = String(str);
+  else if(type == Name)
+    information.webRadio.metadataName = String(str);
 }

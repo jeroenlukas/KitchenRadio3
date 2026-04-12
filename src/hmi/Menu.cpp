@@ -9,10 +9,10 @@
 
 #include "Menu.h"
 
-// Three main menus: System, Alarm, Bluetooth
+// Three main menus: System, Alarm, Lamp
 
 // Menus
-Menu menuSettings("Settings");
+Menu menuSystem("System");
 Menu menuAlarm("Alarm");
 Menu menuLamp("Lamp");
 
@@ -39,19 +39,19 @@ MenuManager menuMgr;
 void menu_begin()
 {  
   // Settings menu
-  menuSettings.addItem(&iiSystem);
+  menuSystem.addItem(&iiSystem);
   iiSystem.setOnShowCallback(display_draw_custominfo_system);
 
-  menuSettings.addItem(&iiSmiley);
+  menuSystem.addItem(&iiSmiley);
   iiSmiley.setOnShowCallback(display_draw_custominfo_smiley);
 
-  menuSettings.addItem(&iiWeather);
+  menuSystem.addItem(&iiWeather);
   iiWeather.setOnShowCallback(display_draw_custominfo_weather);
 
-  menuSettings.addItem(&viTreble);
+  menuSystem.addItem(&viTreble);
   viTreble.setCallback(audioplayer_treble_set);
   
-  menuSettings.addItem(&viBass);
+  menuSystem.addItem(&viBass);
   viBass.setCallback(audioplayer_bass_set);
 
   // Alarm menu
@@ -61,7 +61,7 @@ void menu_begin()
   menuLamp.addItem(&lampHue);
 
   // Add the menus to the manager
-  menuMgr.addMenu(&menuSettings);
+  menuMgr.addMenu(&menuSystem);
   menuMgr.addMenu(&menuAlarm);
   menuMgr.addMenu(&menuLamp);
 }

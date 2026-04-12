@@ -28,7 +28,7 @@ void display_draw_home()
 {
   u8g2.setFont(u8g2_font_likeminecraft_te);
             
-  u8g2.drawStr(10, 26, String("bytes: " + String(information.webRadio.bytesAvailable) + " underrun: " + String(information.webRadio.cntUnderruns)).c_str());
+  
 
   // Clock
   u8g2.setCursor(POSX_CLOCK, POSY_CLOCK);
@@ -43,7 +43,7 @@ void display_draw_home()
       u8g2.drawStr(10, 36, "-Off-");
       break;
     case WEBRADIO:
-      u8g2.drawStr(10, 36, String("Radio: " + information.webRadio.title).c_str());
+      u8g2.drawStr(10, 36, String("Radio: " + information.webRadio.metadataName + " | " + information.webRadio.metadataTitle).c_str());
       break;
     case BLUETOOTH:
       u8g2.drawStr(10, 36, String("Bt: " + information.audioPlayer.bluetoothTitle).c_str());
@@ -140,16 +140,21 @@ void display_draw_custominfo_system()
   u8g2.setFont(FONT_S);
   u8g2.drawStr(10, 12, String(settings.deviceName).c_str());
   u8g2.drawStr(10, 22, "IP: ");         u8g2.drawStr(70, 22, information.system.ipAddress.c_str());
-  u8g2.drawStr(10, 32, "RSSI:");        u8g2.drawStr(70, 32, (String(information.system.wifiRSSI) + " dBm").c_str());      
-  u8g2.drawStr(10, 42, "BT RSSI:");     
-  if(information.audioPlayer.soundMode == BLUETOOTH)
-    u8g2.drawStr(70, 42, (String(information.audioPlayer.bluetoothRSSI) + " dBm").c_str());      
-  else
-    u8g2.drawStr(70, 42, "N/A");      
+  u8g2.drawStr(10, 32, "WiFi RSSI:");        u8g2.drawStr(70, 32, (String(information.system.wifiRSSI) + " dBm").c_str());      
+    
+  if(information.audioPlayer.soundMode == BLUETOOTH){
+    u8g2.drawStr(10, 42, "BT RSSI:");   
+    u8g2.drawStr(70, 42, (String(information.audioPlayer.bluetoothRSSI) + " dBm").c_str()); // Show bluetooth RSSI
+  }
+  else if(information.audioPlayer.soundMode == WEBRADIO){
+    u8g2.drawStr(10, 42, "Buffer:"); 
+    u8g2.drawStr(70, 42, (String(information.webRadio.bytesAvailable) + " B").c_str());   
+  }
 
   u8g2.drawStr(150, 12, "Uptime:");     u8g2.drawStr(200, 12, time_convert(information.system.uptimeSeconds).c_str());
   u8g2.drawStr(150, 22, "Amb.light:");  u8g2.drawStr(200, 22, (String(information.system.ldr) + "%").c_str());
   u8g2.drawStr(150, 32, "Rst reason:");  u8g2.drawStr(200, 32, (String(information.system.lastResetReason)).c_str());
+  u8g2.drawStr(150, 42, "Underruns:");  u8g2.drawStr(200, 42, (String(information.webRadio.cntUnderruns)).c_str());
 }
 
 // Smiley icons

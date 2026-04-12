@@ -11,7 +11,7 @@ class Information_t {
         Information_t()
         {
             Serial.println("Information constructor!");            
-            webRadio.title = "";
+            
             audioPlayer.soundMode = OFF;
             system.compilationDateTime = __DATE__ ;
         }
@@ -79,7 +79,8 @@ class Information_t {
             uint32_t bytesAvailable;
             uint32_t cntUnderruns;
 
-            String title;
+            String metadataName;
+            String metadataTitle;
         };
 
         struct Weather

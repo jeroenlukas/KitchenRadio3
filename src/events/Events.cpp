@@ -2,12 +2,17 @@
 #include "../information/Information.h"
 
 #include <Arduino.h>
-
+#include <WiFi.h>
 #include "Flags.h"
 #include "Events.h"
 
 #include "../audio/Audioplayer.h"
 #include "../audio/Webradio.h"
+#include "../hmi/Display.h"
+#include "../information/Weather.h"
+#include "../hmi/Frontpanel.h"
+#include "../information/Time.h"
+#include "../system/Tickers.h"
 
 #include "../system/Logger.h"
 
@@ -16,11 +21,13 @@
 
 void events_encoders();
 void events_buttons();
+void events_tickers();
 
 void events_handle()
 {
   events_encoders();
   events_buttons();
+  events_tickers();
   /*if(flags.frontPanel.buttonAnyPressed)
   {
     flags.frontPanel.buttonAnyPressed = false;
@@ -31,8 +38,52 @@ void events_handle()
   {
     flags.frontPanel.buttonAnyPressed = false;
 
-    // TODO handle auto return to homescreen
+    tickers_userinput_reset();
+    
     flags.main.displayRedraw = true;
+  }
+}
+
+void events_tickers()
+{
+   // A display redraw is forced when a user event happens for example pushing a button  
+  if(flags.main.displayRedraw)
+  {
+    flags.main.displayRedraw = false;
+    display_draw();
+  }
+
+  // Execute every second
+  if(flags.tickers.passed1s)
+  {
+    flags.tickers.passed1s = false;
+
+    information.system.wifiRSSI = WiFi.RSSI();
+    information.system.uptimeSeconds++;
+    time_update();
+    frontpanel_ldr_read();
+    display_draw();
+  }
+
+  // Execute every minute
+  if(flags.tickers.passed1min)
+  {
+    // ..
+  }
+
+    // Execute every half hour
+  if(flags.tickers.passed30min)
+  {
+    flags.tickers.passed30min = false;
+    weather_retrieve();
+  }
+
+  // No user input for x amount of time
+  if(flags.tickers.userinput)
+  {
+    flags.tickers.userinput = false;
+    if(menuMgr.isActive())
+          menuMgr.exit();
   }
 }
 
@@ -153,6 +204,7 @@ void events_buttons()
   {
     flags.frontPanel.buttonSystemPressed = false;
     menuMgr.switchTo(MENU_SETTINGS);
+    menuMgr.first();  // Always open with the first page
   }
 
   if(flags.frontPanel.buttonAlarmPressed)

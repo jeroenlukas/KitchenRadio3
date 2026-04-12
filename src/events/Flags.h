@@ -19,12 +19,16 @@ class Flags_t
 
     struct flagsMain_t
     {
-        bool passed1000ms;
-        bool passed30min;
-        bool passed1min;
-
         bool updateLog;
         bool displayRedraw;
+    };
+
+    struct flagsTickers_t
+    {
+        bool passed1s;
+        bool passed30min;
+        bool passed1min;
+        bool userinput;
     };
 
     struct flagsFrontpanel_t
@@ -55,6 +59,7 @@ class Flags_t
 
     flagsMain_t main;
     flagsFrontpanel_t frontPanel; 
+    flagsTickers_t tickers;
 
 };
 

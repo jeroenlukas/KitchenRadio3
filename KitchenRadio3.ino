@@ -3,9 +3,6 @@
 #include <Arduino.h>
 #include <WiFi.h>
 
-#include <TickTwo.h>
-
-
 #include "src/configuration/Config.h"
 #include "src/system/Settings.h"
 #include "src/system/Stations.h"
@@ -13,6 +10,7 @@
 #include "src/system/Filemanager.h"
 #include "src/information/Information.h"
 #include "src/information/Time.h"
+#include "src/information/Weather.h"
 #include "src/events/Flags.h"
 #include "src/events/Events.h"
 #include "version.h"
@@ -27,33 +25,17 @@
 #include "src/audio/Webradio.h"
 #include "src/audio/Audioplayer.h"
 #include "src/audio/I2SReceiver.h"
+#include "src/system/Tickers.h"
 
 TaskHandle_t taskFrontpanel = NULL;
 
-void ticker_100ms();
-void ticker_1s();
-
-TickTwo ticker_100ms_ref(ticker_100ms, 100);
-TickTwo ticker_1s_ref(ticker_1s, 1000);
-
-void ticker_100ms()
-{
-  frontpanel_buttons_read();
-}
-
-void ticker_1s()
-{
-  information.system.wifiRSSI = WiFi.RSSI();
-  information.system.uptimeSeconds++;
-  time_update();
-}
 
 void taskFrontpanel_loop(void* parameter)
 {
   for (;;)
   {
     frontpanel_handle();
-    ticker_100ms_ref.update();
+    //ticker_100ms_ref.update();
     vTaskDelay(pdMS_TO_TICKS(3));
   }
 }
@@ -137,8 +119,10 @@ void setup()
       1); // core0 = wifi/system, core1 = arduino //  Run on Core 0 (shared with WiFi & system tasks)  
 
   // Tickers
-  ticker_100ms_ref.start();
-  ticker_1s_ref.start();
+  tickers_init();
+
+  // Get weather info
+  weather_retrieve();
 
   LOGG_INFO("Init done!");
 }
@@ -163,29 +147,23 @@ void loop()
   audioplayer_handle();
 
   // Handle buttons etc
-  //frontpanel_handle();
-  
+  //frontpanel_handle();  
   
   // Update tickers
-  ticker_1s_ref.update();
+  tickers_handle();
 
   // Receive AT commands from Bluetooth slave
   i2sreceiver_serial_handle();
 
-  // A display redraw is forced when a user event happens for example pushing a button
-  if(flags.main.displayRedraw)
-  {
-    flags.main.displayRedraw = false;
-    display_draw();
-  }
+ 
 
   // Also redraw the screen every second
-  else if ((millis() - timer) > 1000) 
+ /* if ((millis() - timer) > 1000) 
   {
     
     //Serial.println("DRAW");
     timer = millis();
 
     display_draw();
-  }  
+  }  */
 }

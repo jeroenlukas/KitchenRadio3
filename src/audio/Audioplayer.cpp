@@ -99,7 +99,7 @@ void audioplayer_mode_set( soundMode_t mode)
     switch(mode)
     {
         case WEBRADIO:
-            if(webradio_connect(0))
+            if(webradio_connect(information.webRadio.station_index))
                 information.audioPlayer.soundMode = WEBRADIO;  
             break;
         case BLUETOOTH:        

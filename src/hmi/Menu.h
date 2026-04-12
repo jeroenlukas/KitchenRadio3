@@ -130,6 +130,11 @@ class Menu : public MenuItem {
       return selectedIndex;
     }
 
+    void first(){
+      selectedIndex = 0;
+    }
+
+
     void next() {
       //selectedIndex = (selectedIndex + 1) % itemCount;
       if(selectedIndex < itemCount-1) selectedIndex++;
@@ -176,7 +181,7 @@ class MenuManager {
     void switchTo(int id) {
       currentMenuIndex = id;
       active = true;
-      display();
+      LOGG_DEBUG("Menu: " + String(currentMenuIndex));      
     }
 
     void exit()
@@ -184,25 +189,12 @@ class MenuManager {
       active = false;
     }
 
-    /*void nextMenu() {
-      currentMenuIndex = (currentMenuIndex + 1) % menuCount;
-    }
-
-    void prevMenu() {
-      currentMenuIndex = (currentMenuIndex - 1 + menuCount) % menuCount;
-    }*/
-
     // Delegate navigation to active menu
+    void first() { currentMenu()->first(); }
     void next() { currentMenu()->next(); }
     void prev() { currentMenu()->prev(); }
-    //void select() { currentMenu()->select(); }
 
-    void display() {
-      Serial.print("[Menu ");
-      Serial.print(currentMenuIndex);
-      Serial.println("]");
-      //currentMenu()->display();
-    }
+
 };
 
 //enum menuId_t {MENU_HOME, MENU_SYSTEM, MENU_ALARM, MENU_LAMP};

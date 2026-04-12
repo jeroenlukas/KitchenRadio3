@@ -18,7 +18,7 @@ void webserver_begin()
     webserver.on("/", HTTP_GET, [](AsyncWebServerRequest *request) 
     {
         LOGG_DEBUG("webserver!");
-        request->send(200, "text/html", "<h3>Kitchenradio 3 </h3>" + information.webRadio.title);
+        request->send(200, "text/html", "<h3>Kitchenradio 3 </h3>" +  information.webRadio.metadataName + " | " + information.webRadio.metadataTitle);
     });
 
     LOGG_INFO("Starting webserver.");

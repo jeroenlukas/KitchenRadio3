@@ -71,7 +71,7 @@ void frontpanel_handle()
   frontpanel_encoders_read();  
 }
 
-void front_ldr_read()
+void frontpanel_ldr_read()
 {
     uint16_t an = analogRead(CONFIG_PIN_LDR);
     uint16_t adc = 4095 - an;
