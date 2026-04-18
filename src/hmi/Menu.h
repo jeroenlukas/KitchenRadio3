@@ -53,14 +53,16 @@ class InfoItem : public MenuItem {
 class ValueItem : public MenuItem {
   private:
     const char* name;
-    //int value;
+    
     int* valuePtr;
     int minVal, maxVal;
     void (*onChange)(int) = nullptr;  // callback
 
   public:
-     ValueItem(const char* n, int* v, int minV, int maxV)
+    ValueItem(const char* n, int* v, int minV, int maxV)
       : name(n), valuePtr(v), minVal(minV), maxVal(maxV) {}
+
+    int increment;
 
     ItemType getType() const override {
       return VALUE_ITEM;
@@ -68,14 +70,14 @@ class ValueItem : public MenuItem {
 
     void increase() {
       if (*valuePtr < maxVal) {
-        (*valuePtr)++;
+        (*valuePtr) += increment;
         if (onChange) onChange(*valuePtr);
       }
     }
 
     void decrease() {
       if (*valuePtr > minVal) {
-        (*valuePtr)--;
+        (*valuePtr) -= increment;
         if (onChange) onChange(*valuePtr);
       }
     }
@@ -92,6 +94,8 @@ class ValueItem : public MenuItem {
       onChange = cb;
     }
 };
+
+
 
 #define MAX_ITEMS 10
 class Menu : public MenuItem {

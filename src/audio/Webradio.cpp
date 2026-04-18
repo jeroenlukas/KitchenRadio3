@@ -52,6 +52,11 @@ void webradio_init()
     streamUrl.setMetadataCallback(webradio_metadata_cb);    
 }
 
+void webradio_calculatebufferpct()
+{
+  information.webRadio.bufferPercentage = constrain(((double)circBuffer.available() / (double)CONF_WEBRADIO_MIN_BYTES) * 100, 0, 100);
+}
+
 void webradio_handle()
 {
     if(information.audioPlayer.soundMode != WEBRADIO)

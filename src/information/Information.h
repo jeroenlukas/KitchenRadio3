@@ -4,8 +4,8 @@
 #include <Arduino.h>
 
 enum soundMode_t { OFF, WEBRADIO, BLUETOOTH, CHANGING };
-enum bluetoothMode_t { BT_PLAYING, BT_PAUSED, BT_STOPPED };
-
+enum bluetoothMode_t { BT_OFF, BT_NOTCONNECTED, BT_CONNECTED, BT_CONNECTING, BT_DISCONNECTING, BT_PLAYING, BT_PAUSED, BT_STOPPED, BT_UNKNOWN };
+     
 class Information_t {
     public:
         Information_t()
@@ -28,6 +28,7 @@ class Information_t {
             //String deviceName;
 
             uint32_t uptimeSeconds;
+            uint32_t bootTimeSeconds;
             int8_t wifiRSSI;
             
             String ipAddress;
@@ -52,7 +53,7 @@ class Information_t {
             int bass;
             int treble;
 
-            int bluetoothMode;
+            bluetoothMode_t bluetoothMode;
 
             String bluetoothTitle;
             String bluetoothArtist;
@@ -75,7 +76,7 @@ class Information_t {
             uint8_t station_index;
             String station_name;
             uint8_t station_count;
-            uint8_t buffer_pct;
+            uint8_t bufferPercentage;
             uint32_t bytesAvailable;
             uint32_t cntUnderruns;
 

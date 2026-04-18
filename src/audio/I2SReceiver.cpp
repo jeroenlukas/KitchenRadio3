@@ -6,7 +6,7 @@
 #include "../system/Logger.h"
 
 #include "Audioplayer.h"
-
+#include "../hmi/Display.h"
 
 HardwareSerial serial_bt(2);
 
@@ -123,12 +123,12 @@ void i2sreceiver_command_parse(String command)
   else if(command.startsWith("AT+TITLE"))
   {
     information.audioPlayer.bluetoothTitle = command.substring(9);
-    //display_reset_scroll();
+    display_reset_scroll();
   }
   else if(command.startsWith("AT+ARTIST"))
   {
     information.audioPlayer.bluetoothArtist = command.substring(10);
-    //display_reset_scroll();
+    display_reset_scroll();
   }
 
   else if(command.startsWith("AT+CONNSTATE"))

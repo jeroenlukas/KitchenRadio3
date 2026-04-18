@@ -29,6 +29,7 @@ class Flags_t
         bool passed30min;
         bool passed1min;
         bool userinput;
+        bool displayrefresh;
     };
 
     struct flagsFrontpanel_t

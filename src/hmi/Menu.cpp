@@ -49,6 +49,7 @@ void menu_begin()
   iiWeather.setOnShowCallback(display_draw_custominfo_weather);
 
   menuSystem.addItem(&viTreble);
+  viTreble.increment = 5;
   viTreble.setCallback(audioplayer_treble_set);
   
   menuSystem.addItem(&viBass);

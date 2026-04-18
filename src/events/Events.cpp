@@ -62,6 +62,12 @@ void events_tickers()
     information.system.uptimeSeconds++;
     time_update();
     frontpanel_ldr_read();
+    
+  }
+
+  if(flags.tickers.displayrefresh)
+  {
+    flags.tickers.displayrefresh = false;
     display_draw();
   }
 

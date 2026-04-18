@@ -20,5 +20,6 @@
 #define CONF_WEBRADIO_STATIONS_MAX  50
 
 #define CONF_MENU_RETURN_HOME_MS  15000            // After how many ms of no user input do we return to the home screen?
+#define CONF_DISPLAYREFRESH_MS         300            // Interval between display updates
 
 #endif

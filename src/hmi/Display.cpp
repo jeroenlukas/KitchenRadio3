@@ -8,12 +8,17 @@
 #include "../system/Logger.h"
 #include "../information/Time.h"
 #include "../system/Settings.h"
+#include "XbmIcons.h"
 #include "Menu.h"
 
 
 U8G2_SSD1322_NHD_256X64_1_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ CONFIG_PIN_HSPI_CS, /* dc=*/ CONFIG_PIN_HSPI_DC, /* reset=*/ 9);	// Enable U8G2_16BIT in u8g2.h
 
 SPIClass *hspi = NULL;
+
+int16_t display_audio_title_scroll_offset = 0;
+bool display_audio_title_scroll_dir = true;
+uint16_t display_audio_title_width = 0;
 
 void display_begin()
 {
@@ -26,16 +31,19 @@ void display_begin()
 // === Home screen ===
 void display_draw_home()
 {
-  u8g2.setFont(u8g2_font_likeminecraft_te);
-            
+  //u8g2.setFont(u8g2_font_likeminecraft_te);
   
-
   // Clock
+  u8g2.setFont(FONT_CLOCK);
   u8g2.setCursor(POSX_CLOCK, POSY_CLOCK);
   u8g2.print(u8x8_u8toa(information.hour, 2)); 
   u8g2.drawStr(POSX_CLOCK + 30, POSY_CLOCK - 2, ":");
   u8g2.setCursor(POSX_CLOCK + 39, POSY_CLOCK);
   u8g2.print(u8x8_u8toa(information.minute, 2));
+  
+  // Date
+  u8g2.setFont(FONT_S);
+  u8g2.drawStr(POSX_CLOCK + 10, POSY_CLOCK + 12, (information.dateMid).c_str());
   
   switch(information.audioPlayer.soundMode)
   {
@@ -43,10 +51,57 @@ void display_draw_home()
       u8g2.drawStr(10, 36, "-Off-");
       break;
     case WEBRADIO:
-      u8g2.drawStr(10, 36, String("Radio: " + information.webRadio.metadataName + " | " + information.webRadio.metadataTitle).c_str());
+      //u8g2.drawStr(10, 36, String("Radio: " + information.webRadio.metadataName + " | " + information.webRadio.metadataTitle).c_str());
+      u8g2.drawXBM(POSX_AUDIO_ICON, POSY_AUDIO_ICON-15, xbm_radio_width, xbm_radio_height, xbm_radio_bits);
+      
+      // Draw buffer fill percentage, station index + count
+      u8g2.setFont(FONT_S);
+      u8g2.drawStr(POSX_AUDIO -20, POSY_AUDIO-7, (String(information.webRadio.station_index + 1) + "/" + String(information.webRadio.station_count)).c_str() );
+      u8g2.drawStr(POSX_AUDIO -20, POSY_AUDIO+1, (String(information.webRadio.bufferPercentage) + "%").c_str() );
+
+      // Draw station name in clipwindow
+      u8g2.setFont(FONT_AUDIO);
+      u8g2.setClipWindow(POSX_AUDIO, 43, 224, 64);
+      display_audio_title_width = u8g2.drawStr(POSX_AUDIO + display_audio_title_scroll_offset, POSY_AUDIO, String(information.webRadio.metadataName + " | " + information.webRadio.metadataTitle).c_str());
+      u8g2.setMaxClipWindow();
       break;
     case BLUETOOTH:
-      u8g2.drawStr(10, 36, String("Bt: " + information.audioPlayer.bluetoothTitle).c_str());
+      //u8g2.drawStr(10, 36, String("Bt: " + information.audioPlayer.bluetoothTitle).c_str());
+      u8g2.drawXBM(POSX_AUDIO_ICON, POSY_AUDIO_ICON-16, xbm_bluetooth_width, xbm_bluetooth_height, xbm_bluetooth_bits);
+
+      // Draw bluetooth title in clipwindow
+      u8g2.setFont(FONT_AUDIO);
+      u8g2.setClipWindow(POSX_AUDIO, 43, 224, 64);              
+      if(information.audioPlayer.bluetoothArtist != "")
+        display_audio_title_width = u8g2.drawStr(POSX_AUDIO + display_audio_title_scroll_offset, POSY_AUDIO, String(information.audioPlayer.bluetoothArtist + " - " + information.audioPlayer.bluetoothTitle).c_str());
+      else
+        display_audio_title_width = u8g2.drawStr(POSX_AUDIO + display_audio_title_scroll_offset, POSY_AUDIO, String(information.audioPlayer.bluetoothConnectionStateStr).c_str());
+      u8g2.setMaxClipWindow();
+      
+      // Draw audio state icon
+      u8g2.setFont(u8g2_font_twelvedings_t_all);
+      switch(information.audioPlayer.bluetoothMode)
+      {
+        case BT_OFF:                  
+          u8g2.drawGlyph(POSX_AUDIO - 20, POSY_AUDIO, 0);
+          break;
+        case BT_NOTCONNECTED:
+        case BT_CONNECTED:
+        case BT_CONNECTING:
+        case BT_DISCONNECTING:
+          u8g2.drawGlyph(POSX_AUDIO - 20, POSY_AUDIO, 63);
+          break;
+        case BT_PAUSED:
+          u8g2.drawGlyph(POSX_AUDIO - 20, POSY_AUDIO, 69);
+          break;
+        case BT_PLAYING:
+          u8g2.drawGlyph(POSX_AUDIO - 20, POSY_AUDIO, 68);
+          break;
+        case BT_UNKNOWN:            
+          u8g2.drawStr(POSX_AUDIO - 20, POSY_AUDIO, "?");
+          break;
+      }
+      break;
       break;
     default:
       break;
@@ -54,7 +109,7 @@ void display_draw_home()
   }
   
   
-  u8g2.drawLine(0, 48, 256, 48);      
+  u8g2.drawLine(0, 44, 256, 44);      
 
   // Volume indicator
   u8g2.setFont(u8g2_font_open_iconic_all_1x_t);
@@ -177,4 +232,35 @@ void display_draw_custominfo_weather()
   u8g2.drawStr(150, 12, "Pressure:");  u8g2.drawStr(200, 12, (String(information.weather.pressure) + " hPa").c_str());
   u8g2.drawStr(150, 22, "Sunrise:");   u8g2.drawStr(200, 22, (String(information.weather.sunrise_str)).c_str());
   u8g2.drawStr(150, 32, "Sunset:");    u8g2.drawStr(200, 32, (String(information.weather.sunset_str)).c_str());
+}
+
+
+void display_reset_scroll()
+{
+  display_audio_title_scroll_offset= 0;
+  display_audio_title_scroll_dir=0;
+}
+
+void display_update_scroll_offset()
+{
+  #define BOX_WIDTH (224 - POSX_AUDIO)
+  if(display_audio_title_width < BOX_WIDTH)
+  {
+    display_audio_title_scroll_offset = 0;
+    return;
+  }
+
+  if(display_audio_title_scroll_dir)
+  {
+    display_audio_title_scroll_offset+=2;
+  }
+  else
+    display_audio_title_scroll_offset-=2;
+
+  // Reverse 
+  if(display_audio_title_scroll_offset > 2)
+    display_audio_title_scroll_dir = !display_audio_title_scroll_dir;
+
+  else if(display_audio_title_scroll_offset < ((BOX_WIDTH - display_audio_title_width)-3))
+    display_audio_title_scroll_dir = !display_audio_title_scroll_dir;
 }

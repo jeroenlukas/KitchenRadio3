@@ -42,7 +42,7 @@ Command cmd_i2cping;
 Command cmd_time;
 Command cmd_treble;
 Command cmd_bass;
-
+Command cmd_mem;
 
 void cli_begin();
 void cli_handle();
@@ -329,7 +329,30 @@ void cb_cat(cmd* c)
     LOGG_INFO("--- (end) ---");
 }
 
+void cb_mem(cmd* c)
+{
+    Command cmd(c);
 
+    int size_psram = ESP.getPsramSize();
+    int used_psram = size_psram - ESP.getFreePsram();
+    int pct_psram = ((double)used_psram / (double)size_psram) * 100;
+
+    int size_heap = ESP.getHeapSize();
+    int used_heap = size_heap - ESP.getFreeHeap();
+    int pct_heap = ((double)used_heap / (double)size_heap) * 100;
+    
+    int size_sketch = ESP.getFreeSketchSpace() + ESP.getSketchSize(); // Max sketch size!
+    int used_sketch = ESP.getSketchSize();
+    int pct_sketch = ((double)used_sketch / (double)size_sketch) * 100;
+    
+     
+
+    LOGG_INFO("--- MEMORY ---");
+    LOGG_INFO("Sketch: " + String(used_sketch) + " B used out of " + String(size_sketch) + " B (" + String(pct_sketch) + "%)");
+    LOGG_INFO("Heap: " + String(used_heap) + " B used out of " + String(size_heap) + " B (" + String(pct_heap) + "%)");
+    LOGG_INFO("PSRAM: " + String(used_psram) + " B used out of " + String(size_psram) + " B (" + String(pct_psram) + "%)");
+    
+}
 
 void cb_error(cmd_error* e) {
     CommandError cmdError(e); // Create wrapper object
@@ -392,7 +415,9 @@ void cli_begin(void)
     // > bass
 
     
-    
+    // > mem
+    cmd_mem = kr_cli.addCommand("mem", cb_mem);
+    cmd_mem.setDescription("- Show memory statistics");
 
 /*
     // > bootlog

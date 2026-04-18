@@ -35,7 +35,7 @@ void taskFrontpanel_loop(void* parameter)
   for (;;)
   {
     frontpanel_handle();
-    //ticker_100ms_ref.update();
+    
     vTaskDelay(pdMS_TO_TICKS(3));
   }
 }
@@ -81,19 +81,22 @@ void setup()
   WiFi.disconnect();
   WiFi.begin(CONFIG_SECRETS_WIFI_SSID, CONFIG_SECRETS_WIFI_PASSWORD);
 
+  // Audio - we setup the audioplayer while the WiFi is connecting, this shaves a few seconds off the startup time.
+  audioplayer_init();
+
+  // Some seconds later
   while (WiFi.status() != WL_CONNECTED) 
   {
     Serial.print('.');
     delay(500);
   }
-  LOGG_INFO("Connected");
+  LOGG_INFO("WiFi connected");
   information.system.ipAddress = WiFi.localIP().toString(); 
 
   // Webserver
   webserver_begin();
 
-  // Audio
-  audioplayer_init();
+
 
   // Time
   time_begin();
@@ -124,11 +127,9 @@ void setup()
   // Get weather info
   weather_retrieve();
 
-  LOGG_INFO("Init done!");
+  information.system.bootTimeSeconds = millis() / 1000;
+  LOGG_INFO("Init done! Boot took " + String(information.system.bootTimeSeconds) + " s" );
 }
-
-
-int timer = 0;
 
 // Note:
 // Time-sensitive tasks should be run in RTOS tasks since the audio copy functions take quite some time.
@@ -155,15 +156,4 @@ void loop()
   // Receive AT commands from Bluetooth slave
   i2sreceiver_serial_handle();
 
- 
-
-  // Also redraw the screen every second
- /* if ((millis() - timer) > 1000) 
-  {
-    
-    //Serial.println("DRAW");
-    timer = millis();
-
-    display_draw();
-  }  */
 }
