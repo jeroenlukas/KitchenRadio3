@@ -5,9 +5,11 @@
 #include <SPI.h>
 #include <U8g2lib.h>
 
+#include "u8g2_font_climacons_40.h"
 #include "../system/Logger.h"
 #include "../information/Time.h"
 #include "../system/Settings.h"
+#include "../information/Weather.h"
 #include "XbmIcons.h"
 #include "Menu.h"
 
@@ -44,11 +46,25 @@ void display_draw_home()
   // Date
   u8g2.setFont(FONT_S);
   u8g2.drawStr(POSX_CLOCK + 10, POSY_CLOCK + 12, (information.dateMid).c_str());
+
+  // Weather
+    u8g2.setFont(FONT_WEATHERICONS);
+    int weatherglyph = 0;
+    // https://openweathermap.org/weather-conditions
+
+    u8g2.drawGlyph(3, 35, weather_icon_to_glyph(information.weather.icon));
+    u8g2.setFont(u8g2_font_lastapprenticebold_te);
+    uint8_t w = u8g2.drawStr(42, 18,(String(information.weather.temperature,1) + "  C").c_str());
+    u8g2.drawGlyph((42 + w) - 13, 18, 0x00b0);
+    u8g2.setFont(FONT_M);
+    u8g2.drawStr(42, 28,(String(information.weather.windSpeedBft) + " Bft").c_str());
+    u8g2.drawStr(42, 38,(String(information.weather.stateShort)).c_str());
+    u8g2.setFont(FONT_S);
   
   switch(information.audioPlayer.soundMode)
   {
     case OFF:
-      u8g2.drawStr(10, 36, "-Off-");
+      // ...
       break;
     case WEBRADIO:
       //u8g2.drawStr(10, 36, String("Radio: " + information.webRadio.metadataName + " | " + information.webRadio.metadataTitle).c_str());
@@ -187,6 +203,33 @@ void display_draw_startup()
     } while ( u8g2.nextPage() );
 }
 
+
+void display_set_brightness(uint8_t brightness)
+{
+  // Contrast (0-100)
+  uint8_t contrast = map(brightness, 0, 100, 0, 50);
+  u8g2.setContrast(contrast);
+
+  // Pre charge voltage (0-31) 0 is 0ff
+  uint8_t pcv = map(brightness, 0, 100, 0, 31);
+
+  u8g2.sendF("ca", 0xBB, pcv);  
+}
+
+void display_set_brightness_auto()
+{
+  //uint8_t brightness = map(information.system.ldr, 0, 100, CONF_DISPLAY_AUTO_BRIGHTNESS_MIN, CONF_DISPLAY_AUTO_BRIGHTNESS_MAX);
+  
+  int br_max = int(CONF_DISPLAY_AUTO_BRIGHTNESS_MAX);
+  int br_min = int(CONF_DISPLAY_AUTO_BRIGHTNESS_MIN);
+
+  if(br_max == 0) br_max = 100;
+
+  uint8_t brightness = map(information.system.ldr, 0, 100, br_min, br_max);
+  
+  display_set_brightness(brightness);  
+}
+
 // ===  Custom info items ===
 
 // System stats
@@ -203,7 +246,7 @@ void display_draw_custominfo_system()
   }
   else if(information.audioPlayer.soundMode == WEBRADIO){
     u8g2.drawStr(10, 42, "Buffer:"); 
-    u8g2.drawStr(70, 42, (String(information.webRadio.bytesAvailable) + " B").c_str());   
+    u8g2.drawStr(70, 42, (String(information.webRadio.bytesAvailable / 1024) + " kB").c_str());   
   }
 
   u8g2.drawStr(150, 12, "Uptime:");     u8g2.drawStr(200, 12, time_convert(information.system.uptimeSeconds).c_str());
@@ -215,9 +258,10 @@ void display_draw_custominfo_system()
 // Smiley icons
 void display_draw_custominfo_smiley()
 {
+  uint16_t rand = map(information.minute, 0, 59, 48, 688); //random(48, 688);
   u8g2.setFont(u8g2_font_streamline_all_t);
-  u8g2.drawGlyph(80,30,228);
-  u8g2.drawGlyph(150,47,592);
+  u8g2.drawGlyph(80,30, rand);
+  u8g2.drawGlyph(150,47,rand+1);
 }
 
 // Weather info

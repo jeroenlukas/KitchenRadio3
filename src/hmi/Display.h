@@ -11,5 +11,6 @@ extern void display_draw_custominfo_weather();
 
 extern void display_reset_scroll();
 extern void display_update_scroll_offset();
+extern void display_set_brightness_auto();
 
 #endif

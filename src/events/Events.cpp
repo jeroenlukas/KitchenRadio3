@@ -28,11 +28,6 @@ void events_handle()
   events_encoders();
   events_buttons();
   events_tickers();
-  /*if(flags.frontPanel.buttonAnyPressed)
-  {
-    flags.frontPanel.buttonAnyPressed = false;
-
-  }*/
 
   if(flags.frontPanel.buttonAnyPressed)
   {
@@ -61,14 +56,16 @@ void events_tickers()
     information.system.wifiRSSI = WiFi.RSSI();
     information.system.uptimeSeconds++;
     time_update();
+
     frontpanel_ldr_read();
-    
+    display_set_brightness_auto();    
   }
 
   if(flags.tickers.displayrefresh)
   {
     flags.tickers.displayrefresh = false;
     display_draw();
+    
   }
 
   // Execute every minute

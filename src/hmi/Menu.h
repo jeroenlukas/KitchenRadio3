@@ -62,7 +62,7 @@ class ValueItem : public MenuItem {
     ValueItem(const char* n, int* v, int minV, int maxV)
       : name(n), valuePtr(v), minVal(minV), maxVal(maxV) {}
 
-    int increment;
+    int increment = 1;
 
     ItemType getType() const override {
       return VALUE_ITEM;

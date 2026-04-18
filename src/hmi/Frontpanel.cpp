@@ -155,7 +155,6 @@ void frontpanel_buttons_read()
                 switch(button)
                 {
                     case CONFIG_PIN_MCP_BTN_OFF:
-                        LOGG_INFO("Off!!!");
                         flags.frontPanel.buttonOffPressed = true;
                         break;
                     case CONFIG_PIN_MCP_BTN_WEBRADIO:

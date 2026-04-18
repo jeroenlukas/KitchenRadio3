@@ -17,5 +17,6 @@
 #define FONT_S                  u8g2_font_smallsimple_tr //u8g2_font_simple1_tf=h13w9
 #define FONT_M                  u8g2_font_minicute_tr
 #define FONT_AUDIO              u8g2_font_likeminecraft_te //u8g2_font_helvB08_tf
+#define FONT_WEATHERICONS       u8g2_font_climacons_40
 
 #endif
