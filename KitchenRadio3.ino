@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 
+
 #include "src/configuration/Config.h"
 #include "src/system/Settings.h"
 #include "src/system/Stations.h"
@@ -21,6 +22,7 @@
 #include "src/hmi/Menu.h"
 #include "src/webserver/Webserver.h"
 #include "src/system/Logger.h"
+#include "src/system/Profiler.h"
 
 #include "src/audio/Webradio.h"
 #include "src/audio/Audioplayer.h"
@@ -29,6 +31,9 @@
 
 TaskHandle_t taskFrontpanel = NULL;
 
+
+TimeProfile tpEvents("Events");
+TimeProfile tpAudio("Audio");
 
 void taskFrontpanel_loop(void* parameter)
 {
@@ -124,8 +129,15 @@ void setup()
   // Tickers
   tickers_init();
 
+  // Profiler
+  profiler.add(&tpEvents);
+  profiler.add(&tpAudio);
+
   // Get weather info
   weather_retrieve();
+
+  // Turn off leds
+  frontpanel_leds_handle();
 
   information.system.bootTimeSeconds = millis() / 1000;
   LOGG_INFO("Init done! Boot took " + String(information.system.bootTimeSeconds) + " s" );
@@ -142,10 +154,14 @@ void loop()
   cli_handle();
 
   // Handle events
+  tpEvents.start();
   events_handle();
+  tpEvents.stop();
 
   // Handle audio stuff
+  tpAudio.start();
   audioplayer_handle();
+  tpAudio.stop();
 
   // Handle buttons etc
   //frontpanel_handle();  

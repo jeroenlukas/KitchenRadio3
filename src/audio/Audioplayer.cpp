@@ -11,6 +11,7 @@
 #include "../system/Logger.h"
 
 #include "../system/Settings.h"
+#include "../hmi/Frontpanel.h"
 
 
 #include "Webradio.h"
@@ -114,7 +115,8 @@ void audioplayer_mode_set( soundMode_t mode)
 
     }
 
-     information.audioPlayer.changing = false;
+    frontpanel_leds_handle();
+    information.audioPlayer.changing = false;
 
 }
 

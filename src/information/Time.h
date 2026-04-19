@@ -2,6 +2,9 @@
 #define KR_TIME_H
 
 #include <Arduino.h>
+#include <ezTime.h>
+
+extern Timezone tzLocal;
 
 extern void time_begin();
 extern void time_update();

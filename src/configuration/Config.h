@@ -23,5 +23,6 @@
 
 #define CONF_DISPLAY_AUTO_BRIGHTNESS_MIN  25
 #define CONF_DISPLAY_AUTO_BRIGHTNESS_MAX  80
+#define CONF_NIGHTMODE_LEVEL              25      // Below this LDR%, the front panel LEDs will turn off
 
 #endif

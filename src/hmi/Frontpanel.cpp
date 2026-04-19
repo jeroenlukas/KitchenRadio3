@@ -14,6 +14,8 @@ RotaryEncoder encoder2(CONFIG_PIN_ROTARY2_A, CONFIG_PIN_ROTARY2_B, RotaryEncoder
 Adafruit_MCP23X17 mcp;
 
 void frontpanel_encoders_read();
+void frontpanel_nightmode_handle();
+void frontpanel_leds_handle();
 void front_buttons_read();
 void front_i2c_ping();
 void front_ldr_read();
@@ -61,14 +63,19 @@ void frontpanel_begin()
     mcp.pinMode(CONFIG_PIN_MCP_LED_BLUETOOTH, OUTPUT);    
     mcp.pinMode(CONFIG_PIN_MCP_LED_ALARM, OUTPUT);
     mcp.pinMode(CONFIG_PIN_MCP_LED_LAMP, OUTPUT);
+
+    // All LEDs are on during startup
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_WEBRADIO, HIGH);    
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_BLUETOOTH, HIGH);
+    mcp.digitalWrite(CONFIG_PIN_MCP_LED_ALARM, HIGH);
+    mcp.digitalWrite(CONFIG_PIN_MCP_LED_LAMP, HIGH);
     
 }
 
 void frontpanel_handle()
 {
   frontpanel_encoders_read();  
+  frontpanel_nightmode_handle();
 }
 
 void frontpanel_ldr_read()
@@ -77,6 +84,45 @@ void frontpanel_ldr_read()
     uint16_t adc = 4095 - an;
 
     information.system.ldr = map(adc, 0, 4095, 0, 100);    
+}
+
+void frontpanel_nightmode_handle()
+{
+    
+    if((information.system.ldr < CONF_NIGHTMODE_LEVEL) && (!information.system.nightmode))
+    {
+        LOGG_DEBUG("Entering night mode!");
+        information.system.nightmode = true;
+        frontpanel_leds_handle();
+    }
+    else if ((information.system.ldr > CONF_NIGHTMODE_LEVEL) && (information.system.nightmode))
+    {
+        LOGG_DEBUG("Exiting night mode!");
+        information.system.nightmode = false;
+        frontpanel_leds_handle();
+    }
+}
+
+// Should be called when LEDs should be updated, for example when changing audio mode.
+void frontpanel_leds_handle()
+{
+    LOGG_DEBUG("Settings LEDs");
+
+    // Turn off  all leds when in nightmode
+    if(information.system.nightmode)
+    {
+        mcp.digitalWrite(CONFIG_PIN_MCP_LED_WEBRADIO, LOW);
+        mcp.digitalWrite(CONFIG_PIN_MCP_LED_BLUETOOTH, LOW);
+        mcp.digitalWrite(CONFIG_PIN_MCP_LED_ALARM, LOW);
+        mcp.digitalWrite(CONFIG_PIN_MCP_LED_LAMP, LOW);
+    }
+    else
+    {
+        //if(information.audioPlayer.soundMode == WEBRADIO)
+        mcp.digitalWrite(CONFIG_PIN_MCP_LED_WEBRADIO, information.audioPlayer.soundMode == WEBRADIO ? true : false);
+        mcp.digitalWrite(CONFIG_PIN_MCP_LED_BLUETOOTH, information.audioPlayer.soundMode == BLUETOOTH ? true : false);
+        mcp.digitalWrite(CONFIG_PIN_MCP_LED_LAMP, information.lamp.state);
+    }
 }
 
 // Read buttons. Should be read every 100ms

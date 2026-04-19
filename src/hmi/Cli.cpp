@@ -14,6 +14,7 @@
 
 #include "../system/Logger.h"
 #include "../system/Filemanager.h"
+#include "../system/Profiler.h"
 
 #include "../hmi/Display.h"
 #include "Frontpanel.h"
@@ -43,6 +44,7 @@ Command cmd_time;
 Command cmd_treble;
 Command cmd_bass;
 Command cmd_mem;
+Command cmd_profiler;
 
 void cli_begin();
 void cli_handle();
@@ -73,6 +75,11 @@ void cb_radio(cmd* c)
         webradio_url_set(cmd.getArg("url").getValue());
 
 
+}
+
+void cb_profiler(cmd* c)
+{
+    profiler.print();
 }
 
 void cb_i2cping(cmd* c)
@@ -419,6 +426,10 @@ void cli_begin(void)
     cmd_mem = kr_cli.addCommand("mem", cb_mem);
     cmd_mem.setDescription("- Show memory statistics");
 
+    // > profiler
+    cmd_profiler = kr_cli.addCommand("profiler", cb_profiler);
+    cmd_profiler.setDescription("- Show time profiler results");
+    
 /*
     // > bootlog
     cmd_bootlog = kr_cli.addCommand("bootlog", cb_bootlog);

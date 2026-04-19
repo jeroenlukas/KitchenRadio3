@@ -29,10 +29,12 @@ class Information_t {
 
             uint32_t uptimeSeconds;
             uint32_t bootTimeSeconds;
-            int8_t wifiRSSI;
             
+            int8_t wifiRSSI;            
             String ipAddress;
+
             uint8_t ldr;
+            bool nightmode;
 
             int lastResetReason;
 

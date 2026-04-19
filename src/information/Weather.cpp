@@ -3,6 +3,7 @@
 #include <ezTime.h>
 #include <ArduinoJson.h>
 #include "Information.h"
+#include "Time.h"
 #include "../configuration/Config.h"
 #include "../system/Settings.h"
 #include "../system/Logger.h"
@@ -52,8 +53,8 @@ bool weather_retrieve()
         
         information.weather.sunrise = doc["sys"]["sunrise"];
         information.weather.sunset = doc["sys"]["sunset"];                
-        //information.weather.sunrise_str = localTimezone.dateTime(information.weather.sunrise, ezLocalOrUTC_t::UTC_TIME, "H:i");        
-        //information.weather.sunset_str = localTimezone.dateTime(information.weather.sunset, ezLocalOrUTC_t::UTC_TIME, "H:i");
+        information.weather.sunrise_str = tzLocal.dateTime(information.weather.sunrise, ezLocalOrUTC_t::UTC_TIME, "H:i");        
+        information.weather.sunset_str = tzLocal.dateTime(information.weather.sunset, ezLocalOrUTC_t::UTC_TIME, "H:i");
 
 
         String weather_icon = doc["weather"][0]["icon"];
