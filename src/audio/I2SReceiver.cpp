@@ -32,6 +32,7 @@ StreamCopy i2scopier(vs1053, i2sStream);
 
 void i2sreceiver_command_parse(String command);
 void i2sreceiver_send(String str);
+void i2sreceiver_playpause();
 
 void i2sreceiver_init()
 {
@@ -101,6 +102,15 @@ void i2sreceiver_send(String str)
 {
     LOGG_DEBUG("Sending: " + str);
     serial_bt.print(str + '\n');
+}
+
+void i2sreceiver_playpause()
+{
+  if(information.audioPlayer.bluetoothMode == BT_PAUSED)
+    i2sreceiver_send("AT+PLAY");
+
+  else if(information.audioPlayer.bluetoothMode == BT_PLAYING)
+    i2sreceiver_send("AT+PAUSE");
 }
 
 void i2sreceiver_command_parse(String command)

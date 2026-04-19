@@ -8,11 +8,13 @@
 
 #include "../audio/Audioplayer.h"
 #include "../audio/Webradio.h"
+#include "../audio/I2SReceiver.h"
 #include "../hmi/Display.h"
 #include "../information/Weather.h"
 #include "../hmi/Frontpanel.h"
 #include "../information/Time.h"
 #include "../system/Tickers.h"
+
 
 #include "../system/Logger.h"
 
@@ -220,6 +222,19 @@ void events_buttons()
   {
     flags.frontPanel.buttonLampPressed = false;
     menuMgr.switchTo(MENU_LAMP);
+  }
+
+  if(flags.frontPanel.encoder1ButtonPressed)
+  {
+    flags.frontPanel.encoder1ButtonPressed = false;
+    // TODO mute
+  }
+
+  if(flags.frontPanel.encoder2ButtonPressed)
+  {
+    flags.frontPanel.encoder2ButtonPressed = false;
+    if(information.audioPlayer.soundMode == BLUETOOTH)
+      i2sreceiver_playpause();
   }
 
 

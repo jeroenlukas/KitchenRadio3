@@ -2,12 +2,11 @@
 #define KR_PROFILER_H
 
 #define MAX_PROFILES  10
-#define MAX_RESULTS   10
+#define MAX_RESULTS   50
 
 class TimeProfile {
   private:
     uint32_t usStart;
-    //uint32_t usElapsed;
     uint32_t results[MAX_RESULTS];
     uint8_t results_idx = 0;
     uint8_t results_cnt = 0;
@@ -24,7 +23,7 @@ class TimeProfile {
     void stop()
     {
       results[results_idx++] = micros() - usStart;
-      if(results_idx == 10) results_idx = 0;
+      if(results_idx == MAX_RESULTS) results_idx = 0;
       if(results_cnt < MAX_RESULTS) results_cnt++;  
     }
 

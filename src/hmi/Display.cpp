@@ -9,10 +9,12 @@
 #include "../system/Logger.h"
 #include "../information/Time.h"
 #include "../system/Settings.h"
+#include "../system/Profiler.h"
 #include "../information/Weather.h"
 #include "XbmIcons.h"
 #include "Menu.h"
 
+TimeProfile tpDisplay("Display");
 
 U8G2_SSD1322_NHD_256X64_1_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ CONFIG_PIN_HSPI_CS, /* dc=*/ CONFIG_PIN_HSPI_DC, /* reset=*/ 9);	// Enable U8G2_16BIT in u8g2.h
 
@@ -28,6 +30,8 @@ void display_begin()
   hspi = new SPIClass(HSPI);
   hspi->begin(CONFIG_PIN_HSPI_SCK, CONFIG_PIN_HSPI_MISO, CONFIG_PIN_HSPI_MOSI, CONFIG_PIN_HSPI_CS);  
   u8g2.begin();
+
+  profiler.add(&tpDisplay);
 }
 
 // === Home screen ===
@@ -178,17 +182,20 @@ void display_draw_menu()
 
 void display_draw()
 {
-    u8g2.firstPage();
-    do 
-    {      
-      if(menuMgr.isActive())
-      {
-        display_draw_menu();
-      }
-      else display_draw_home();
-      
-    } while ( u8g2.nextPage() );
+  tpDisplay.start();
 
+  u8g2.firstPage();
+  do 
+  {      
+    if(menuMgr.isActive())
+    {
+      display_draw_menu();
+    }
+    else display_draw_home();
+    
+  } while ( u8g2.nextPage() );
+
+  tpDisplay.stop();
 }
 
 void display_draw_startup()
