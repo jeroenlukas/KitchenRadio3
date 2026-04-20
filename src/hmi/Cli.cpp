@@ -18,6 +18,7 @@
 
 #include "../hmi/Display.h"
 #include "Frontpanel.h"
+#include "Lamp.h"
 
 
 SimpleCLI kr_cli;
@@ -130,7 +131,7 @@ void cb_volume(cmd* c)
         audioplayer_volume_set(volume);
     }
 }
-/*
+
 void cb_lamp(cmd* c)
 {
     Command cmd(c);
@@ -152,7 +153,14 @@ void cb_lamp(cmd* c)
         float l = cmd.getArgument("l").getValue().toFloat();
         lamp_setlightness(l);
     }
-    
+    if(cmd.getArgument("on").isSet())
+    {
+        lamp_on();
+    }
+    if(cmd.getArgument("off").isSet())
+    {
+        lamp_off();
+    }
 
 }
 
@@ -162,14 +170,14 @@ void cb_effect(cmd* c)
 
     if(cmd.getArgument("t").isSet())
     {
-        lamp_seteffecttype(cmd.getArgument("t").getValue().toInt());
+        //lamp_seteffecttype(cmd.getArgument("t").getValue().toInt());
     }
     if(cmd.getArgument("s").isSet())
     {
         lamp_seteffectspeed(cmd.getArgument("s").getValue().toFloat());
     }
 }
-
+/*
 void cb_fake(cmd* c)
 {
     Command cmd(c);
@@ -436,15 +444,17 @@ void cli_begin(void)
     cmd_bootlog.setDescription("- Print the boot log with timestamps");
 
     // > help
-
+*/
 
     // > lamp
     cmd_lamp = kr_cli.addCmd("lamp", cb_lamp);
     cmd_lamp.addArgument("h/ue", "0.0");
     cmd_lamp.addArgument("s/aturation", "0.0");
     cmd_lamp.addArgument("l/ightness", "0.0");    
+    cmd_lamp.addFlagArgument("on");
+    cmd_lamp.addFlagArgument("off");
     cmd_lamp.setDescription("- Set the lamp hue (0.0 - 1.0), saturation (0.0 - 1.0) and/or lightness (0.0 - 0.5)");
-
+/*
     // > effect
     cmd_effect = kr_cli.addCmd("effect", cb_effect);
     cmd_effect.addArgument("t/ype", "0");

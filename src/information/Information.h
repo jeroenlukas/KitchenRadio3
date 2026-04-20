@@ -5,6 +5,7 @@
 
 enum soundMode_t { OFF, WEBRADIO, BLUETOOTH, CHANGING };
 enum bluetoothMode_t { BT_OFF, BT_NOTCONNECTED, BT_CONNECTED, BT_CONNECTING, BT_DISCONNECTING, BT_PLAYING, BT_PAUSED, BT_STOPPED, BT_UNKNOWN };
+enum lampEffectType_t { EFFECT_NONE, EFFECT_RAINBOW, EFFECT_PULSE };
      
 class Information_t {
     public:
@@ -69,7 +70,7 @@ class Information_t {
             float lightness;
             float hue; 
             float saturation;
-            uint8_t effect_type;
+            lampEffectType_t effect_type;
             float effect_speed;
         };
 

@@ -20,6 +20,7 @@
 #include "src/hmi/Display.h"
 #include "src/hmi/Frontpanel.h"
 #include "src/hmi/Menu.h"
+#include "src/hmi/Lamp.h"
 #include "src/webserver/Webserver.h"
 #include "src/system/Logger.h"
 #include "src/system/Profiler.h"
@@ -101,7 +102,8 @@ void setup()
   // Webserver
   webserver_begin();
 
-
+  // Lamp
+  lamp_init();
 
   // Time
   time_begin();

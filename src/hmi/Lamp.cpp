@@ -1,0 +1,121 @@
+#include <Arduino.h>
+#include <Ticker.h>
+#include <NeoPixelBus.h>
+
+#include "../configuration/Config.h"
+#include "../system/Logger.h"
+#include "../information/Information.h"
+
+#include "Lamp.h"
+#include "Frontpanel.h"
+
+
+const uint16_t PixelCount = CONFIG_LED_RING_NUM_LEDS; // this example assumes 4 pixels, making it smaller will cause a failure
+const uint8_t PixelPin = CONFIG_PIN_LED_RING;  // make sure to set this to the correct pin, ignored for Esp8266
+
+// NOTE: Please use the CORE3 branch of the NeoPixelBus library! This is compatible with Arduino Core 3
+
+Ticker ticker_effect_100ms_ref;
+
+NeoPixelBus<NeoGrbFeature, NeoWs2812xMethod> strip(PixelCount, PixelPin);
+
+void ticker_effect_100ms()
+{
+    if(information.lamp.effect_type == EFFECT_RAINBOW)
+    {
+        // Hue fade
+        if((information.lamp.hue += information.lamp.effect_speed) > 1.0)
+        {
+            information.lamp.hue = 0.0;
+        }
+        lamp_sethue(information.lamp.hue);
+    }
+}
+
+void lamp_init()
+{
+    // this resets all the neopixels to an off state
+    strip.Begin();
+    strip.Show();
+
+    ticker_effect_100ms_ref.attach(0.1, ticker_effect_100ms);
+    
+    information.lamp.effect_type = EFFECT_NONE; // No effect
+    information.lamp.effect_speed = 0.001;
+
+    information.lamp.state = false;
+    information.lamp.hue = 0.2;
+    information.lamp.saturation = 1.0;
+    information.lamp.lightness = 0.3;
+    
+}
+
+void lamp_update()
+{
+    RgbColor rgb(0,0,0);
+    HslColor hsl(rgb);
+
+    hsl.H = information.lamp.hue;
+    hsl.S = information.lamp.saturation;
+
+    if(information.lamp.state)
+        hsl.L = information.lamp.lightness;
+    else hsl.L = 0.0;
+
+    for(int i = 0; i < CONFIG_LED_RING_NUM_LEDS; i++)
+    {
+        strip.SetPixelColor(i, hsl);
+    }
+    strip.Show();
+
+    frontpanel_leds_handle();
+}
+
+void lamp_toggle()
+{
+  information.lamp.state = !information.lamp.state;
+
+  lamp_update();
+}
+
+void lamp_on()
+{
+  information.lamp.state = true;
+  lamp_update();
+}
+
+void lamp_off()
+{
+  information.lamp.state = false;
+  lamp_update();
+}
+
+// H, S values (0.0 - 1.0)
+// L should be limited to between (0.0 - 0.5)
+void lamp_sethue(float hue)
+{    
+  information.lamp.hue = constrain(hue, 0.0, 1.0);
+  lamp_update();    
+}
+
+void lamp_setsaturation(float saturation)
+{
+  information.lamp.saturation = constrain(saturation, 0.0, 1.0);
+  lamp_update();
+}
+
+void lamp_setlightness(float lightness)
+{    
+  information.lamp.lightness = constrain(lightness, 0.0, 0.5);
+  lamp_update();
+}
+
+void lamp_seteffecttype(lampEffectType_t effect)
+{
+    information.lamp.effect_type = effect;     
+}
+
+void lamp_seteffectspeed(float speed)
+{
+    information.lamp.effect_speed = constrain(speed, 0.000001, 0.5);     
+}
