@@ -175,6 +175,24 @@ void display_draw_menu()
         ii->show();
       }
       break;
+    
+    case OPTION_ITEM:
+      {
+        OptionItem* oi = (OptionItem*)item;
+        u8g2.drawStr(10, 15, menuMgr.currentMenu()->getName()); // Draw menu name
+        u8g2.drawStr(10, 36, item->getName()); // Draw item name
+        u8g2.drawStr(70, 36, String(oi->getValueString()).c_str());  // Draw item value
+      }
+      break;
+
+    case BOOL_ITEM:
+      {
+        BoolItem* bi = (BoolItem*)item;
+        u8g2.drawStr(10, 15, menuMgr.currentMenu()->getName()); // Draw menu name
+        u8g2.drawStr(10, 36, item->getName()); // Draw item name
+        u8g2.drawStr(70, 36, String(bi->getValueString()).c_str());  // Draw item value      
+      }
+      break;
 
     default:
       {

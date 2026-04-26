@@ -103,13 +103,32 @@ void events_encoders()
     {
       // Decrease value
       MenuItem* item = menuMgr.currentMenu()->getSelectedItem();
-      if (item->getType() == INT_ITEM) {
-        IntItem* val = (IntItem*)item;  // safe now
-        val->decrease();
-      }
-      else if (item->getType() == FLOAT_ITEM) {
-        FloatItem* val = (FloatItem*)item;  // safe now
-        val->decrease();
+      switch(item->getType())
+      {
+        case INT_ITEM:
+        {
+          IntItem* val = (IntItem*)item;  // safe now
+          val->decrease();
+        }
+          break;
+        case FLOAT_ITEM:
+        {
+          FloatItem* val = (FloatItem*)item;  // safe now
+          val->decrease();
+        }
+          break;
+        case OPTION_ITEM:
+        {
+          OptionItem* val = (OptionItem*)item;  // safe now
+          val->prev();
+        }
+          break;
+        case BOOL_ITEM:
+        {
+          BoolItem* val = (BoolItem*)item;  // safe now
+          val->toggle();
+        }
+          break;
       }
     }
     else {
@@ -127,14 +146,36 @@ void events_encoders()
     {
       // Increase value
       MenuItem* item = menuMgr.currentMenu()->getSelectedItem();
-      if (item->getType() == INT_ITEM) {
-        IntItem* val = (IntItem*)item;  // safe now
-        val->increase();
+
+      switch(item->getType())
+      {
+        case INT_ITEM:
+        {
+          IntItem* val = (IntItem*)item;  // safe now
+          val->increase();
+        }
+          break;
+        case FLOAT_ITEM:
+        {
+          FloatItem* val = (FloatItem*)item;  // safe now
+          val->increase();
+        }
+          break;
+        case OPTION_ITEM:
+        {
+          OptionItem* val = (OptionItem*)item;  // safe now
+          val->next();
+        }
+          break;
+        case BOOL_ITEM:
+        {
+          BoolItem* val = (BoolItem*)item;  // safe now
+          val->toggle();
+        }
+          break;
       }
-      else if (item->getType() == FLOAT_ITEM) {
-        FloatItem* val = (FloatItem*)item;  // safe now
-        val->increase();
-      }
+
+
     }
     else {    
       
@@ -224,12 +265,14 @@ void events_buttons()
   {
     flags.frontPanel.buttonAlarmPressed = false;
     menuMgr.switchTo(MENU_ALARM);
+    menuMgr.first();  // Always open with the first page
   }
 
   if(flags.frontPanel.buttonLampPressed)
   {
     flags.frontPanel.buttonLampPressed = false;
     menuMgr.switchTo(MENU_LAMP);
+    menuMgr.first();  // Always open with the first page
   }
 
   if(flags.frontPanel.encoder1ButtonPressed)

@@ -29,9 +29,15 @@ int dummy;
 IntItem alarmDummy("(dummy)",&dummy,0,10);
 
 // Lamp items
+BoolItem biLampState("State", &(information.lamp.state), "Aan", "Uit");
 FloatItem fiHue("Hue", &(information.lamp.hue), 0.0, 1.0);
 FloatItem fiBrightness("Brightness", &(information.lamp.lightness), 0.0, 0.5);
 FloatItem fiSaturation("Saturation", &(information.lamp.saturation), 0.0, 1.0);
+
+const char* oiEffectType_labels[] = { "None", "Rainbow", "Twinkle"};
+enum oiEffectType_t { EFFECTTYPE_NONE, EFFECTTYPE_RAINBOW, EFFECTTYPE_TWINKLE, EFFECTTYPE_COUNT };
+oiEffectType_t Effectmode = EFFECTTYPE_NONE;
+OptionItem oiEffectType("Effect Type", (int*)&Effectmode , oiEffectType_labels, EFFECTTYPE_COUNT);
 
 // The menu manager
 MenuManager menuMgr;
@@ -61,6 +67,9 @@ void menu_begin()
   menuAlarm.addItem(&alarmDummy);
 
   // === Lamp menu ===
+  menuLamp.addItem(&biLampState);
+  biLampState.setCallback(lamp_setstate);
+  
   menuLamp.addItem(&fiHue);  
   fiHue.setCallback(lamp_sethue);
   fiHue.increment = 0.01;
@@ -72,6 +81,8 @@ void menu_begin()
   menuLamp.addItem(&fiSaturation);
   fiSaturation.setCallback(lamp_setsaturation);
   fiSaturation.increment = 0.05;
+
+  menuLamp.addItem(&oiEffectType);
 
 
   // Add the menus to the manager

@@ -71,6 +71,13 @@ void lamp_update()
     frontpanel_leds_handle();
 }
 
+void lamp_setstate(bool state)
+{
+  information.lamp.state = state;
+
+  lamp_update();
+}
+
 void lamp_toggle()
 {
   information.lamp.state = !information.lamp.state;
@@ -78,12 +85,14 @@ void lamp_toggle()
   lamp_update();
 }
 
+// TODO deprecate
 void lamp_on()
 {
   information.lamp.state = true;
   lamp_update();
 }
 
+// TODO deprecate
 void lamp_off()
 {
   information.lamp.state = false;

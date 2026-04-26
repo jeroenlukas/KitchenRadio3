@@ -14,6 +14,8 @@ enum ItemType {
   CUSTOMINFO_ITEM,
   INT_ITEM,
   FLOAT_ITEM,
+  OPTION_ITEM,
+  BOOL_ITEM,
   MENU_ITEM
 };
 
@@ -23,6 +25,8 @@ class MenuItem {
     virtual ItemType getType() const = 0;
     //virtual int getValue() const = 0;
 };
+
+// =========================== ITEMS ===========================
 
 class InfoItem : public MenuItem {
   private:
@@ -96,7 +100,6 @@ class IntItem : public MenuItem {
     }
 };
 
-
 class FloatItem : public MenuItem {
   private:
     const char* name;
@@ -141,6 +144,109 @@ class FloatItem : public MenuItem {
       onChange = cb;
     }
 };
+
+class BoolItem : public MenuItem {
+  private:
+    const char* name;
+    bool* valuePtr;
+
+    const char* trueLabel;
+    const char* falseLabel;
+
+    void (*onChange)(bool) = nullptr;
+
+  public:
+    BoolItem(const char* n, bool* v,
+                  const char* tLabel = "On",
+                  const char* fLabel = "Off")
+      : name(n), valuePtr(v),
+        trueLabel(tLabel), falseLabel(fLabel) {}
+
+    ItemType getType() const override {
+      return BOOL_ITEM;
+    }
+
+    void setCallback(void (*cb)(bool)) {
+      onChange = cb;
+    }
+
+    bool getValue() const {
+      return *valuePtr;
+    }
+
+    const char* getValueString()
+    {
+      return *valuePtr ? trueLabel : falseLabel;
+    }
+
+    void toggle() {
+      *valuePtr = !(*valuePtr);
+      if (onChange) onChange(*valuePtr);
+    }
+
+    // Optional: for consistency with other items
+    void increase() { toggle(); }
+    void decrease() { toggle(); }
+
+    void setValue(bool v) {
+      if (*valuePtr != v) {
+        *valuePtr = v;
+        if (onChange) onChange(*valuePtr);
+      }
+    }
+
+    const char* getName() const override {
+      return name;
+    }
+};
+
+class OptionItem : public MenuItem {
+  private:
+    const char* name;
+    int* valuePtr;                 // pointer to enum (stored as int)
+    const char** labels;           // array of names
+    int optionCount;
+
+    void (*onChange)(int) = nullptr;
+
+  public:
+    OptionItem(const char* n, int* v, const char** l, int count)
+      : name(n), valuePtr(v), labels(l), optionCount(count) {}
+
+    ItemType getType() const override {
+      return OPTION_ITEM;
+    }
+
+    void setCallback(void (*cb)(int)) {
+      onChange = cb;
+    }
+
+    int getValue() const {
+      return *valuePtr;
+    }
+
+    const char* getValueString()
+    {
+      return labels[*valuePtr];
+    }
+
+    void next() {
+      *valuePtr = (*valuePtr + 1) % optionCount;
+      if (onChange) onChange(*valuePtr);
+    }
+
+    void prev() {
+      *valuePtr = (*valuePtr - 1 + optionCount) % optionCount;
+      if (onChange) onChange(*valuePtr);
+    }
+
+    
+    const char* getName() const override {
+      return name;
+    }
+};
+
+// ============================================================================================================
 
 #define MAX_ITEMS 10
 class Menu : public MenuItem {

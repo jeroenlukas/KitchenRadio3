@@ -6,6 +6,7 @@
 
 extern void lamp_init();
 
+extern void lamp_setstate(bool state);
 extern void lamp_toggle();
 extern void lamp_setcolor(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness);
 extern void lamp_on();
