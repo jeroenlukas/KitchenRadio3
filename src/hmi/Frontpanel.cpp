@@ -187,12 +187,10 @@ void frontpanel_buttons_read()
         if(value) // Button was pushed
         {
             lastbutton = button;
-            lastpressdown = millis(); // button is pushed
-            LOGG_DEBUG("PUSH" );
+            lastpressdown = millis(); // button is pushed            
         }
         else  // Button was released
         {
-            LOGG_DEBUG("RELEASE" );
             if(button == lastbutton) 
             {
                 LOGG_DEBUG("Short press " + String(button));
@@ -295,10 +293,6 @@ void frontpanel_i2c_ping()
         error = Wire.endTransmission();
         if (error == 0) {
             LOGG_INFO("I2C device found at address " + address);
-            //if (address<16) {
-            //  LOG_INFO("0");
-            //}
-            //Serial.println(address,HEX);
             nDevices++;
         }
         else if (error==4) 

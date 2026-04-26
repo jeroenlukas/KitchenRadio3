@@ -150,9 +150,18 @@ void display_draw_menu()
 
   switch(item->getType())
   {
-    case VALUE_ITEM:  
+    case INT_ITEM:  
       {    
-        ValueItem* val = (ValueItem*)item;  
+        IntItem* val = (IntItem*)item;  
+        u8g2.drawStr(10, 15, menuMgr.currentMenu()->getName()); // Draw menu name
+        u8g2.drawStr(10, 36, item->getName()); // Draw item name
+        u8g2.drawStr(70, 36, String(val->getValue()).c_str());  // Draw item value
+      }
+      break;
+
+    case FLOAT_ITEM:  
+      {    
+        FloatItem* val = (FloatItem*)item;  
         u8g2.drawStr(10, 15, menuMgr.currentMenu()->getName()); // Draw menu name
         u8g2.drawStr(10, 36, item->getName()); // Draw item name
         u8g2.drawStr(70, 36, String(val->getValue()).c_str());  // Draw item value
@@ -164,6 +173,12 @@ void display_draw_menu()
         InfoItem* ii = (InfoItem*)item;
         u8g2.drawStr(80, POSY_AUDIO, item->getName()); // Draw name
         ii->show();
+      }
+      break;
+
+    default:
+      {
+        LOGG_ERROR("Unknown menuitem type!");
       }
       break;
 

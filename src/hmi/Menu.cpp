@@ -5,6 +5,7 @@
 
 #include "../audio/Audioplayer.h"
 #include "../system/Settings.h"
+#include "Lamp.h"
 #include "Display.h"
 
 #include "Menu.h"
@@ -17,19 +18,20 @@ Menu menuAlarm("Alarm");
 Menu menuLamp("Lamp");
 
 // Settings items
-ValueItem viTreble("Treble", &(settings.audio.tonecontrol.treble), 1,100);
-ValueItem viBass("Bass", &(settings.audio.tonecontrol.bass), 1 ,100);
+IntItem viTreble("Treble", &(settings.audio.tonecontrol.treble), 1,100);
+IntItem viBass("Bass", &(settings.audio.tonecontrol.bass), 1 ,100);
 InfoItem iiSystem("System Info");
 InfoItem iiSmiley("Smiley");
 InfoItem iiWeather("Weather");
 
 // Alarm items
 int dummy;
-ValueItem alarmDummy("(dummy)",&dummy,0,10);
+IntItem alarmDummy("(dummy)",&dummy,0,10);
 
 // Lamp items
-int dummy2;
-ValueItem lampHue("Hue", &dummy2, 0, 100);
+FloatItem fiHue("Hue", &(information.lamp.hue), 0.0, 1.0);
+FloatItem fiBrightness("Brightness", &(information.lamp.lightness), 0.0, 0.5);
+FloatItem fiSaturation("Saturation", &(information.lamp.saturation), 0.0, 1.0);
 
 // The menu manager
 MenuManager menuMgr;
@@ -38,7 +40,7 @@ MenuManager menuMgr;
 
 void menu_begin()
 {  
-  // Settings menu
+  // === System menu ===
   menuSystem.addItem(&iiSystem);
   iiSystem.setOnShowCallback(display_draw_custominfo_system);
 
@@ -55,11 +57,22 @@ void menu_begin()
   menuSystem.addItem(&viBass);
   viBass.setCallback(audioplayer_bass_set);
 
-  // Alarm menu
+  // === Alarm menu ===
   menuAlarm.addItem(&alarmDummy);
 
-  // Lamp menu
-  menuLamp.addItem(&lampHue);
+  // === Lamp menu ===
+  menuLamp.addItem(&fiHue);  
+  fiHue.setCallback(lamp_sethue);
+  fiHue.increment = 0.01;
+  
+  menuLamp.addItem(&fiBrightness);
+  fiBrightness.setCallback(lamp_setlightness);
+  fiBrightness.increment = 0.05;
+
+  menuLamp.addItem(&fiSaturation);
+  fiSaturation.setCallback(lamp_setsaturation);
+  fiSaturation.increment = 0.05;
+
 
   // Add the menus to the manager
   menuMgr.addMenu(&menuSystem);

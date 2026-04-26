@@ -12,7 +12,8 @@
 enum ItemType {
   ACTION_ITEM,
   CUSTOMINFO_ITEM,
-  VALUE_ITEM,
+  INT_ITEM,
+  FLOAT_ITEM,
   MENU_ITEM
 };
 
@@ -50,7 +51,7 @@ class InfoItem : public MenuItem {
     }
 };
 
-class ValueItem : public MenuItem {
+class IntItem : public MenuItem {
   private:
     const char* name;
     
@@ -59,13 +60,13 @@ class ValueItem : public MenuItem {
     void (*onChange)(int) = nullptr;  // callback
 
   public:
-    ValueItem(const char* n, int* v, int minV, int maxV)
+    IntItem(const char* n, int* v, int minV, int maxV)
       : name(n), valuePtr(v), minVal(minV), maxVal(maxV) {}
 
     int increment = 1;
 
     ItemType getType() const override {
-      return VALUE_ITEM;
+      return INT_ITEM;
     }
 
     void increase() {
@@ -96,6 +97,50 @@ class ValueItem : public MenuItem {
 };
 
 
+class FloatItem : public MenuItem {
+  private:
+    const char* name;
+    
+    float* valuePtr;
+    float minVal, maxVal;
+    void (*onChange)(float) = nullptr;  // callback
+
+  public:
+    FloatItem(const char* n, float* v, float minV, float maxV)
+      : name(n), valuePtr(v), minVal(minV), maxVal(maxV) {}
+
+    float increment = 0.1;
+
+    ItemType getType() const override {
+      return FLOAT_ITEM;
+    }
+
+    void increase() {
+      if (*valuePtr < maxVal) {
+        (*valuePtr) += increment;
+        if (onChange) onChange(*valuePtr);
+      }
+    }
+
+    void decrease() {
+      if (*valuePtr > minVal) {
+        (*valuePtr) -= increment;
+        if (onChange) onChange(*valuePtr);
+      }
+    }
+
+    float getValue() const {
+      return *valuePtr;
+    }
+
+    const char* getName() const override {
+      return name;
+    }
+
+    void setCallback(void (*cb)(float)) {
+      onChange = cb;
+    }
+};
 
 #define MAX_ITEMS 10
 class Menu : public MenuItem {

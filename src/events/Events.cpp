@@ -103,8 +103,12 @@ void events_encoders()
     {
       // Decrease value
       MenuItem* item = menuMgr.currentMenu()->getSelectedItem();
-      if (item->getType() == VALUE_ITEM) {
-        ValueItem* val = (ValueItem*)item;  // safe now
+      if (item->getType() == INT_ITEM) {
+        IntItem* val = (IntItem*)item;  // safe now
+        val->decrease();
+      }
+      else if (item->getType() == FLOAT_ITEM) {
+        FloatItem* val = (FloatItem*)item;  // safe now
         val->decrease();
       }
     }
@@ -123,8 +127,12 @@ void events_encoders()
     {
       // Increase value
       MenuItem* item = menuMgr.currentMenu()->getSelectedItem();
-      if (item->getType() == VALUE_ITEM) {
-        ValueItem* val = (ValueItem*)item;  // safe now
+      if (item->getType() == INT_ITEM) {
+        IntItem* val = (IntItem*)item;  // safe now
+        val->increase();
+      }
+      else if (item->getType() == FLOAT_ITEM) {
+        FloatItem* val = (FloatItem*)item;  // safe now
         val->increase();
       }
     }

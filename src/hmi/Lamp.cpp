@@ -94,6 +94,7 @@ void lamp_off()
 // L should be limited to between (0.0 - 0.5)
 void lamp_sethue(float hue)
 {    
+  LOGG_DEBUG("Setting hue to " + String(hue));
   information.lamp.hue = constrain(hue, 0.0, 1.0);
   lamp_update();    
 }
