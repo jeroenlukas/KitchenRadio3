@@ -263,7 +263,7 @@ void cb_oled(cmd* c)
 void cb_buzzer(cmd* c)
 {
     LOGG_DEBUG("Beep");
-    //buzzer_beep(500);
+    frontpanel_buzzer_beep(500);
     
     return;
 }

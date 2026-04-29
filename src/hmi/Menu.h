@@ -19,15 +19,20 @@ enum ItemType {
   MENU_ITEM
 };
 
+
+// Base class for menu items
 class MenuItem {
   public:
     virtual const char* getName() const = 0;
-    virtual ItemType getType() const = 0;
-    //virtual int getValue() const = 0;
+    virtual ItemType getType() const = 0;    
+    virtual void increase() = 0;
+    virtual void decrease() = 0;
 };
 
 // =========================== ITEMS ===========================
 
+// This is an info page item.
+// It should be used with the onShow callback, where a custom display is drawn.
 class InfoItem : public MenuItem {
   private:
     const char* name; // e.g. 'Weather'
@@ -49,12 +54,16 @@ class InfoItem : public MenuItem {
       onShow = cb;
     }
 
+    void increase() override {} // Ignore
+    void decrease() override {} // Ignore
+
     void show()
     {
       onShow();
     }
 };
 
+// Menu item for an integer value
 class IntItem : public MenuItem {
   private:
     const char* name;
@@ -73,14 +82,14 @@ class IntItem : public MenuItem {
       return INT_ITEM;
     }
 
-    void increase() {
+    void increase() override {
       if (*valuePtr < maxVal) {
         (*valuePtr) += increment;
         if (onChange) onChange(*valuePtr);
       }
     }
 
-    void decrease() {
+    void decrease() override {
       if (*valuePtr > minVal) {
         (*valuePtr) -= increment;
         if (onChange) onChange(*valuePtr);
@@ -100,6 +109,7 @@ class IntItem : public MenuItem {
     }
 };
 
+// Menu item for a float value
 class FloatItem : public MenuItem {
   private:
     const char* name;
@@ -118,14 +128,14 @@ class FloatItem : public MenuItem {
       return FLOAT_ITEM;
     }
 
-    void increase() {
+    void increase() override {
       if (*valuePtr < maxVal) {
         (*valuePtr) += increment;
         if (onChange) onChange(*valuePtr);
       }
     }
 
-    void decrease() {
+    void decrease() override {
       if (*valuePtr > minVal) {
         (*valuePtr) -= increment;
         if (onChange) onChange(*valuePtr);
@@ -145,6 +155,8 @@ class FloatItem : public MenuItem {
     }
 };
 
+// Boolean menu item to switch between true and false. 
+// Custom labels for true/false can be set, defaults are "On" and "Off"
 class BoolItem : public MenuItem {
   private:
     const char* name;
@@ -183,10 +195,9 @@ class BoolItem : public MenuItem {
       *valuePtr = !(*valuePtr);
       if (onChange) onChange(*valuePtr);
     }
-
-    // Optional: for consistency with other items
-    void increase() { toggle(); }
-    void decrease() { toggle(); }
+    
+    void increase() override { toggle(); }
+    void decrease() override { toggle(); }
 
     void setValue(bool v) {
       if (*valuePtr != v) {
@@ -230,16 +241,15 @@ class OptionItem : public MenuItem {
       return labels[*valuePtr];
     }
 
-    void next() {
+    void increase() override {
       *valuePtr = (*valuePtr + 1) % optionCount;
       if (onChange) onChange(*valuePtr);
     }
 
-    void prev() {
+    void decrease() override {
       *valuePtr = (*valuePtr - 1 + optionCount) % optionCount;
       if (onChange) onChange(*valuePtr);
     }
-
     
     const char* getName() const override {
       return name;
@@ -267,6 +277,9 @@ class Menu : public MenuItem {
       return title;
     }
 
+    void increase() override {} // Ignore
+    void decrease() override {} // Ignore
+
     MenuItem* getSelectedItem(){
       return items[selectedIndex];
     }
@@ -291,12 +304,10 @@ class Menu : public MenuItem {
 
 
     void next() {
-      //selectedIndex = (selectedIndex + 1) % itemCount;
       if(selectedIndex < itemCount-1) selectedIndex++;
     }
 
     void prev() {
-      // selectedIndex = (selectedIndex - 1 + itemCount) % itemCount;
       if(selectedIndex > 0) selectedIndex--;
     }
 
@@ -352,9 +363,6 @@ class MenuManager {
 
 };
 
-//enum menuId_t {MENU_HOME, MENU_SYSTEM, MENU_ALARM, MENU_LAMP};
-
-//extern menuId_t menuId;
 
 extern Menu menuSettings;
 

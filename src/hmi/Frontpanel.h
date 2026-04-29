@@ -7,5 +7,6 @@ extern void frontpanel_i2c_ping();
 extern void frontpanel_leds_handle();
 extern void frontpanel_buttons_read();
 extern void frontpanel_ldr_read();
+extern void frontpanel_buzzer_beep(uint16_t duration);
 
 #endif

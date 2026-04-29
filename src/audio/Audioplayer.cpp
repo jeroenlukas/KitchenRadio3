@@ -20,10 +20,13 @@
 VS1053Stream vs1053; // final audio output
 
 void audioplayer_volume_set(int volume);
+void audioplayer_pa_mute(bool mute);
+void audioplayer_mode_set( soundMode_t mode);
 
 void audioplayer_init()
 {
     LOGG_INFO("Audioplayer init");
+
     // Setup VS1053    
     auto cfg = vs1053.defaultConfig();
     cfg.is_encoded_data = true; // vs1053 is accepting encoded data
@@ -35,8 +38,28 @@ void audioplayer_init()
     vs1053.begin(cfg);
     LOGG_INFO("Audioplayer started");
 
+    // Set poweramp mute pin
+    pinMode(CONFIG_PIN_PA_MUTE, OUTPUT);
+
+    // Set soundmode to off
+    audioplayer_mode_set(OFF);
+
     // Set volume
     audioplayer_volume_set(40);
+}
+
+// Set by system, when audiomode is set to 'off'
+void audioplayer_pa_mute(bool mute)
+{
+    // Toggle power amp mute pin
+    digitalWrite(CONFIG_PIN_PA_MUTE, !mute);
+}
+
+// Set mute by user
+void audioplayer_set_mute(bool mute)
+{
+    information.audioPlayer.mute = mute;
+    audioplayer_pa_mute(mute);
 }
 
 void audioplayer_handle()
@@ -73,7 +96,7 @@ void audioplayer_volume_set(int volume)
     vs1053.setVolume(vol_log);
 }
 
-void audioplayer_mode_set( soundMode_t mode)
+void audioplayer_mode_set(soundMode_t mode)
 {
     //LOGG_INFO("Set mode to " + String(mode));
 
@@ -101,15 +124,19 @@ void audioplayer_mode_set( soundMode_t mode)
     {
         case WEBRADIO:
             if(webradio_connect(information.webRadio.station_index))
+            {
                 information.audioPlayer.soundMode = WEBRADIO;  
+                audioplayer_pa_mute(false);
+            }
             break;
         case BLUETOOTH:        
             information.audioPlayer.soundMode = BLUETOOTH;
             i2sreceiver_start();
+            audioplayer_pa_mute(false);
             break;
         case OFF:
             information.audioPlayer.soundMode = OFF;
-
+            audioplayer_pa_mute(true);
             break;
 
 

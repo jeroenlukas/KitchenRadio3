@@ -102,34 +102,9 @@ void events_encoders()
     if(menuMgr.isActive())
     {
       // Decrease value
-      MenuItem* item = menuMgr.currentMenu()->getSelectedItem();
-      switch(item->getType())
-      {
-        case INT_ITEM:
-        {
-          IntItem* val = (IntItem*)item;  // safe now
-          val->decrease();
-        }
-          break;
-        case FLOAT_ITEM:
-        {
-          FloatItem* val = (FloatItem*)item;  // safe now
-          val->decrease();
-        }
-          break;
-        case OPTION_ITEM:
-        {
-          OptionItem* val = (OptionItem*)item;  // safe now
-          val->prev();
-        }
-          break;
-        case BOOL_ITEM:
-        {
-          BoolItem* val = (BoolItem*)item;  // safe now
-          val->toggle();
-        }
-          break;
-      }
+      MenuItem* item = menuMgr.currentMenu()->getSelectedItem();      
+      item->decrease();
+
     }
     else {
       if(information.audioPlayer.volume > 3) 
@@ -146,36 +121,7 @@ void events_encoders()
     {
       // Increase value
       MenuItem* item = menuMgr.currentMenu()->getSelectedItem();
-
-      switch(item->getType())
-      {
-        case INT_ITEM:
-        {
-          IntItem* val = (IntItem*)item;  // safe now
-          val->increase();
-        }
-          break;
-        case FLOAT_ITEM:
-        {
-          FloatItem* val = (FloatItem*)item;  // safe now
-          val->increase();
-        }
-          break;
-        case OPTION_ITEM:
-        {
-          OptionItem* val = (OptionItem*)item;  // safe now
-          val->next();
-        }
-          break;
-        case BOOL_ITEM:
-        {
-          BoolItem* val = (BoolItem*)item;  // safe now
-          val->toggle();
-        }
-          break;
-      }
-
-
+      item->increase();
     }
     else {    
       
@@ -191,7 +137,6 @@ void events_encoders()
     if(menuMgr.isActive())
     {
       menuMgr.prev();
-      //flags.main.displayRedraw = true;
     }
     else
     {

@@ -10,9 +10,7 @@
 
 #include "Menu.h"
 
-// Three main menus: System, Alarm, Lamp
-
-// Menus
+// Root menus
 Menu menuSystem("System");
 Menu menuAlarm("Alarm");
 Menu menuLamp("Lamp");
@@ -29,15 +27,14 @@ int dummy;
 IntItem alarmDummy("(dummy)",&dummy,0,10);
 
 // Lamp items
-BoolItem biLampState("State", &(information.lamp.state), "Aan", "Uit");
+BoolItem biLampState("State", &(information.lamp.state));
 FloatItem fiHue("Hue", &(information.lamp.hue), 0.0, 1.0);
 FloatItem fiBrightness("Brightness", &(information.lamp.lightness), 0.0, 0.5);
 FloatItem fiSaturation("Saturation", &(information.lamp.saturation), 0.0, 1.0);
 
-const char* oiEffectType_labels[] = { "None", "Rainbow", "Twinkle"};
-enum oiEffectType_t { EFFECTTYPE_NONE, EFFECTTYPE_RAINBOW, EFFECTTYPE_TWINKLE, EFFECTTYPE_COUNT };
-oiEffectType_t Effectmode = EFFECTTYPE_NONE;
-OptionItem oiEffectType("Effect Type", (int*)&Effectmode , oiEffectType_labels, EFFECTTYPE_COUNT);
+const char* oiEffectType_labels[] = { "None", "Rainbow", "Pulse"};
+OptionItem oiEffectType("Effect Type", (int*)&(information.lamp.effect_type) , oiEffectType_labels, EFFECT_COUNT);
+FloatItem fiEffectSpeed("Effect Speed", &(information.lamp.effect_speed), 0.0, 1.0);
 
 // The menu manager
 MenuManager menuMgr;
@@ -76,13 +73,15 @@ void menu_begin()
   
   menuLamp.addItem(&fiBrightness);
   fiBrightness.setCallback(lamp_setlightness);
-  fiBrightness.increment = 0.05;
+  fiBrightness.increment = 0.02;
 
   menuLamp.addItem(&fiSaturation);
   fiSaturation.setCallback(lamp_setsaturation);
   fiSaturation.increment = 0.05;
 
   menuLamp.addItem(&oiEffectType);
+  menuLamp.addItem(&fiEffectSpeed);
+  fiEffectSpeed.increment = 0.01;
 
 
   // Add the menus to the manager

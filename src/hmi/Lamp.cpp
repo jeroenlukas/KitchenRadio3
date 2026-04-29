@@ -21,15 +21,34 @@ NeoPixelBus<NeoGrbFeature, NeoWs2812xMethod> strip(PixelCount, PixelPin);
 
 void ticker_effect_100ms()
 {
-    if(information.lamp.effect_type == EFFECT_RAINBOW)
-    {
-        // Hue fade
-        if((information.lamp.hue += information.lamp.effect_speed) > 1.0)
-        {
-            information.lamp.hue = 0.0;
-        }
-        lamp_sethue(information.lamp.hue);
-    }
+  switch(information.lamp.effect_type)
+  {
+    case EFFECT_NONE:
+      // Do nothing
+      break;
+    case EFFECT_RAINBOW:
+      {
+          // Hue fade
+          if((information.lamp.hue += information.lamp.effect_speed) > 1.0)
+          {
+              information.lamp.hue = 0.0;
+          }
+          lamp_sethue(information.lamp.hue);
+      }
+      break;
+    case EFFECT_PULSE:
+      {
+          // Sawtooth
+          if((information.lamp.lightness += information.lamp.effect_speed) > 0.49)
+          {
+              information.lamp.lightness = 0.0;
+          }
+          lamp_setlightness(information.lamp.lightness);
+      }
+      break;
+    default:
+      break;
+  }
 }
 
 void lamp_init()
@@ -49,6 +68,7 @@ void lamp_init()
     information.lamp.lightness = 0.3;
     
 }
+
 
 void lamp_update()
 {

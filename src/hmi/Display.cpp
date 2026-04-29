@@ -155,7 +155,7 @@ void display_draw_menu()
         IntItem* val = (IntItem*)item;  
         u8g2.drawStr(10, 15, menuMgr.currentMenu()->getName()); // Draw menu name
         u8g2.drawStr(10, 36, item->getName()); // Draw item name
-        u8g2.drawStr(70, 36, String(val->getValue()).c_str());  // Draw item value
+        u8g2.drawStr(90, 36, String(val->getValue()).c_str());  // Draw item value
       }
       break;
 
@@ -164,7 +164,7 @@ void display_draw_menu()
         FloatItem* val = (FloatItem*)item;  
         u8g2.drawStr(10, 15, menuMgr.currentMenu()->getName()); // Draw menu name
         u8g2.drawStr(10, 36, item->getName()); // Draw item name
-        u8g2.drawStr(70, 36, String(val->getValue()).c_str());  // Draw item value
+        u8g2.drawStr(90, 36, String(val->getValue()).c_str());  // Draw item value
       }
       break;
 
@@ -181,7 +181,7 @@ void display_draw_menu()
         OptionItem* oi = (OptionItem*)item;
         u8g2.drawStr(10, 15, menuMgr.currentMenu()->getName()); // Draw menu name
         u8g2.drawStr(10, 36, item->getName()); // Draw item name
-        u8g2.drawStr(70, 36, String(oi->getValueString()).c_str());  // Draw item value
+        u8g2.drawStr(90, 36, String(oi->getValueString()).c_str());  // Draw item value
       }
       break;
 
@@ -190,7 +190,7 @@ void display_draw_menu()
         BoolItem* bi = (BoolItem*)item;
         u8g2.drawStr(10, 15, menuMgr.currentMenu()->getName()); // Draw menu name
         u8g2.drawStr(10, 36, item->getName()); // Draw item name
-        u8g2.drawStr(70, 36, String(bi->getValueString()).c_str());  // Draw item value      
+        u8g2.drawStr(90, 36, String(bi->getValueString()).c_str());  // Draw item value      
       }
       break;
 

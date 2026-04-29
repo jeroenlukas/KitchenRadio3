@@ -69,6 +69,9 @@ void frontpanel_begin()
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_BLUETOOTH, HIGH);
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_ALARM, HIGH);
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_LAMP, HIGH);
+
+    // Buzzer
+    pinMode(CONFIG_PIN_BUZZER, OUTPUT);
     
 }
 
@@ -308,4 +311,13 @@ void frontpanel_i2c_ping()
     {
         LOGG_INFO("Done");
     }
+}
+
+void frontpanel_buzzer_beep(uint16_t duration)
+{
+    digitalWrite(CONFIG_PIN_BUZZER, HIGH);
+
+    delay(duration);
+
+    digitalWrite(CONFIG_PIN_BUZZER, LOW);
 }
