@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Ticker.h>
 #include <NeoPixelBus.h>
+#include <NeoPixelAnimator.h>
 
 #include "../configuration/Config.h"
 #include "../system/Logger.h"
@@ -16,8 +17,10 @@ const uint8_t PixelPin = CONFIG_PIN_LED_RING;  // make sure to set this to the c
 // NOTE: Please use the CORE3 branch of the NeoPixelBus library! This is compatible with Arduino Core 3
 
 Ticker ticker_effect_100ms_ref;
+const float MaxLightness = 0.2f; // max lightness at the head of the tail (0.5f is full bright)
 
 NeoPixelBus<NeoGrbFeature, NeoWs2812xMethod> strip(PixelCount, PixelPin);
+NeoPixelAnimator animations(1); // NeoPixel animation management object
 
 void ticker_effect_100ms()
 {
@@ -44,6 +47,13 @@ void ticker_effect_100ms()
               information.lamp.lightness = 0.0;
           }
           lamp_setlightness(information.lamp.lightness);
+      }
+      break;
+    case EFFECT_NIGHTRIDER:
+      {
+        strip.RotateRight(1);
+        
+        strip.Show();
       }
       break;
     default:
@@ -119,6 +129,11 @@ void lamp_off()
   lamp_update();
 }
 
+void lamp_handle()
+{
+
+}
+
 // H, S values (0.0 - 1.0)
 // L should be limited to between (0.0 - 0.5)
 void lamp_sethue(float hue)
@@ -143,6 +158,37 @@ void lamp_setlightness(float lightness)
 void lamp_seteffecttype(lampEffectType_t effect)
 {
     information.lamp.effect_type = effect;     
+
+    if(effect == EFFECT_NIGHTRIDER)
+    {
+      LOGG_DEBUG("NightRider start");      
+      RgbColor rgb(0,0,0);
+      HslColor hsl(rgb);
+
+      hsl.H = information.lamp.hue;
+      hsl.S = information.lamp.saturation;
+
+
+
+      // Turn all leds off first
+      hsl.L = 0.0;
+      for(int i = 0; i < CONFIG_LED_RING_NUM_LEDS; i++)
+      {
+          strip.SetPixelColor(i, hsl);
+          
+      }
+
+      if(information.lamp.state)
+          hsl.L = information.lamp.lightness;
+      else hsl.L = 0.0;
+
+      strip.SetPixelColor(1, hsl);      
+      hsl.L = information.lamp.lightness * 0.8;
+      strip.SetPixelColor(2, hsl);      
+      hsl.L = information.lamp.lightness * 0.6;
+      strip.SetPixelColor(3, hsl);    
+      strip.Show();
+    }
 }
 
 void lamp_seteffectspeed(float speed)

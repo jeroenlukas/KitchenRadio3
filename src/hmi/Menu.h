@@ -77,6 +77,7 @@ class IntItem : public MenuItem {
       : name(n), valuePtr(v), minVal(minV), maxVal(maxV) {}
 
     int increment = 1;
+    bool wraparound = false;
 
     ItemType getType() const override {
       return INT_ITEM;
@@ -87,11 +88,21 @@ class IntItem : public MenuItem {
         (*valuePtr) += increment;
         if (onChange) onChange(*valuePtr);
       }
+      else if(wraparound)
+      {
+        (*valuePtr) = minVal;
+        if (onChange) onChange(*valuePtr);
+      }
     }
 
     void decrease() override {
       if (*valuePtr > minVal) {
         (*valuePtr) -= increment;
+        if (onChange) onChange(*valuePtr);
+      }
+      else if(wraparound)
+      {
+        (*valuePtr) = maxVal;
         if (onChange) onChange(*valuePtr);
       }
     }
@@ -122,22 +133,32 @@ class FloatItem : public MenuItem {
     FloatItem(const char* n, float* v, float minV, float maxV)
       : name(n), valuePtr(v), minVal(minV), maxVal(maxV) {}
 
+    // Item customization
     float increment = 0.1;
+    bool wraparound = false; 
 
     ItemType getType() const override {
       return FLOAT_ITEM;
     }
 
     void increase() override {
-      if (*valuePtr < maxVal) {
+      if (*valuePtr < maxVal) 
+      {               
         (*valuePtr) += increment;
+        if((*valuePtr > maxVal-0.00001) && wraparound) (*valuePtr) = minVal;
+
         if (onChange) onChange(*valuePtr);
       }
     }
 
     void decrease() override {
-      if (*valuePtr > minVal) {
-        (*valuePtr) -= increment;
+      if (*valuePtr > minVal) 
+      {        
+        if(*valuePtr > increment) (*valuePtr) -= increment;
+        else *valuePtr = minVal;
+        
+        if((*valuePtr < minVal+0.00001) && wraparound) (*valuePtr) = maxVal; 
+
         if (onChange) onChange(*valuePtr);
       }
     }
@@ -178,6 +199,8 @@ class BoolItem : public MenuItem {
       return BOOL_ITEM;
     }
 
+    bool wraparound = false;
+
     void setCallback(void (*cb)(bool)) {
       onChange = cb;
     }
@@ -196,8 +219,17 @@ class BoolItem : public MenuItem {
       if (onChange) onChange(*valuePtr);
     }
     
-    void increase() override { toggle(); }
-    void decrease() override { toggle(); }
+    void increase() override 
+    { 
+      if(wraparound || !(*valuePtr))
+        toggle(); 
+    }
+    
+    void decrease() override 
+    { 
+      if(wraparound || (*valuePtr))
+        toggle(); 
+    }
 
     void setValue(bool v) {
       if (*valuePtr != v) {
@@ -224,6 +256,8 @@ class OptionItem : public MenuItem {
     OptionItem(const char* n, int* v, const char** l, int count)
       : name(n), valuePtr(v), labels(l), optionCount(count) {}
 
+    bool wraparound = false;
+
     ItemType getType() const override {
       return OPTION_ITEM;
     }
@@ -242,13 +276,26 @@ class OptionItem : public MenuItem {
     }
 
     void increase() override {
-      *valuePtr = (*valuePtr + 1) % optionCount;
-      if (onChange) onChange(*valuePtr);
+      Serial.println("Valueptr: " + String(*valuePtr) + " optionCount: " + String(optionCount) + " wraparound: " + String(wraparound));
+      if(((*valuePtr) < optionCount-1) || wraparound)
+      {
+        *valuePtr = (*valuePtr + 1) % optionCount;
+        if (onChange) onChange(*valuePtr);
+      }
     }
 
     void decrease() override {
-      *valuePtr = (*valuePtr - 1 + optionCount) % optionCount;
-      if (onChange) onChange(*valuePtr);
+      Serial.println("Valueptr: " + String(*valuePtr) + " optionCount: " + String(optionCount) + " wraparound: " + String(wraparound));
+      if(*valuePtr > 0)
+      {
+        *valuePtr = (*valuePtr - 1) % optionCount;
+        if (onChange) onChange(*valuePtr);
+      }
+      else if (wraparound)
+      {
+        *valuePtr =  optionCount - 1;
+        if (onChange) onChange(*valuePtr);
+      }
     }
     
     const char* getName() const override {

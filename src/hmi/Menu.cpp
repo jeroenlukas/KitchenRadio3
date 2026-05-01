@@ -32,14 +32,17 @@ FloatItem fiHue("Hue", &(information.lamp.hue), 0.0, 1.0);
 FloatItem fiBrightness("Brightness", &(information.lamp.lightness), 0.0, 0.5);
 FloatItem fiSaturation("Saturation", &(information.lamp.saturation), 0.0, 1.0);
 
-const char* oiEffectType_labels[] = { "None", "Rainbow", "Pulse"};
+const char* oiEffectType_labels[] = { "None", "Rainbow", "Pulse", "Night rider"};
 OptionItem oiEffectType("Effect Type", (int*)&(information.lamp.effect_type) , oiEffectType_labels, EFFECT_COUNT);
 FloatItem fiEffectSpeed("Effect Speed", &(information.lamp.effect_speed), 0.0, 1.0);
 
 // The menu manager
 MenuManager menuMgr;
 
-
+void onEffectChanged(int i)
+{  
+  lamp_seteffecttype((lampEffectType_t)i);
+}
 
 void menu_begin()
 {  
@@ -56,9 +59,11 @@ void menu_begin()
   menuSystem.addItem(&viTreble);
   viTreble.increment = 5;
   viTreble.setCallback(audioplayer_treble_set);
+  viTreble.wraparound = false;
   
   menuSystem.addItem(&viBass);
   viBass.setCallback(audioplayer_bass_set);
+  viBass.wraparound = true;
 
   // === Alarm menu ===
   menuAlarm.addItem(&alarmDummy);
@@ -70,6 +75,8 @@ void menu_begin()
   menuLamp.addItem(&fiHue);  
   fiHue.setCallback(lamp_sethue);
   fiHue.increment = 0.01;
+  fiHue.wraparound = true;
+  
   
   menuLamp.addItem(&fiBrightness);
   fiBrightness.setCallback(lamp_setlightness);
@@ -82,7 +89,7 @@ void menu_begin()
   menuLamp.addItem(&oiEffectType);
   menuLamp.addItem(&fiEffectSpeed);
   fiEffectSpeed.increment = 0.01;
-
+  oiEffectType.setCallback(onEffectChanged); 
 
   // Add the menus to the manager
   menuMgr.addMenu(&menuSystem);
