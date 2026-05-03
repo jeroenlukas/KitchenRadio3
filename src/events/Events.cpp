@@ -14,6 +14,7 @@
 #include "../hmi/Frontpanel.h"
 #include "../information/Time.h"
 #include "../system/Tickers.h"
+#include "../hmi/Lamp.h"
 
 
 #include "../system/Logger.h"
@@ -175,6 +176,7 @@ void events_encoders()
     }
  
   }
+
 }
 
 void events_buttons()
@@ -218,6 +220,12 @@ void events_buttons()
     flags.frontPanel.buttonLampPressed = false;
     menuMgr.switchTo(MENU_LAMP);
     menuMgr.first();  // Always open with the first page
+  }
+
+  if(flags.frontPanel.buttonLampLongPressed)
+  {
+    flags.frontPanel.buttonLampLongPressed = false;
+    lamp_toggle();
   }
 
   if(flags.frontPanel.encoder1ButtonPressed)

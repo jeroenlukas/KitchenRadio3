@@ -5,7 +5,7 @@
 
 enum soundMode_t { OFF, WEBRADIO, BLUETOOTH, CHANGING };
 enum bluetoothMode_t { BT_OFF, BT_NOTCONNECTED, BT_CONNECTED, BT_CONNECTING, BT_DISCONNECTING, BT_PLAYING, BT_PAUSED, BT_STOPPED, BT_UNKNOWN };
-enum lampEffectType_t { EFFECT_NONE, EFFECT_RAINBOW, EFFECT_PULSE, EFFECT_NIGHTRIDER, EFFECT_COUNT };
+enum lampEffectType_t { EFFECT_NONE, EFFECT_RAINBOW, EFFECT_PULSE, EFFECT_WHEEL, EFFECT_COUNT };
      
 class Information_t {
     public:
@@ -71,7 +71,7 @@ class Information_t {
             float hue; 
             float saturation;
             lampEffectType_t effect_type;
-            float effect_speed;
+            int effect_speed;
         };
 
         struct Webradio

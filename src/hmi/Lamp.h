@@ -15,7 +15,7 @@ extern void lamp_sethue(float hue);
 extern void lamp_setsaturation(float saturation);
 extern void lamp_setlightness(float lightness);
 extern void lamp_seteffecttype(lampEffectType_t effect);
-extern void lamp_seteffectspeed(float speed);
+extern void lamp_seteffectspeed(int speed);
 
 
 #endif

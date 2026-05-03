@@ -18,7 +18,7 @@
 
 
 // Display
-#define CONF_MENU_RETURN_HOME_MS          20000            // After how many ms of no user input do we return to the home screen?
+#define CONF_MENU_RETURN_HOME_MS          30000            // After how many ms of no user input do we return to the home screen?
 #define CONF_DISPLAYREFRESH_MS            300            // Interval between display updates
 
 #define CONF_DISPLAY_AUTO_BRIGHTNESS_MIN  25

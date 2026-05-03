@@ -136,6 +136,7 @@ class FloatItem : public MenuItem {
     // Item customization
     float increment = 0.1;
     bool wraparound = false; 
+    int decimals = 2;
 
     ItemType getType() const override {
       return FLOAT_ITEM;

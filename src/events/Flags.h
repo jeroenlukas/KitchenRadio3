@@ -34,12 +34,15 @@ class Flags_t
 
     struct flagsFrontpanel_t
     {
-        bool encoder1ButtonPressed;
-        bool encoder2ButtonPressed;
+        
         bool encoder1TurnRight;
         bool encoder1TurnLeft;
         bool encoder2TurnRight;
         bool encoder2TurnLeft;
+        bool encoder1ButtonPressed;
+        bool encoder2ButtonPressed;
+        bool encoder1ButtonLongPressed;
+        bool encoder2ButtonLongPressed;
 
         bool buttonOffPressed;
         bool buttonRadioPressed;

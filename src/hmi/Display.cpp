@@ -164,7 +164,7 @@ void display_draw_menu()
         FloatItem* val = (FloatItem*)item;  
         u8g2.drawStr(10, 15, menuMgr.currentMenu()->getName()); // Draw menu name
         u8g2.drawStr(10, 36, item->getName()); // Draw item name
-        u8g2.drawStr(90, 36, String(val->getValue()).c_str());  // Draw item value
+        u8g2.drawStr(90, 36, String(val->getValue(), val->decimals).c_str());  // Draw item value
       }
       break;
 

@@ -167,10 +167,10 @@ void frontpanel_buttons_read()
                         flags.frontPanel.buttonLampLongPressed = true;
                         break;    
                     case CONFIG_PIN_MCP_BTN_ENC1:
-                        //flags.frontPanel.encoder1ButtonLongPressed = true;
+                        flags.frontPanel.encoder1ButtonLongPressed = true;
                         break;
                     case CONFIG_PIN_MCP_BTN_ENC2:
-                        //flags.frontPanel.encoder2ButtonLongPressed = true;
+                        flags.frontPanel.encoder2ButtonLongPressed = true;
                         break;                
                     default:
                         break;

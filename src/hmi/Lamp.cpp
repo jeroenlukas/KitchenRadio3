@@ -10,19 +10,20 @@
 #include "Lamp.h"
 #include "Frontpanel.h"
 
+void lamp_update();
 
 const uint16_t PixelCount = CONFIG_LED_RING_NUM_LEDS; // this example assumes 4 pixels, making it smaller will cause a failure
 const uint8_t PixelPin = CONFIG_PIN_LED_RING;  // make sure to set this to the correct pin, ignored for Esp8266
 
 // NOTE: Please use the CORE3 branch of the NeoPixelBus library! This is compatible with Arduino Core 3
 
-Ticker ticker_effect_100ms_ref;
+Ticker ticker_effect_ref;
 const float MaxLightness = 0.2f; // max lightness at the head of the tail (0.5f is full bright)
 
 NeoPixelBus<NeoGrbFeature, NeoWs2812xMethod> strip(PixelCount, PixelPin);
-NeoPixelAnimator animations(1); // NeoPixel animation management object
 
-void ticker_effect_100ms()
+
+void ticker_effect()
 {
   switch(information.lamp.effect_type)
   {
@@ -32,27 +33,79 @@ void ticker_effect_100ms()
     case EFFECT_RAINBOW:
       {
           // Hue fade
-          if((information.lamp.hue += information.lamp.effect_speed) > 1.0)
+          static float hue = 0.0;
+          
+          if((hue += 0.005) > 1.0)
           {
-              information.lamp.hue = 0.0;
+              hue = 0.0;
           }
-          lamp_sethue(information.lamp.hue);
+
+          HslColor hsl(hue, 1.0, information.lamp.lightness);
+          
+          for(int i = 0; i < CONFIG_LED_RING_NUM_LEDS; i++)
+          {
+              strip.SetPixelColor(i, hsl);
+          }
+          strip.Show();
       }
       break;
     case EFFECT_PULSE:
       {
-          // Sawtooth
-          if((information.lamp.lightness += information.lamp.effect_speed) > 0.49)
+          // Brightness sawtooth                    
+          static float lightness = 0.0;
+
+          if((lightness += 0.005) > 0.5)
           {
-              information.lamp.lightness = 0.0;
+              lightness = 0.0;
           }
-          lamp_setlightness(information.lamp.lightness);
+          HslColor hsl(information.lamp.hue, information.lamp.saturation, lightness);
+          
+          for(int i = 0; i < CONFIG_LED_RING_NUM_LEDS; i++)
+          {
+              strip.SetPixelColor(i, hsl);
+          }
+          strip.Show();
       }
       break;
-    case EFFECT_NIGHTRIDER:
-      {
-        strip.RotateRight(1);
-        
+    case EFFECT_WHEEL:
+      { 
+        static int a = 0;
+        HslColor hsl(information.lamp.hue, information.lamp.saturation, information.lamp.lightness);
+        HslColor hslOff(0.0,0.0,0.0);
+
+        if(a++ >= CONFIG_LED_RING_NUM_LEDS)
+          a = 0;
+
+        for(int i = 0; i < CONFIG_LED_RING_NUM_LEDS; i++)
+        {
+          if(i == a)
+          {
+            hsl.L = information.lamp.lightness; // Reset brightness
+            strip.SetPixelColor(i, hsl);   
+          }
+          else if(i == a-1)
+          {
+            hsl.L = information.lamp.lightness * 0.3; 
+            strip.SetPixelColor(i, hsl);   
+          }
+          else if(i == a-2)
+          {
+            hsl.L = information.lamp.lightness * 0.1;
+            strip.SetPixelColor(i, hsl);   
+          }
+          else if(i == a-3)
+          {
+            hsl.L = information.lamp.lightness * 0.05; 
+            strip.SetPixelColor(i, hsl);   
+          }
+          
+
+          else 
+            strip.SetPixelColor(i, hslOff);
+          
+        }
+
+          
         strip.Show();
       }
       break;
@@ -67,10 +120,10 @@ void lamp_init()
     strip.Begin();
     strip.Show();
 
-    ticker_effect_100ms_ref.attach(0.1, ticker_effect_100ms);
+    ticker_effect_ref.attach(0.1, ticker_effect);
     
     information.lamp.effect_type = EFFECT_NONE; // No effect
-    information.lamp.effect_speed = 0.001;
+    information.lamp.effect_speed = 100;
 
     information.lamp.state = false;
     information.lamp.hue = 0.2;
@@ -91,6 +144,8 @@ void lamp_update()
     if(information.lamp.state)
         hsl.L = information.lamp.lightness;
     else hsl.L = 0.0;
+
+    LOGG_DEBUG("xxx");
 
     for(int i = 0; i < CONFIG_LED_RING_NUM_LEDS; i++)
     {
@@ -140,58 +195,32 @@ void lamp_sethue(float hue)
 {    
   LOGG_DEBUG("Setting hue to " + String(hue));
   information.lamp.hue = constrain(hue, 0.0, 1.0);
-  lamp_update();    
+  if(information.lamp.effect_type == EFFECT_NONE)
+    lamp_update();    
 }
 
 void lamp_setsaturation(float saturation)
 {
   information.lamp.saturation = constrain(saturation, 0.0, 1.0);
-  lamp_update();
+  if(information.lamp.effect_type == EFFECT_NONE)
+    lamp_update();
 }
 
 void lamp_setlightness(float lightness)
 {    
   information.lamp.lightness = constrain(lightness, 0.0, 0.5);
-  lamp_update();
+  if(information.lamp.effect_type == EFFECT_NONE)
+    lamp_update();
 }
 
 void lamp_seteffecttype(lampEffectType_t effect)
 {
     information.lamp.effect_type = effect;     
 
-    if(effect == EFFECT_NIGHTRIDER)
-    {
-      LOGG_DEBUG("NightRider start");      
-      RgbColor rgb(0,0,0);
-      HslColor hsl(rgb);
-
-      hsl.H = information.lamp.hue;
-      hsl.S = information.lamp.saturation;
-
-
-
-      // Turn all leds off first
-      hsl.L = 0.0;
-      for(int i = 0; i < CONFIG_LED_RING_NUM_LEDS; i++)
-      {
-          strip.SetPixelColor(i, hsl);
-          
-      }
-
-      if(information.lamp.state)
-          hsl.L = information.lamp.lightness;
-      else hsl.L = 0.0;
-
-      strip.SetPixelColor(1, hsl);      
-      hsl.L = information.lamp.lightness * 0.8;
-      strip.SetPixelColor(2, hsl);      
-      hsl.L = information.lamp.lightness * 0.6;
-      strip.SetPixelColor(3, hsl);    
-      strip.Show();
-    }
 }
 
-void lamp_seteffectspeed(float speed)
+void lamp_seteffectspeed(int speed)
 {
-    information.lamp.effect_speed = constrain(speed, 0.000001, 0.5);     
+    information.lamp.effect_speed = speed;
+    ticker_effect_ref.restart_ms(speed);
 }
