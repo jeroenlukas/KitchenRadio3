@@ -15,26 +15,34 @@ Menu menuSystem("System");
 Menu menuAlarm("Alarm");
 Menu menuLamp("Lamp");
 
-// Settings items
-IntItem viTreble("Treble", &(settings.audio.tonecontrol.treble), 1,100);
-IntItem viBass("Bass", &(settings.audio.tonecontrol.bass), 1 ,100);
+
+
+// [System]
 InfoItem iiSystem("System Info");
 InfoItem iiSmiley("Smiley");
 InfoItem iiWeather("Weather");
 
-// Alarm items
+// - [System] > [Audio]
+Menu menuSystem_Audio("Audio");
+IntItem viTreble("Treble", &(settings.audio.tonecontrol.treble), 1,100);
+IntItem viBass("Bass", &(settings.audio.tonecontrol.bass), 1 ,100);
+BoolItem biSpeakerPhase("Speaker phase", &(settings.audio.phase), "in phase", "out of phase");
+
+// [Alarm]
 int dummy;
 IntItem alarmDummy("(dummy)",&dummy,0,10);
 
-// Lamp items
+// [Lamp]
 BoolItem biLampState("State", &(information.lamp.state));
 FloatItem fiHue("Hue", &(information.lamp.hue), 0.0, 1.0);
 FloatItem fiBrightness("Brightness", &(information.lamp.lightness), 0.0, 0.5);
 FloatItem fiSaturation("Saturation", &(information.lamp.saturation), 0.0, 1.0);
 
-const char* oiEffectType_labels[] = { "None", "Rainbow", "Pulse", "Wheel"};
+// - [Lamp] > [Effects]
+Menu menuLamp_Effects("Effects");
+const char* oiEffectType_labels[] = { "None", "Rainbow", "Double Rainbow", "Pulse", "Wheel"};
 OptionItem oiEffectType("Effect Type", (int*)&(information.lamp.effect_type) , oiEffectType_labels, EFFECT_COUNT);
-IntItem iEffectSpeed("Effect Speed", &(information.lamp.effect_speed), 1, 200);
+IntItem iEffectSpeed("Effect Speed", &(information.lamp.effect_speed), 10, 200);
 
 // The menu manager
 MenuManager menuMgr;
@@ -56,14 +64,17 @@ void menu_begin()
   menuSystem.addItem(&iiWeather);
   iiWeather.setOnShowCallback(display_draw_custominfo_weather);
 
-  menuSystem.addItem(&viTreble);
+  // --- Audio submenu ---
+  menuSystem.addItem(&menuSystem_Audio);
+
+  menuSystem_Audio.addItem(&viTreble);
   viTreble.increment = 5;
   viTreble.setCallback(audioplayer_treble_set);
-  viTreble.wraparound = false;
   
-  menuSystem.addItem(&viBass);
+  menuSystem_Audio.addItem(&viBass);
   viBass.setCallback(audioplayer_bass_set);
-  viBass.wraparound = true;
+
+  menuSystem_Audio.addItem(&biSpeakerPhase);
 
   // === Alarm menu ===
   menuAlarm.addItem(&alarmDummy);
@@ -87,8 +98,11 @@ void menu_begin()
   fiSaturation.setCallback(lamp_setsaturation);
   fiSaturation.increment = 0.05;
 
-  menuLamp.addItem(&oiEffectType);
-  menuLamp.addItem(&iEffectSpeed);
+  // Effects submenu
+  menuLamp.addItem(&menuLamp_Effects);
+  
+  menuLamp_Effects.addItem(&oiEffectType);
+  menuLamp_Effects.addItem(&iEffectSpeed);
   iEffectSpeed.increment = 10;
   iEffectSpeed.setCallback(lamp_seteffectspeed);
   oiEffectType.setCallback(onEffectChanged); 

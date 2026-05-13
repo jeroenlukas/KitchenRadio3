@@ -9,6 +9,11 @@
 #define POSX_AUDIO              42
 #define POSY_AUDIO              61
 
+
+#define POSX_MENUITEM           10
+#define POSY_MENUITEM           32
+#define POSX_MENUITEM_VALUE     100
+
 // Fonts
 // https://github.com/olikraus/u8g2/wiki/fntgrp
 #define FONT_CLOCK              u8g2_font_logisoso24_tf
@@ -18,5 +23,7 @@
 #define FONT_M                  u8g2_font_minicute_tr
 #define FONT_AUDIO              u8g2_font_likeminecraft_te //u8g2_font_helvB08_tf
 #define FONT_WEATHERICONS       u8g2_font_climacons_40
-
+#define FONT_MENUPATH           FONT_S
+#define FONT_MENUITEM           u8g2_font_likeminecraft_te
+#define FONT_MENUCUSTOM         u8g2_font_likeminecraft_te
 #endif

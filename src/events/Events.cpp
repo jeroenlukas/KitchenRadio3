@@ -185,7 +185,7 @@ void events_buttons()
   {
     flags.frontPanel.buttonOffPressed = false;
     if(menuMgr.isActive())
-      menuMgr.exit();
+      menuMgr.back(); // 
     else
       audioplayer_mode_set(OFF);
 
@@ -237,7 +237,18 @@ void events_buttons()
   if(flags.frontPanel.encoder2ButtonPressed)
   {
     flags.frontPanel.encoder2ButtonPressed = false;
-    if(information.audioPlayer.soundMode == BLUETOOTH)
+
+    if(menuMgr.isActive())
+    {
+      MenuItem* item = menuMgr.currentMenu()->getSelectedItem();
+      if(item->getType() == MENU_ITEM)
+      {
+        LOGG_DEBUG("sub!!");
+        
+        menuMgr.enter();
+      }
+    }
+    else if(information.audioPlayer.soundMode == BLUETOOTH)
       i2sreceiver_playpause();
   }
 

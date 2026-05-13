@@ -313,6 +313,7 @@ class Menu : public MenuItem {
     MenuItem* items[MAX_ITEMS];
     int itemCount = 0;
     int selectedIndex = 0;
+    Menu* parent = nullptr;
 
   public:
     Menu(const char* t) : title(t) {}
@@ -325,6 +326,17 @@ class Menu : public MenuItem {
       return title;
     }
 
+    // Draw the 'path', so parent menu name > curent menu name
+    String getPath() 
+    {
+      String path = "";
+      if(parent != nullptr)
+      {
+        path = String(String(parent->getName()) + " > ");
+      }
+      return String(path + title);
+    }
+
     void increase() override {} // Ignore
     void decrease() override {} // Ignore
 
@@ -333,9 +345,27 @@ class Menu : public MenuItem {
     }
 
     void addItem(MenuItem* item) {
-      if (itemCount < MAX_ITEMS) {
+      if (itemCount < MAX_ITEMS) 
+      {
+        // When adding another menu as a submenu
+        if(item->getType() == MENU_ITEM)
+        {
+          Menu* submenu = (Menu*)item;
+          LOGG_DEBUG("Submenu added");
+          if (submenu != nullptr) {
+            submenu->setParent(this);
+          }
+        }
         items[itemCount++] = item;
       }
+    }
+
+    void setParent(Menu* p) {
+      parent = p;
+    }
+
+    Menu* getParent() {
+      return parent;
     }
 
     int getItemCount(){
@@ -349,6 +379,7 @@ class Menu : public MenuItem {
     void first(){
       selectedIndex = 0;
     }
+
 
 
     void next() {
@@ -370,7 +401,7 @@ class MenuManager {
     int menuCount = 0;
     bool active = false;
     int currentMenuIndex = MENU_SETTINGS;
-
+    Menu* currentMenuPtr;
   public:
     bool isActive() // Are we in a menu or in the home screen?
     {
@@ -384,7 +415,7 @@ class MenuManager {
     }
 
     Menu* currentMenu() {
-      return menus[currentMenuIndex];
+      return currentMenuPtr;// menus[currentMenuIndex];
     }
 
     int currentMenuID()
@@ -394,6 +425,7 @@ class MenuManager {
 
     void switchTo(int id) {
       currentMenuIndex = id;
+      currentMenuPtr = menus[currentMenuIndex];
       active = true;
       LOGG_DEBUG("Menu: " + String(currentMenuIndex));      
     }
@@ -402,6 +434,32 @@ class MenuManager {
     {
       active = false;
     }
+
+    void enter()
+    {
+      MenuItem* item = currentMenu()->getSelectedItem();
+
+      if (item->getType() == MENU_ITEM) 
+      {
+        LOGG_DEBUG("enter");
+        currentMenuPtr = (Menu*)item;
+        //item.first();
+        first();
+      }       
+    }
+
+    void back() 
+    {
+      
+      if (currentMenuPtr->getParent() != nullptr) 
+      {
+        // We're in a submenu
+        currentMenuPtr = currentMenuPtr->getParent();
+      }
+      // Otherwise, exit the menu system
+      else
+        exit();
+  }
 
     // Delegate navigation to active menu
     void first() { currentMenu()->first(); }

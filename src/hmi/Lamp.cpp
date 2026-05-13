@@ -49,6 +49,35 @@ void ticker_effect()
           strip.Show();
       }
       break;
+    case EFFECT_DOUBLERAINBOW:
+      {
+          // Hue fade split across the led ring.
+          static float hue = 0.0;
+          static float hue2 = 0.0;
+          
+          if((hue += 0.005) > 1.0)
+          {
+              hue = 0.0;
+          }
+          if((hue2 += 0.0051) > 1.0)
+          {
+              hue2 = 0.0;
+          }
+
+          HslColor hsl(hue, 1.0, information.lamp.lightness);
+          HslColor hsl2(1.00 - hue2, 1.0, information.lamp.lightness);
+          
+          for(int i = 0; i < CONFIG_LED_RING_NUM_LEDS / 2; i++)
+          {
+              strip.SetPixelColor(i, hsl);
+          }
+          for(int i = CONFIG_LED_RING_NUM_LEDS / 2; i < CONFIG_LED_RING_NUM_LEDS; i++)
+          {
+              strip.SetPixelColor(i, hsl2);
+          }
+          strip.Show();
+      }
+      break;
     case EFFECT_PULSE:
       {
           // Brightness sawtooth                    

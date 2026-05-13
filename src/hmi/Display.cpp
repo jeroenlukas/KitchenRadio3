@@ -144,61 +144,73 @@ void display_draw_home()
 // === Menu screen ===
 void display_draw_menu()
 {
-  u8g2.setFont(u8g2_font_likeminecraft_te);  
+  
   
   MenuItem* item = menuMgr.currentMenu()->getSelectedItem();
 
-  switch(item->getType())
+  // CustomInfo items are a special kind. The user has to provide this part of the drawing.
+  if(item->getType() == CUSTOMINFO_ITEM)
+  {      
+    InfoItem* ii = (InfoItem*)item;
+    u8g2.setFont(FONT_MENUCUSTOM);  
+    u8g2.drawStr(80, POSY_AUDIO, item->getName()); // Draw name
+    ii->show();      
+  }
+  else
   {
-    case INT_ITEM:  
-      {    
-        IntItem* val = (IntItem*)item;  
-        u8g2.drawStr(10, 15, menuMgr.currentMenu()->getName()); // Draw menu name
-        u8g2.drawStr(10, 36, item->getName()); // Draw item name
-        u8g2.drawStr(90, 36, String(val->getValue()).c_str());  // Draw item value
-      }
-      break;
+    // Other types (int, float, bool etc. are always drawn more or less the same)
 
-    case FLOAT_ITEM:  
-      {    
-        FloatItem* val = (FloatItem*)item;  
-        u8g2.drawStr(10, 15, menuMgr.currentMenu()->getName()); // Draw menu name
-        u8g2.drawStr(10, 36, item->getName()); // Draw item name
-        u8g2.drawStr(90, 36, String(val->getValue(), val->decimals).c_str());  // Draw item value
-      }
-      break;
+    // Draw menu name, or 'path' when we're in a submenu
+    u8g2.setFont(FONT_MENUPATH);
+    u8g2.drawStr(5, 10, menuMgr.currentMenu()->getPath().c_str()); // Draw menu name/path
 
-    case CUSTOMINFO_ITEM:
-      {
-        InfoItem* ii = (InfoItem*)item;
-        u8g2.drawStr(80, POSY_AUDIO, item->getName()); // Draw name
-        ii->show();
-      }
-      break;
-    
-    case OPTION_ITEM:
-      {
-        OptionItem* oi = (OptionItem*)item;
-        u8g2.drawStr(10, 15, menuMgr.currentMenu()->getName()); // Draw menu name
-        u8g2.drawStr(10, 36, item->getName()); // Draw item name
-        u8g2.drawStr(90, 36, String(oi->getValueString()).c_str());  // Draw item value
-      }
-      break;
+    u8g2.setFont(FONT_MENUITEM);
+    u8g2.drawStr(POSX_MENUITEM, POSY_MENUITEM, item->getName()); // Draw item name
 
-    case BOOL_ITEM:
-      {
-        BoolItem* bi = (BoolItem*)item;
-        u8g2.drawStr(10, 15, menuMgr.currentMenu()->getName()); // Draw menu name
-        u8g2.drawStr(10, 36, item->getName()); // Draw item name
-        u8g2.drawStr(90, 36, String(bi->getValueString()).c_str());  // Draw item value      
-      }
-      break;
+    switch(item->getType())
+    {
+      case INT_ITEM:  
+        {    
+          IntItem* val = (IntItem*)item;  
 
-    default:
-      {
-        LOGG_ERROR("Unknown menuitem type!");
-      }
-      break;
+          u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(val->getValue()).c_str());  // Draw item value
+        }
+        break;
+
+      case FLOAT_ITEM:  
+        {    
+          FloatItem* val = (FloatItem*)item;  
+          u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(val->getValue(), val->decimals).c_str());  // Draw item value
+        }
+        break;
+      
+      case OPTION_ITEM:
+        {
+          OptionItem* oi = (OptionItem*)item;
+          u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String("[" + String(oi->getValueString()) + "]").c_str());  // Draw item value
+        }
+        break;
+
+      case BOOL_ITEM:
+        {
+          BoolItem* bi = (BoolItem*)item;
+          u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String("[" + String(bi->getValueString()) + "]").c_str());  // Draw item value      
+        }
+        break;
+
+      case MENU_ITEM:
+        {
+          u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, "[press TUNE to enter]");  // Draw item value  
+        }
+        break;
+
+      default:
+        {
+          LOGG_ERROR("Unknown menuitem type!");
+        }
+        break;
+
+    }
 
   }
 

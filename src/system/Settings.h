@@ -20,15 +20,16 @@ class Settings_t {
 
         struct Audio_t
         {
-            struct Tonecontrol_t
-            {
-              int treble;
-              int treble_freq;
-              int bass;
-              int bass_freq;
-            };
+          bool phase; // Whether speakers are in or out of phase
+          struct Tonecontrol_t
+          {
+            int treble;
+            int treble_freq;
+            int bass;
+            int bass_freq;
+          };
 
-            Tonecontrol_t tonecontrol;
+          Tonecontrol_t tonecontrol;
         };
       
     Clock_t clock;
