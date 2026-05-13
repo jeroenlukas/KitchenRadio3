@@ -25,6 +25,9 @@ NeoPixelBus<NeoGrbFeature, NeoWs2812xMethod> strip(PixelCount, PixelPin);
 
 void ticker_effect()
 {
+  if(information.lamp.state == false)
+    return;
+
   switch(information.lamp.effect_type)
   {
     case EFFECT_NONE:
@@ -173,8 +176,6 @@ void lamp_update()
     if(information.lamp.state)
         hsl.L = information.lamp.lightness;
     else hsl.L = 0.0;
-
-    LOGG_DEBUG("xxx");
 
     for(int i = 0; i < CONFIG_LED_RING_NUM_LEDS; i++)
     {
