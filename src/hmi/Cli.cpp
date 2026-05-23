@@ -300,14 +300,18 @@ void cb_bt(cmd* c)
     
     
 }
-/*
+
 void cb_bootlog(cmd* c)
 {
-    Serial.print(bootlog);
+    LOGG_INFO("--- Boot log ---");
+    for(int i = 0; i < bootlog_cnt; i++)
+    {
+        LOGG_INFO(bootlog[i]);
+    }
 
     return;
 }
-
+/*
 void cb_log(cmd* c)
 {
     Command cmd(c);
@@ -438,13 +442,10 @@ void cli_begin(void)
     cmd_profiler = kr_cli.addCommand("profiler", cb_profiler);
     cmd_profiler.setDescription("- Show time profiler results");
     
-/*
+
     // > bootlog
     cmd_bootlog = kr_cli.addCommand("bootlog", cb_bootlog);
     cmd_bootlog.setDescription("- Print the boot log with timestamps");
-
-    // > help
-*/
 
     // > lamp
     cmd_lamp = kr_cli.addCmd("lamp", cb_lamp);

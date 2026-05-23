@@ -55,21 +55,24 @@ void setup()
 
   delay(100);
 
+    // Display
+  display_begin();
+  
+
   LOGG_INFO("=== KitchenRadio 3! ===");
-  LOGG_INFO("Version: " + String(KR_VERSION));
-  LOGG_INFO("Compilation: " + String(__DATE__) + " " + String(__TIME__) );
+  log_boot("Version: " + String(KR_VERSION));
+  log_boot("Compilation: " + String(__DATE__) + " " + String(__TIME__) );
   delay(100);
 
   // File manager
+  log_boot("Start filesystem");
   filemgr_begin();
 
   // Settings
+  log_boot("Load settings");
   settings_load();
   stations_load();
-
-  // Display
-  display_begin();
-  display_draw_startup();
+  log_boot("Device name: " + settings.deviceName);
 
   // CLI
   cli_begin();
@@ -78,7 +81,7 @@ void setup()
   frontpanel_begin();
 
   // WiFi
-  LOGG_INFO("Connect to WiFi ...");
+  log_boot("Connect to WiFi ...");
   WiFi.mode(WIFI_STA);
   WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
   WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
@@ -88,6 +91,7 @@ void setup()
   WiFi.begin(CONFIG_SECRETS_WIFI_SSID, CONFIG_SECRETS_WIFI_PASSWORD);
 
   // Audio - we setup the audioplayer while the WiFi is connecting, this shaves a few seconds off the startup time.
+  log_boot("Init audioplayer");
   audioplayer_init();
 
   // Some seconds later
@@ -96,23 +100,29 @@ void setup()
     Serial.print('.');
     delay(500);
   }
-  LOGG_INFO("WiFi connected");
+  
   information.system.ipAddress = WiFi.localIP().toString(); 
+  log_boot("WiFi connected: " + information.system.ipAddress);
 
   // Webserver
+  log_boot("Start webserver");
   webserver_begin();
 
   // Lamp
+  log_boot("Init lamp");
   lamp_init();
 
   // Time
+  log_boot("Init time");
   time_begin();
   time_waitForSync();
 
   // Webradio
+  log_boot("Init webradio");
   webradio_init();
 
   // I2S
+  log_boot("Init bluetooth module");
   i2sreceiver_init();
 
   // Menu system
@@ -129,6 +139,7 @@ void setup()
       1); // core0 = wifi/system, core1 = arduino //  Run on Core 0 (shared with WiFi & system tasks)  
 
   // Tickers
+  log_boot("Start tickers");
   tickers_init();
 
   // Profiler
@@ -136,13 +147,16 @@ void setup()
   profiler.add(&tpAudio);
 
   // Get weather info
+  log_boot("Retrieve weather");
   weather_retrieve();
 
   // Turn off leds
   frontpanel_leds_handle();
 
   information.system.bootTimeSeconds = millis() / 1000;
-  LOGG_INFO("Init done! Boot took " + String(information.system.bootTimeSeconds) + " s" );
+  log_boot("Init done! Boot took " + String(information.system.bootTimeSeconds) + " s" );
+  
+  delay(2000);
 }
 
 // Note:

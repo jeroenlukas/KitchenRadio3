@@ -54,7 +54,7 @@ void display_draw_home()
   int weatherglyph = 0;
   // https://openweathermap.org/weather-conditions
 
-  u8g2.drawGlyph(3, 35, weather_icon_to_glyph(information.weather.icon));
+  u8g2.drawGlyph(3, 42, weather_icon_to_glyph(information.weather.icon));
   u8g2.setFont(u8g2_font_lastapprenticebold_te);
   uint8_t w = u8g2.drawStr(42, 18,(String(information.weather.temperature,1) + "  C").c_str());
   u8g2.drawGlyph((42 + w) - 13, 18, 0x00b0);
@@ -69,7 +69,6 @@ void display_draw_home()
       // ...
       break;
     case WEBRADIO:
-      //u8g2.drawStr(10, 36, String("Radio: " + information.webRadio.metadataName + " | " + information.webRadio.metadataTitle).c_str());
       u8g2.drawXBM(POSX_AUDIO_ICON, POSY_AUDIO_ICON-15, xbm_radio_width, xbm_radio_height, xbm_radio_bits);
       
       // Draw buffer fill percentage, station index + count
@@ -124,8 +123,7 @@ void display_draw_home()
     default:
       break;
 
-  }
-  
+  }  
   
   u8g2.drawLine(0, 44, 256, 44);      
 
@@ -141,113 +139,104 @@ void display_draw_home()
 
 // === Menu screen ===
 void display_draw_menu()
-{
-  
-  
+{  
   MenuItem* item = menuMgr.currentMenu()->getSelectedItem();
 
-  // CustomInfo items are a special kind. The user has to provide this part of the drawing.
-  /*if(item->getType() == CUSTOMINFO_ITEM)
-  {      
-    InfoItem* ii = (InfoItem*)item;
-    u8g2.setFont(FONT_MENUCUSTOM);  
-    u8g2.drawStr(80, POSY_AUDIO, item->getName()); // Draw name
-        
-  }
-  else*/
+  // For all setting types, draw the name of the setting.
+  // For custominfo types, this is drawn in the path.
+  
+  if(item->getType() == CUSTOMINFO_ITEM)
   {
-    // Other types (int, float, bool etc. are always drawn more or less the same)
+    // Draw breadcrumb + custominfo title
+    u8g2.setFont(FONT_MENUPATH);
+    u8g2.drawStr(POSX_MENUPATH, POSY_MENUPATH, String(menuMgr.currentMenu()->getPath() + " > " + item->getName()).c_str()); // Draw menu name/path
+  }
+  else if(item->getType() == MENU_ITEM)
+  {
+    u8g2.setFont(FONT_MENUITEM);
+    u8g2.drawStr(POSX_MENUITEM, POSY_MENUITEM, String(String(item->getName()) + "...").c_str()); // Draw item name
+  }
+  else
+  { 
+    u8g2.setFont(FONT_MENUITEM);
+    u8g2.drawStr(POSX_MENUITEM, POSY_MENUITEM, item->getName()); // Draw item name
 
+    // Draw breadcrumb
+    u8g2.setFont(FONT_MENUPATH);
+    u8g2.drawStr(POSX_MENUPATH, POSY_MENUPATH, menuMgr.currentMenu()->getPath().c_str()); // Draw menu name/path
+  }
   
 
-    // For all setting types, draw the name of the setting.
-    // For custominfo types, this is drawn in the path.
-    if(item->getType() != CUSTOMINFO_ITEM)
-    { 
-      u8g2.setFont(FONT_MENUITEM);
-      u8g2.drawStr(POSX_MENUITEM, POSY_MENUITEM, item->getName()); // Draw item name
+  u8g2.setFont(FONT_MENUITEM);
 
-      // Draw breadcrumb
-      u8g2.setFont(FONT_MENUPATH);
-      u8g2.drawStr(POSX_MENUPATH, POSY_MENUPATH, menuMgr.currentMenu()->getPath().c_str()); // Draw menu name/path
-    }
-    else
-    {
-      // Draw breadcrumb + custominfo title
-      u8g2.setFont(FONT_MENUPATH);
-      u8g2.drawStr(POSX_MENUPATH, POSY_MENUPATH, String(menuMgr.currentMenu()->getPath() + " > " + item->getName()).c_str()); // Draw menu name/path
-    }
+  switch(item->getType())
+  {
+    case INT_ITEM:  
+      {    
+        IntItem* val = (IntItem*)item;  
 
-    u8g2.setFont(FONT_MENUITEM);
+        int width_frame = u8g2.getStrWidth(String(val->maxVal).c_str());
+        u8g2.drawFrame(POSX_MENUITEM_VALUE - 4, POSY_MENUITEM - 10, width_frame + 8, 14);
 
-    switch(item->getType())
-    {
-      case INT_ITEM:  
-        {    
-          IntItem* val = (IntItem*)item;  
+        u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(val->getValue()).c_str());  // Draw item value
+      }
+      break;
 
-          int width_frame = u8g2.getStrWidth(String(val->maxVal).c_str());
-          u8g2.drawFrame(POSX_MENUITEM_VALUE - 4, POSY_MENUITEM - 10, width_frame + 8, 14);
+    case FLOAT_ITEM:  
+      {    
+        FloatItem* val = (FloatItem*)item;  
 
-          u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(val->getValue()).c_str());  // Draw item value
-        }
-        break;
+        int width_frame = u8g2.getStrWidth("0") * (val->decimals + 2);
+        u8g2.drawFrame(POSX_MENUITEM_VALUE - 4, POSY_MENUITEM - 10, width_frame + 8, 14);
 
-      case FLOAT_ITEM:  
-        {    
-          FloatItem* val = (FloatItem*)item;  
+        u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(val->getValue(), val->decimals).c_str());  // Draw item value
+      }
+      break;
+    
+    case OPTION_ITEM:
+      {
+        OptionItem* oi = (OptionItem*)item;
 
-          int width_frame = u8g2.getStrWidth("0") * (val->decimals + 2);
-          u8g2.drawFrame(POSX_MENUITEM_VALUE - 4, POSY_MENUITEM - 10, width_frame + 8, 14);
+        int width_frame = 120; //u8g2.getStrWidth(String(val->maxVal).c_str());
+        u8g2.drawFrame(POSX_MENUITEM_VALUE - 4, POSY_MENUITEM - 10, width_frame + 8, 14);
 
-          u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(val->getValue(), val->decimals).c_str());  // Draw item value
-        }
-        break;
-      
-      case OPTION_ITEM:
-        {
-          OptionItem* oi = (OptionItem*)item;
+        u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(oi->getValueString()).c_str());  // Draw item value
+      }
+      break;
 
-          int width_frame = 120; //u8g2.getStrWidth(String(val->maxVal).c_str());
-          u8g2.drawFrame(POSX_MENUITEM_VALUE - 4, POSY_MENUITEM - 10, width_frame + 8, 14);
+    case BOOL_ITEM:
+      {          
+        BoolItem* bi = (BoolItem*)item;
 
-          u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(oi->getValueString()).c_str());  // Draw item value
-        }
-        break;
+        int width_frame = 120;
+        u8g2.drawFrame(POSX_MENUITEM_VALUE - 4, POSY_MENUITEM - 10, width_frame + 8, 14);
 
-      case BOOL_ITEM:
-        {          
-          BoolItem* bi = (BoolItem*)item;
+        u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(bi->getValueString()).c_str());  // Draw item value      
+      }
+      break;
 
-          int width_frame = 120;
-          u8g2.drawFrame(POSX_MENUITEM_VALUE - 4, POSY_MENUITEM - 10, width_frame + 8, 14);
+    case MENU_ITEM:
+      {
+        u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, "[press TUNE to enter]");  // Draw item value  
+      }
+      break;
 
-          u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(bi->getValueString()).c_str());  // Draw item value      
-        }
-        break;
+    case CUSTOMINFO_ITEM:
+      {
+        InfoItem* ii = (InfoItem*)item;
+        ii->show();  
+      }
+      break;
 
-      case MENU_ITEM:
-        {
-          u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, "[press TUNE to enter]");  // Draw item value  
-        }
-        break;
-
-      case CUSTOMINFO_ITEM:
-        {
-          InfoItem* ii = (InfoItem*)item;
-          ii->show();  
-        }
-        break;
-
-      default:
-        {
-          LOGG_ERROR("Unknown menuitem type!");
-        }
-        break;
-
-    }
+    default:
+      {
+        LOGG_ERROR("Unknown menuitem type!");
+      }
+      break;
 
   }
+
+  
 
   // Always draw the footer
   u8g2.drawLine(0, 48, 256, 48);
@@ -278,14 +267,39 @@ void display_draw()
   tpDisplay.stop();
 }
 
+// Draws the boot screen with boot log. Called from logger. 
 void display_draw_startup()
 {
+    int bootup_pct = constrain(((double)bootlog_cnt / (double)BOOTLOG_STEPS) * 100, 0, 100);
+    Serial.println("pct: " + String(bootup_pct));
+
+    // Draw last x bootlog lines
+    int lines_max = 6;
+    int lines_start = bootlog_cnt - lines_max;
+    if(lines_start < 0) lines_start = 0;
+
     u8g2.firstPage();
     do 
-    {      
-      u8g2.setFont(u8g2_font_minicute_tr);
-      
-      u8g2.drawStr(10, 26, "=== KitchenRadio 3 ===");      
+    { 
+      // Draw header
+      u8g2.setFont(u8g2_font_tenfatguys_t_all);
+      u8g2.drawStr(2, 12, "KitchenRadio 3");      
+
+      // Draw startup percentage bar
+      u8g2.drawFrame(144, 2, 80, 10);
+      u8g2.drawBox(144, 2, map(bootup_pct, 0, 100, 0, 80), 10);
+
+      // Draw startup percentage
+      u8g2.setFont(FONT_AUDIO);
+      u8g2.drawStr(232, 10, String(String(bootup_pct) + "%").c_str());
+
+      u8g2.setFont(FONT_BOOTLOG);
+
+      int a = 0;
+      for(int i = lines_start; i < bootlog_cnt; i++)
+      {
+        u8g2.drawStr(4, 22 + (a++) * 8, bootlog[i].c_str());
+      }
       
     } while ( u8g2.nextPage() );
 }

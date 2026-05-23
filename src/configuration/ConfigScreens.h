@@ -16,6 +16,9 @@
 #define POSX_MENUPATH           30
 #define POSY_MENUPATH           60
 
+// Number of steps to perform at boot, should be set manually. Only used to display the bootup percentage
+#define BOOTLOG_STEPS           16
+
 // Fonts
 // https://github.com/olikraus/u8g2/wiki/fntgrp
 #define FONT_CLOCK              u8g2_font_logisoso24_tf

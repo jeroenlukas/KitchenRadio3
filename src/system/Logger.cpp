@@ -2,11 +2,15 @@
 #include "../information/Information.h"
 
 #include <Arduino.h>
-//#include <AudioTools.h>
 #include <AudioLogger.h>
 #include <AdvancedLogger.h>
 
+#include "..\hmi\Display.h"
+
 #include "Logger.h"
+
+int bootlog_cnt = 0;
+String bootlog[30];
 
 void logger_begin()
 {
@@ -32,4 +36,13 @@ void log_error(String message, String func)
 void log_warning(String message, String func)
 {
     Serial.println("[WARN ] [" + func + "] " + message);
+}
+
+// For startup
+void log_boot(String message)
+{
+    bootlog[bootlog_cnt++] = message;
+
+    display_draw_startup();
+    Serial.println("[BOOT ] " + message);
 }
