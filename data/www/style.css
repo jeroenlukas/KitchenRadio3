@@ -9,7 +9,7 @@ h1 {
 }
 .topnav {
     overflow: hidden;
-    background-color: #da6900;
+    background-color: #dabd00;
     padding: 10px;
     color: white;
 
@@ -23,7 +23,7 @@ h1 {
 }
 
 button {
-    background-color: #da6900;
+    background-color: #dabd00;
     color: white;
     border:1px;    
     font-weight: bold;

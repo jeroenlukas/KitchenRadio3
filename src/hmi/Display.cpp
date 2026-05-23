@@ -37,8 +37,6 @@ void display_begin()
 // === Home screen ===
 void display_draw_home()
 {
-  //u8g2.setFont(u8g2_font_likeminecraft_te);
-  
   // Clock
   u8g2.setFont(FONT_CLOCK);
   u8g2.setCursor(POSX_CLOCK, POSY_CLOCK);
@@ -52,18 +50,18 @@ void display_draw_home()
   u8g2.drawStr(POSX_CLOCK + 10, POSY_CLOCK + 12, (information.dateMid).c_str());
 
   // Weather
-    u8g2.setFont(FONT_WEATHERICONS);
-    int weatherglyph = 0;
-    // https://openweathermap.org/weather-conditions
+  u8g2.setFont(FONT_WEATHERICONS);
+  int weatherglyph = 0;
+  // https://openweathermap.org/weather-conditions
 
-    u8g2.drawGlyph(3, 35, weather_icon_to_glyph(information.weather.icon));
-    u8g2.setFont(u8g2_font_lastapprenticebold_te);
-    uint8_t w = u8g2.drawStr(42, 18,(String(information.weather.temperature,1) + "  C").c_str());
-    u8g2.drawGlyph((42 + w) - 13, 18, 0x00b0);
-    u8g2.setFont(FONT_M);
-    u8g2.drawStr(42, 28,(String(information.weather.windSpeedBft) + " Bft").c_str());
-    u8g2.drawStr(42, 38,(String(information.weather.stateShort)).c_str());
-    u8g2.setFont(FONT_S);
+  u8g2.drawGlyph(3, 35, weather_icon_to_glyph(information.weather.icon));
+  u8g2.setFont(u8g2_font_lastapprenticebold_te);
+  uint8_t w = u8g2.drawStr(42, 18,(String(information.weather.temperature,1) + "  C").c_str());
+  u8g2.drawGlyph((42 + w) - 13, 18, 0x00b0);
+  u8g2.setFont(FONT_M);
+  u8g2.drawStr(42, 28,(String(information.weather.windSpeedBft) + " Bft").c_str());
+  u8g2.drawStr(42, 38,(String(information.weather.stateShort)).c_str());
+  u8g2.setFont(FONT_S);
   
   switch(information.audioPlayer.soundMode)
   {
@@ -149,29 +147,47 @@ void display_draw_menu()
   MenuItem* item = menuMgr.currentMenu()->getSelectedItem();
 
   // CustomInfo items are a special kind. The user has to provide this part of the drawing.
-  if(item->getType() == CUSTOMINFO_ITEM)
+  /*if(item->getType() == CUSTOMINFO_ITEM)
   {      
     InfoItem* ii = (InfoItem*)item;
     u8g2.setFont(FONT_MENUCUSTOM);  
     u8g2.drawStr(80, POSY_AUDIO, item->getName()); // Draw name
-    ii->show();      
+        
   }
-  else
+  else*/
   {
     // Other types (int, float, bool etc. are always drawn more or less the same)
 
-    // Draw menu name, or 'path' when we're in a submenu
-    u8g2.setFont(FONT_MENUPATH);
-    u8g2.drawStr(5, 10, menuMgr.currentMenu()->getPath().c_str()); // Draw menu name/path
+  
+
+    // For all setting types, draw the name of the setting.
+    // For custominfo types, this is drawn in the path.
+    if(item->getType() != CUSTOMINFO_ITEM)
+    { 
+      u8g2.setFont(FONT_MENUITEM);
+      u8g2.drawStr(POSX_MENUITEM, POSY_MENUITEM, item->getName()); // Draw item name
+
+      // Draw breadcrumb
+      u8g2.setFont(FONT_MENUPATH);
+      u8g2.drawStr(POSX_MENUPATH, POSY_MENUPATH, menuMgr.currentMenu()->getPath().c_str()); // Draw menu name/path
+    }
+    else
+    {
+      // Draw breadcrumb + custominfo title
+      u8g2.setFont(FONT_MENUPATH);
+      u8g2.drawStr(POSX_MENUPATH, POSY_MENUPATH, String(menuMgr.currentMenu()->getPath() + " > " + item->getName()).c_str()); // Draw menu name/path
+    }
 
     u8g2.setFont(FONT_MENUITEM);
-    u8g2.drawStr(POSX_MENUITEM, POSY_MENUITEM, item->getName()); // Draw item name
 
     switch(item->getType())
     {
       case INT_ITEM:  
         {    
           IntItem* val = (IntItem*)item;  
+
+          int width_frame = u8g2.getStrWidth(String(val->maxVal).c_str());
+          u8g2.drawFrame(POSX_MENUITEM_VALUE - 4, POSY_MENUITEM - 10, width_frame + 8, 14);
 
           u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(val->getValue()).c_str());  // Draw item value
         }
@@ -180,6 +196,10 @@ void display_draw_menu()
       case FLOAT_ITEM:  
         {    
           FloatItem* val = (FloatItem*)item;  
+
+          int width_frame = u8g2.getStrWidth("0") * (val->decimals + 2);
+          u8g2.drawFrame(POSX_MENUITEM_VALUE - 4, POSY_MENUITEM - 10, width_frame + 8, 14);
+
           u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(val->getValue(), val->decimals).c_str());  // Draw item value
         }
         break;
@@ -187,20 +207,35 @@ void display_draw_menu()
       case OPTION_ITEM:
         {
           OptionItem* oi = (OptionItem*)item;
-          u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String("[" + String(oi->getValueString()) + "]").c_str());  // Draw item value
+
+          int width_frame = 120; //u8g2.getStrWidth(String(val->maxVal).c_str());
+          u8g2.drawFrame(POSX_MENUITEM_VALUE - 4, POSY_MENUITEM - 10, width_frame + 8, 14);
+
+          u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(oi->getValueString()).c_str());  // Draw item value
         }
         break;
 
       case BOOL_ITEM:
-        {
+        {          
           BoolItem* bi = (BoolItem*)item;
-          u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String("[" + String(bi->getValueString()) + "]").c_str());  // Draw item value      
+
+          int width_frame = 120;
+          u8g2.drawFrame(POSX_MENUITEM_VALUE - 4, POSY_MENUITEM - 10, width_frame + 8, 14);
+
+          u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(bi->getValueString()).c_str());  // Draw item value      
         }
         break;
 
       case MENU_ITEM:
         {
           u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, "[press TUNE to enter]");  // Draw item value  
+        }
+        break;
+
+      case CUSTOMINFO_ITEM:
+        {
+          InfoItem* ii = (InfoItem*)item;
+          ii->show();  
         }
         break;
 

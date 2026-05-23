@@ -11,6 +11,7 @@
 
 #include "../system/Logger.h"
 #include "../system/Stations.h"
+#include "../hmi/Display.h"
 
 // NOTE: do not use https urls! This will cause problems when reconnecting.
 // Examples:
@@ -155,4 +156,7 @@ void webradio_metadata_cb(MetaDataType type, const char* str, int len)
     information.webRadio.metadataTitle = String(str);
   else if(type == Name)
     information.webRadio.metadataName = String(str);
+
+  // Title info changed, so reset the scrolling
+  display_reset_scroll();
 }

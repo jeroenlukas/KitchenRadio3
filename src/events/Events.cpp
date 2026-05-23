@@ -185,7 +185,7 @@ void events_buttons()
   {
     flags.frontPanel.buttonOffPressed = false;
     if(menuMgr.isActive())
-      menuMgr.back(); // 
+      menuMgr.back(); // Return to main menu or to parent menu
     else
       audioplayer_mode_set(OFF);
 

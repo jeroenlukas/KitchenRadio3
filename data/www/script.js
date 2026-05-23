@@ -1,6 +1,6 @@
-
 var gateway = `ws://${window.location.hostname}/ws`;
 var websocket;
+
 // Init web socket when the page loads
 window.addEventListener('load', onload);
 
@@ -80,14 +80,14 @@ function onClose(event) {
 }
 
 function initButtons() {
-    eleButtonAudioOff = document.getElementById('button_audio_off');
+   /* eleButtonAudioOff = document.getElementById('button_audio_off');
     if(eleButtonAudioOff != null) eleButtonAudioOff.addEventListener('click', buttonOffPressed);
 
     eleButtonAudioWebradio = document.getElementById('button_audio_webradio');
     if(eleButtonAudioWebradio != null) eleButtonAudioWebradio.addEventListener('click', buttonWebradioPressed);    
     
     eleButtonAudioBluetooth = document.getElementById('button_audio_bluetooth');
-    if(eleButtonAudioBluetooth != null) eleButtonAudioBluetooth.addEventListener('click', buttonBluetoothPressed);
+    if(eleButtonAudioBluetooth != null) eleButtonAudioBluetooth.addEventListener('click', buttonBluetoothPressed);*/
 
     eleButtonConsole = document.getElementById('button_console');
     if(eleButtonConsole != null) eleButtonConsole.addEventListener('click', buttonConsolePressed);
@@ -108,7 +108,7 @@ function colorPickerChanged(picker)
     
     websocket.send('{"ledring": {"h": ' + picker.channel('H')/360.0 + ', "s": ' +picker.channel('S')/100.0 + ', "v": ' + picker.channel('V')/100.0 + '}}');
 }
-
+/*
 function buttonOffPressed(){
     console.log('off pressed');
     websocket.send('buttonOffPressed');
@@ -121,7 +121,7 @@ function buttonWebradioPressed(){
 function buttonBluetoothPressed(){
     websocket.send('buttonBluetoothPressed');
 }
-
+*/
 function buttonAudioPrevPressed(){
     websocket.send('buttonAudioPrevPressed');
 }

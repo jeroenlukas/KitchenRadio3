@@ -69,13 +69,15 @@ class IntItem : public MenuItem {
     const char* name;
     
     int* valuePtr;
-    int minVal, maxVal;
+    
     void (*onChange)(int) = nullptr;  // callback
 
   public:
     IntItem(const char* n, int* v, int minV, int maxV)
       : name(n), valuePtr(v), minVal(minV), maxVal(maxV) {}
 
+    // Item customization
+    int minVal, maxVal;
     int increment = 1;
     bool wraparound = false;
 
@@ -126,7 +128,7 @@ class FloatItem : public MenuItem {
     const char* name;
     
     float* valuePtr;
-    float minVal, maxVal;
+    
     void (*onChange)(float) = nullptr;  // callback
 
   public:
@@ -134,6 +136,7 @@ class FloatItem : public MenuItem {
       : name(n), valuePtr(v), minVal(minV), maxVal(maxV) {}
 
     // Item customization
+    float minVal, maxVal;
     float increment = 0.1;
     bool wraparound = false; 
     int decimals = 2;

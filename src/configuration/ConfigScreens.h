@@ -11,8 +11,10 @@
 
 
 #define POSX_MENUITEM           10
-#define POSY_MENUITEM           32
+#define POSY_MENUITEM           28
 #define POSX_MENUITEM_VALUE     100
+#define POSX_MENUPATH           30
+#define POSY_MENUPATH           60
 
 // Fonts
 // https://github.com/olikraus/u8g2/wiki/fntgrp

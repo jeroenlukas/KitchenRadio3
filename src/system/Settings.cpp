@@ -30,8 +30,6 @@ bool settings_load()
 
     serializeYml(yaml_config.getDocument(), json_config, OUTPUT_JSON_PRETTY);
 
-    Serial.println("json_config= " + json_config);
-
     auto error = deserializeJson(docSettings, json_config);
 
     if(error) {
@@ -46,11 +44,8 @@ bool settings_load()
     }
     LOGG_INFO("Deserialization ok");
 
-    Serial.println("json deviceName="  + String(docSettings["devicename"]));
-
     // Copy settings values to settings object
     settings.deviceName = String(docSettings["devicename"]);
-    Serial.println("settigs.deviceName="  + settings.deviceName);
     settings.location = String(docSettings["location"]);
     settings.clock.timezone = String(docSettings["clock"]["timezone"]);
     settings.audio.tonecontrol.treble = docSettings["audio"]["tonecontrol"]["treble"];

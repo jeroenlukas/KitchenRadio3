@@ -160,6 +160,9 @@ void loop()
   events_handle();
   tpEvents.stop();
 
+  // Handle webserver
+  webserver_cleanup();
+
   // Handle audio stuff
   tpAudio.start();
   audioplayer_handle();

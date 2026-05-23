@@ -10,5 +10,5 @@ audio:
     bass_freq: 15
 display:
   homedisplay: "normal"
-  brightness_min: 10
-  brightness_max: 100
+  brightness_min: 5
+  brightness_max: 80
