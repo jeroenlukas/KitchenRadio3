@@ -16,7 +16,8 @@
 #include "../system/Filemanager.h"
 #include "../system/Profiler.h"
 
-#include "../hmi/Display.h"
+#include "Display.h"
+#include "Buzzer.h"
 #include "Frontpanel.h"
 #include "Lamp.h"
 
@@ -262,8 +263,18 @@ void cb_oled(cmd* c)
 
 void cb_buzzer(cmd* c)
 {
+    Command cmd(c);
+
     LOGG_DEBUG("Beep");
-    frontpanel_buzzer_beep(500);
+
+    uint16_t duration = 500;
+
+    if(cmd.getArgument(0).isSet())
+    {
+        duration = cmd.getArgument(0).getValue().toInt();
+    }
+
+    buzzer_beep(duration * 1000);
     
     return;
 }

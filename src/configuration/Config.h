@@ -28,4 +28,7 @@
 // LED ring
 #define CONFIG_LED_RING_NUM_LEDS            24
 
+// Buzzer
+#define CONF_BUZZER_TICK_US               30
+
 #endif

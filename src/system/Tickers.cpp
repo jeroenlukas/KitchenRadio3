@@ -17,46 +17,48 @@
 #define ONEMINUTE (60*1000)
 #define ONESECOND 1000
 
-void ticker_30m();
-void ticker_1s();
-void ticker_100ms();
-void ticker_userinput();
-void ticker_displayrefresh();
+// Ticker callbacks
+void ticker_30m_cb();
+void ticker_1s_cb();
+void ticker_100ms_cb();
+void ticker_userinput_cb();
+void ticker_displayrefresh_cb();
 
-TickTwo ticker_30m_ref(ticker_30m, ONEMINUTE * 30);
-TickTwo ticker_1s_ref(ticker_1s, ONESECOND);
-TickTwo ticker_100ms_ref(ticker_100ms, 100);
+// Interval tickers
+TickTwo ticker_30m(ticker_30m_cb, ONEMINUTE * 30);
+TickTwo ticker_1s(ticker_1s_cb, ONESECOND);
+TickTwo ticker_100ms(ticker_100ms_cb, 100);
 
-TickTwo ticker_userinput_ref(ticker_userinput, CONF_MENU_RETURN_HOME_MS);
-TickTwo ticker_displayrefresh_ref(ticker_displayrefresh, CONF_DISPLAYREFRESH_MS);
-
+// Special tickers
+TickTwo ticker_userinput(ticker_userinput_cb, CONF_MENU_RETURN_HOME_MS);
+TickTwo ticker_displayrefresh(ticker_displayrefresh_cb, CONF_DISPLAYREFRESH_MS);
 
 // Executed every 30 minutes
-void ticker_30m()
+void ticker_30m_cb()
 {
   flags.tickers.passed30min = true;
 }
 
 // Executed every second
-void ticker_1s()
+void ticker_1s_cb()
 {
   flags.tickers.passed1s = true;
 }
 
 // Executed every 100ms
-void ticker_100ms()
+void ticker_100ms_cb()
 {
   frontpanel_buttons_read();
   display_update_scroll_offset();
   webradio_calculatebufferpct();
 }
 
-void ticker_displayrefresh()
+void ticker_displayrefresh_cb()
 {
   flags.tickers.displayrefresh = true;
 }
 
-void ticker_userinput()
+void ticker_userinput_cb()
 {
   flags.tickers.userinput = true;
 }
@@ -68,27 +70,27 @@ void tickers_init()
 {
   LOGG_DEBUG("Tickers init");
   
-  ticker_30m_ref.start();
-  ticker_1s_ref.start();
-  ticker_100ms_ref.start();    
+  ticker_30m.start();
+  ticker_1s.start();
+  ticker_100ms.start();    
 
-  ticker_userinput_ref.start();
-  ticker_displayrefresh_ref.start();
+  ticker_userinput.start();
+  ticker_displayrefresh.start();
 }
 
 void tickers_handle()
 {
-  ticker_30m_ref.update();
-  ticker_1s_ref.update();
-  ticker_100ms_ref.update();
+  ticker_30m.update();
+  ticker_1s.update();
+  ticker_100ms.update();
   
-  ticker_userinput_ref.update();
-  ticker_displayrefresh_ref.update();
+  ticker_userinput.update();
+  ticker_displayrefresh.update();
 }
 
 void tickers_userinput_reset()
 {
   // Restart the ticker
-  ticker_userinput_ref.stop();
-  ticker_userinput_ref.start();
+  ticker_userinput.stop();
+  ticker_userinput.start();
 }

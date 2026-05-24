@@ -155,6 +155,10 @@ void display_draw_menu()
   {
     u8g2.setFont(FONT_MENUITEM);
     u8g2.drawStr(POSX_MENUITEM, POSY_MENUITEM, String(String(item->getName()) + "...").c_str()); // Draw item name
+    
+    // Draw breadcrumb
+    u8g2.setFont(FONT_MENUPATH);
+    u8g2.drawStr(POSX_MENUPATH, POSY_MENUPATH, menuMgr.currentMenu()->getPath().c_str()); // Draw menu name/path
   }
   else
   { 

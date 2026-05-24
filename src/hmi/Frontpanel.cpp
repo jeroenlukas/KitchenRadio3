@@ -5,6 +5,7 @@
 #include <RotaryEncoder.h>
 #include <Adafruit_MCP23X17.h>
 
+#include "Buzzer.h"
 #include "../system/Logger.h"
 #include "../events/Flags.h"
 
@@ -70,8 +71,7 @@ void frontpanel_begin()
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_ALARM, HIGH);
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_LAMP, HIGH);
 
-    // Buzzer
-    pinMode(CONFIG_PIN_BUZZER, OUTPUT);
+
     
 }
 
@@ -256,8 +256,10 @@ void frontpanel_encoders_read()
             flags.frontPanel.encoder1TurnLeft = true;            
             LOGG_DEBUG("1 left");
         }
+
         pos1 = newPos1;
         flags.frontPanel.buttonAnyPressed = true;
+        buzzer_beep(CONF_BUZZER_TICK_US);
     }
 
     static int pos2 = 0;
@@ -276,8 +278,10 @@ void frontpanel_encoders_read()
             flags.frontPanel.encoder2TurnLeft = true;           
             LOGG_DEBUG("2 left");
         }
-        flags.frontPanel.buttonAnyPressed = true;
+
         pos2 = newPos2;
+        flags.frontPanel.buttonAnyPressed = true;
+        buzzer_beep(CONF_BUZZER_TICK_US);        
     }
 }
 
@@ -311,13 +315,4 @@ void frontpanel_i2c_ping()
     {
         LOGG_INFO("Done");
     }
-}
-
-void frontpanel_buzzer_beep(uint16_t duration)
-{
-    digitalWrite(CONFIG_PIN_BUZZER, HIGH);
-
-    delay(duration);
-
-    digitalWrite(CONFIG_PIN_BUZZER, LOW);
 }

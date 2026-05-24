@@ -19,6 +19,7 @@
 #include "src/hmi/Cli.h"
 #include "src/hmi/Display.h"
 #include "src/hmi/Frontpanel.h"
+#include "src/hmi/Buzzer.h"
 #include "src/hmi/Menu.h"
 #include "src/hmi/Lamp.h"
 #include "src/webserver/Webserver.h"
@@ -67,6 +68,10 @@ void setup()
   // File manager
   log_boot("Start filesystem");
   filemgr_begin();
+
+  // Buzzer
+  log_boot("Buzzer init");
+  buzzer_init();
 
   // Settings
   log_boot("Load settings");
