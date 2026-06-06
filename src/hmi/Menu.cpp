@@ -7,6 +7,7 @@
 #include "../system/Settings.h"
 #include "Lamp.h"
 #include "Display.h"
+#include "Alarm.h"
 
 #include "Menu.h"
 
@@ -29,8 +30,9 @@ IntItem viBass("Bass", &(settings.audio.tonecontrol.bass), 1 ,100);
 BoolItem biSpeakerPhase("Speaker phase", &(settings.audio.phase), "in phase", "out of phase");
 
 // [Alarm]
-int dummy;
-IntItem alarmDummy("(dummy)",&dummy,0,10);
+//int dummy;
+//IntItem alarmDummy("(dummy)",&dummy,0,10);
+MinSecItem msiCountDownAlarm("Alarm Time", &(information.alarm.countdown_sec), 1, 36000);
 
 // [Lamp]
 BoolItem biLampState("State", &(information.lamp.state));
@@ -77,7 +79,8 @@ void menu_begin()
   menuSystem_Audio.addItem(&biSpeakerPhase);
 
   // === Alarm menu ===
-  menuAlarm.addItem(&alarmDummy);
+  menuAlarm.addItem(&msiCountDownAlarm);
+  msiCountDownAlarm.setCallback(alarm_set);
 
   // === Lamp menu ===
   menuLamp.addItem(&biLampState);

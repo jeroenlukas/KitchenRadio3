@@ -55,7 +55,7 @@ void display_draw_home()
   // https://openweathermap.org/weather-conditions
 
   u8g2.drawGlyph(3, 42, weather_icon_to_glyph(information.weather.icon));
-  u8g2.setFont(u8g2_font_lastapprenticebold_te);
+  u8g2.setFont(FONT_WEATHER_TEMPERATURE);
   uint8_t w = u8g2.drawStr(42, 18,(String(information.weather.temperature,1) + "  C").c_str());
   u8g2.drawGlyph((42 + w) - 13, 18, 0x00b0);
   u8g2.setFont(FONT_M);
@@ -63,6 +63,23 @@ void display_draw_home()
   u8g2.drawStr(42, 38,(String(information.weather.stateShort)).c_str());
   u8g2.setFont(FONT_S);
   
+  // Alarm (if active)
+  if(information.alarm.state == ALARM_STATE_COUNTDOWN)
+  {
+    u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
+    u8g2.drawGlyph(POSX_ALARM, POSY_ALARM + 2, 93);
+    u8g2.setFont(FONT_ALARM);
+    u8g2.drawStr(POSX_ALARM + 20, POSY_ALARM, (information.alarm.countdown_minsec).c_str());
+  }
+  else if(information.alarm.state == ALARM_STATE_BUZZING)
+  {
+    u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
+    u8g2.drawGlyph(POSX_ALARM, POSY_ALARM + 2, 93);
+    u8g2.setFont(FONT_ALARM);
+    u8g2.drawStr(POSX_ALARM + 20, POSY_ALARM, "ALARM!");
+  }
+
+  // Audio 
   switch(information.audioPlayer.soundMode)
   {
     case OFF:
@@ -194,6 +211,17 @@ void display_draw_menu()
         u8g2.drawFrame(POSX_MENUITEM_VALUE - 4, POSY_MENUITEM - 10, width_frame + 8, 14);
 
         u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(val->getValue(), val->decimals).c_str());  // Draw item value
+      }
+      break;
+
+    case MINSEC_ITEM:  
+      {    
+        MinSecItem* val = (MinSecItem*)item;  
+
+        //int width_frame = u8g2.getStrWidth(String(val->maxVal).c_str());
+        //u8g2.drawFrame(POSX_MENUITEM_VALUE - 4, POSY_MENUITEM - 10, width_frame + 8, 14);
+
+        u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, String(val->getValueMinSec()).c_str());  // Draw item value
       }
       break;
     

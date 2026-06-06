@@ -12,6 +12,7 @@
 #include "../information/Time.h"
 #include "../hmi/Display.h"
 #include "../audio/Webradio.h"
+#include "../hmi/Alarm.h"
 #include "Logger.h"
 
 #define ONEMINUTE (60*1000)
@@ -43,6 +44,7 @@ void ticker_30m_cb()
 void ticker_1s_cb()
 {
   flags.tickers.passed1s = true;
+  alarm_handle();
 }
 
 // Executed every 100ms

@@ -16,7 +16,7 @@
 #include "../system/Tickers.h"
 #include "../hmi/Lamp.h"
 
-
+#include "../hmi/Alarm.h"
 #include "../system/Logger.h"
 
 
@@ -39,6 +39,13 @@ void events_handle()
     tickers_userinput_reset();
     
     flags.main.displayRedraw = true;
+
+    // Stop alarm
+    //if(information.alarm.state == ALARM_STATE_BUZZING)
+    //  information.alarm.state = ALARM_STATE_OFF;
+
+    // Update frontpanel leds
+    frontpanel_leds_handle();
   }
 }
 
@@ -211,8 +218,17 @@ void events_buttons()
   if(flags.frontPanel.buttonAlarmPressed)
   {
     flags.frontPanel.buttonAlarmPressed = false;
-    menuMgr.switchTo(MENU_ALARM);
-    menuMgr.first();  // Always open with the first page
+
+    // Pressing alarm button stops buzzing.
+    if(information.alarm.state == ALARM_STATE_BUZZING)
+    {
+      alarm_stop();
+    }
+    else 
+    {
+      menuMgr.switchTo(MENU_ALARM);
+      menuMgr.first();  // Always open with the first page
+    }
   }
 
   if(flags.frontPanel.buttonLampPressed)

@@ -29,6 +29,9 @@
 #define CONFIG_LED_RING_NUM_LEDS            24
 
 // Buzzer
-#define CONF_BUZZER_TICK_US               30
+#define CONF_BUZZER_TICK_US               40
+
+// Alarm
+#define CONF_ALARM_BUZZ_STOP              (60 * 5) // Automatically stop the alarm buzzer after a certain amount of time
 
 #endif

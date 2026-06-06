@@ -70,9 +70,7 @@ void frontpanel_begin()
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_BLUETOOTH, HIGH);
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_ALARM, HIGH);
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_LAMP, HIGH);
-
-
-    
+  
 }
 
 void frontpanel_handle()
@@ -109,7 +107,7 @@ void frontpanel_nightmode_handle()
 // Should be called when LEDs should be updated, for example when changing audio mode.
 void frontpanel_leds_handle()
 {
-    LOGG_DEBUG("Settings LEDs");
+    //LOGG_DEBUG("Settings LEDs");
 
     // Turn off  all leds when in nightmode
     if(information.system.nightmode)
@@ -122,9 +120,10 @@ void frontpanel_leds_handle()
     else
     {
         //if(information.audioPlayer.soundMode == WEBRADIO)
-        mcp.digitalWrite(CONFIG_PIN_MCP_LED_WEBRADIO, information.audioPlayer.soundMode == WEBRADIO ? true : false);
-        mcp.digitalWrite(CONFIG_PIN_MCP_LED_BLUETOOTH, information.audioPlayer.soundMode == BLUETOOTH ? true : false);
+        mcp.digitalWrite(CONFIG_PIN_MCP_LED_WEBRADIO, information.audioPlayer.soundMode == WEBRADIO ? HIGH : LOW);
+        mcp.digitalWrite(CONFIG_PIN_MCP_LED_BLUETOOTH, information.audioPlayer.soundMode == BLUETOOTH ? HIGH : LOW);
         mcp.digitalWrite(CONFIG_PIN_MCP_LED_LAMP, information.lamp.state);
+        mcp.digitalWrite(CONFIG_PIN_MCP_LED_ALARM, (information.alarm.state == ALARM_STATE_OFF) ? LOW : HIGH);        
     }
 }
 

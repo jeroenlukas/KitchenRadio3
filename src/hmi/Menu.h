@@ -14,6 +14,7 @@ enum ItemType {
   CUSTOMINFO_ITEM,
   INT_ITEM,
   FLOAT_ITEM,
+  MINSEC_ITEM,
   OPTION_ITEM,
   BOOL_ITEM,
   MENU_ITEM
@@ -244,6 +245,80 @@ class BoolItem : public MenuItem {
 
     const char* getName() const override {
       return name;
+    }
+};
+
+
+// Menu item for an minutes:second item, for kitchen alarm
+// Is just an integer value (seconds) but displayed differently.
+class MinSecItem : public MenuItem {
+  private:
+    const char* name;
+    
+    int* valuePtr;
+    int increment = 15;    
+    
+    void (*onChange)(int) = nullptr;  // callback
+
+    void updateIncrement()
+    {
+      if(*valuePtr >= 5 * 60) increment = 60;
+      else increment = 10;
+    }
+
+  public:
+    MinSecItem(const char* n, int* v, int minV, int maxV)
+      : name(n), valuePtr(v), minVal(minV), maxVal(maxV) {}
+
+    // Item customization
+    int minVal, maxVal;
+    
+
+    ItemType getType() const override {
+      return MINSEC_ITEM;
+    }
+
+    void increase() override {
+      updateIncrement();
+      if (*valuePtr < maxVal) 
+      {
+        (*valuePtr) += increment;
+        if (onChange) onChange(*valuePtr);
+      }
+    }
+
+    void decrease() override {
+      updateIncrement();
+      if (*valuePtr > minVal) 
+      {
+        (*valuePtr) -= increment;
+        if (onChange) onChange(*valuePtr);
+      }      
+    }
+
+    int getValue() const {
+      return *valuePtr;
+    }
+
+    String getValueMinSec() const {
+      int minutes = *valuePtr / 60;
+      int seconds = *valuePtr % 60;
+
+      String result = String(minutes) + ":";
+      if (seconds < 10) {
+          result += "0";
+      }
+      result += String(seconds);
+
+      return result;
+    }
+
+    const char* getName() const override {
+      return name;
+    }
+
+    void setCallback(void (*cb)(int)) {
+      onChange = cb;
     }
 };
 

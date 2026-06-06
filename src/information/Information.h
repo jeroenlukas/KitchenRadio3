@@ -6,6 +6,8 @@
 enum soundMode_t { OFF, WEBRADIO, BLUETOOTH, CHANGING };
 enum bluetoothMode_t { BT_OFF, BT_NOTCONNECTED, BT_CONNECTED, BT_CONNECTING, BT_DISCONNECTING, BT_PLAYING, BT_PAUSED, BT_STOPPED, BT_UNKNOWN };
 enum lampEffectType_t { EFFECT_NONE, EFFECT_RAINBOW, EFFECT_DOUBLERAINBOW, EFFECT_PULSE, EFFECT_WHEEL, EFFECT_COUNT };
+enum alarmMode_t { ALARM_KITCHEN, ALARM_WAKEUP};
+enum alarmState_t { ALARM_STATE_OFF, ALARM_STATE_COUNTDOWN, ALARM_STATE_PAUSED, ALARM_STATE_BUZZING };
      
 class Information_t {
     public:
@@ -15,6 +17,9 @@ class Information_t {
             
             audioPlayer.soundMode = OFF;
             system.compilationDateTime = __DATE__ ;
+
+            alarm.mode = ALARM_KITCHEN;
+            alarm.state = ALARM_STATE_OFF;
         }
 
         int hour;
@@ -104,6 +109,13 @@ class Information_t {
 
         };
         
+        struct Alarm
+        {
+            alarmMode_t mode;
+            alarmState_t state;
+            int countdown_sec;
+            String countdown_minsec;
+        };
 
 
         System system;
@@ -111,6 +123,7 @@ class Information_t {
         Lamp lamp;
         Webradio webRadio;
         Weather weather;
+        Alarm alarm;
 
 };
 
