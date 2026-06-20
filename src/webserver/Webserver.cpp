@@ -25,29 +25,29 @@ String html_index;
 
 void webserver_begin()
 {
-    LOGG_INFO("Init webserver");
+  LOGG_INFO("Init webserver");
 
-    // Load header and footer into memory
-    html_header =  filemgr_readfile("/www/_header.html");
-    html_footer = filemgr_readfile("/www/_footer.html");
-    html_index = filemgr_readfile("/www/index.html");
-    
-    html_header.replace("$DEVICENAME", settings.deviceName);
-    html_footer.replace("$VERSION", KR_VERSION);
+  // Load header and footer into memory
+  html_header =  filemgr_readfile("/www/_header.html");
+  html_footer = filemgr_readfile("/www/_footer.html");
+  html_index = filemgr_readfile("/www/index.html");
+  
+  html_header.replace("$DEVICENAME", settings.deviceName);
+  html_footer.replace("$VERSION", KR_VERSION);
 
-    webserver.on("/", HTTP_GET, [](AsyncWebServerRequest *request) 
-    {
-        request->send(200, "text/html", html_header +  information.webRadio.metadataName + " | " + information.webRadio.metadataTitle + html_index +  html_footer);
-    });
+  webserver.on("/", HTTP_GET, [](AsyncWebServerRequest *request) 
+  {
+      request->send(200, "text/html", html_header +  information.webRadio.metadataName + " | " + information.webRadio.metadataTitle + html_index +  html_footer);
+  });
 
-    // Serve other stuff like css sheets
-    webserver.serveStatic("/", LittleFS, "/www/");
+  // Serve other stuff like css sheets
+  webserver.serveStatic("/", LittleFS, "/www/");
 
-    // Websocket
-    websocket.onEvent(websocket_onEvent);
-    webserver.addHandler(&websocket);
+  // Websocket
+  websocket.onEvent(websocket_onEvent);
+  webserver.addHandler(&websocket);
 
-    webserver.begin();
+  webserver.begin();
 
 
 }
@@ -57,10 +57,10 @@ void websocket_handlemessage(void *arg, uint8_t *data, size_t len)
   AwsFrameInfo *info = (AwsFrameInfo*)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) 
   {      
-      data[len] = '\0';
+    data[len] = '\0';
 
-      String message = String((char*)data);
-      LOGG_DEBUG("Received:" + message);
+    String message = String((char*)data);
+    LOGG_DEBUG("Received:" + message);
   }
 }
 

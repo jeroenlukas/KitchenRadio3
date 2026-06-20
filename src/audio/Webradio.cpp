@@ -108,6 +108,8 @@ void webradio_handle()
 bool webradio_connect(int station_idx)
 {
   information.webRadio.station_index = station_idx;
+  information.webRadio.station_index_select = station_idx;
+
   LOGG_INFO("CONNECT: " + stations[station_idx].name);
 
   circBuffer.flush();

@@ -10,7 +10,7 @@
 #include "Frontpanel.h"
 #include "../audio/Audioplayer.h"
 
-int volume_recall=40;
+int volume_recall = 40;
 
 void alarm_init()
 {  

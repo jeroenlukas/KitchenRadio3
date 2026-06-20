@@ -38,6 +38,7 @@ void events_handle()
 
     tickers_userinput_reset();
     
+    
     flags.main.displayRedraw = true;
 
     // Stop alarm
@@ -92,11 +93,18 @@ void events_tickers()
   }
 
   // No user input for x amount of time
-  if(flags.tickers.userinput)
+  if(flags.tickers.userinput_menu)
   {
-    flags.tickers.userinput = false;
+    flags.tickers.userinput_menu = false;
     if(menuMgr.isActive())
           menuMgr.exit();
+  }
+
+  // Close station select screen
+  if(flags.tickers.userinput_stationselect)
+  {
+    flags.tickers.userinput_stationselect = false;
+    information.webRadio.station_index_select = information.webRadio.station_index;
   }
 }
 
@@ -151,11 +159,11 @@ void events_encoders()
         
       if(information.audioPlayer.soundMode == WEBRADIO)
       {      
-        if(information.webRadio.station_index > 0)
+        if(information.webRadio.station_index_select > 0)
         {
-          webradio_disconnect();
-          information.webRadio.station_index--;
-          webradio_connect(information.webRadio.station_index);
+          //webradio_disconnect();
+          information.webRadio.station_index_select--;
+          //webradio_connect(information.webRadio.station_index);
         }
       }
     }
@@ -173,11 +181,11 @@ void events_encoders()
     {
       if(information.audioPlayer.soundMode == WEBRADIO)
       {      
-        if(information.webRadio.station_index < information.webRadio.station_count)
+        if(information.webRadio.station_index_select < information.webRadio.station_count)
         {
-          webradio_disconnect();
-          information.webRadio.station_index++;
-          webradio_connect(information.webRadio.station_index);
+          //webradio_disconnect();
+          information.webRadio.station_index_select++;
+          //webradio_connect(information.webRadio.station_index);
         }
       }
     }
@@ -266,6 +274,17 @@ void events_buttons()
     }
     else if(information.audioPlayer.soundMode == BLUETOOTH)
       i2sreceiver_playpause();
+
+    else if(information.audioPlayer.soundMode == WEBRADIO)
+    {      
+      if(information.webRadio.station_index_select != information.webRadio.station_index)
+      {
+        // Switch to selected station
+        webradio_disconnect();
+        information.webRadio.station_index = information.webRadio.station_index_select;
+        webradio_connect(information.webRadio.station_index);        
+      }
+    }
   }
 
 

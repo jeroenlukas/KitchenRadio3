@@ -11,6 +11,7 @@
 #include "../system/Settings.h"
 #include "../system/Profiler.h"
 #include "../information/Weather.h"
+#include "../system/Stations.h"
 #include "XbmIcons.h"
 #include "Menu.h"
 
@@ -64,19 +65,22 @@ void display_draw_home()
   u8g2.setFont(FONT_S);
   
   // Alarm (if active)
-  if(information.alarm.state == ALARM_STATE_COUNTDOWN)
+  if(information.alarm.state != ALARM_STATE_OFF)
   {
     u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
     u8g2.drawGlyph(POSX_ALARM, POSY_ALARM + 2, 93);
     u8g2.setFont(FONT_ALARM);
-    u8g2.drawStr(POSX_ALARM + 20, POSY_ALARM, (information.alarm.countdown_minsec).c_str());
-  }
-  else if(information.alarm.state == ALARM_STATE_BUZZING)
-  {
-    u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
-    u8g2.drawGlyph(POSX_ALARM, POSY_ALARM + 2, 93);
-    u8g2.setFont(FONT_ALARM);
-    u8g2.drawStr(POSX_ALARM + 20, POSY_ALARM, "ALARM!");
+    u8g2.drawFrame(POSX_ALARM - 5, POSY_ALARM -18, 60, 25);
+
+    if(information.alarm.state == ALARM_STATE_COUNTDOWN || information.alarm.state == ALARM_STATE_PAUSED)
+    {      
+      u8g2.drawStr(POSX_ALARM + 20, POSY_ALARM, (information.alarm.countdown_minsec).c_str());
+    }
+
+    else if(information.alarm.state == ALARM_STATE_BUZZING)
+    {
+      u8g2.drawStr(POSX_ALARM + 20, POSY_ALARM, "ALARM!");
+    }
   }
 
   // Audio 
@@ -90,14 +94,21 @@ void display_draw_home()
       
       // Draw buffer fill percentage, station index + count
       u8g2.setFont(FONT_S);
-      u8g2.drawStr(POSX_AUDIO -20, POSY_AUDIO-7, (String(information.webRadio.station_index + 1) + "/" + String(information.webRadio.station_count)).c_str() );
+      u8g2.drawStr(POSX_AUDIO -20, POSY_AUDIO-7, (String(information.webRadio.station_index_select + 1) + "/" + String(information.webRadio.station_count)).c_str() );
       u8g2.drawStr(POSX_AUDIO -20, POSY_AUDIO+1, (String(information.webRadio.bufferPercentage) + "%").c_str() );
 
       // Draw station name in clipwindow
       u8g2.setFont(FONT_AUDIO);
-      u8g2.setClipWindow(POSX_AUDIO, 43, 224, 64);
-      display_audio_title_width = u8g2.drawStr(POSX_AUDIO + display_audio_title_scroll_offset, POSY_AUDIO, String(information.webRadio.metadataName + " | " + information.webRadio.metadataTitle).c_str());
-      u8g2.setMaxClipWindow();
+      if(information.webRadio.station_index == information.webRadio.station_index_select)
+      {
+        u8g2.setClipWindow(POSX_AUDIO, 43, 224, 64);
+        display_audio_title_width = u8g2.drawStr(POSX_AUDIO + display_audio_title_scroll_offset, POSY_AUDIO, String(information.webRadio.metadataName + " | " + information.webRadio.metadataTitle).c_str());
+        u8g2.setMaxClipWindow();
+      }
+      else // Draw select station
+      {
+        u8g2.drawStr(POSX_AUDIO, POSY_AUDIO, String(">>> " + stations[information.webRadio.station_index_select].name).c_str());
+      }
       break;
     case BLUETOOTH:
       //u8g2.drawStr(10, 36, String("Bt: " + information.audioPlayer.bluetoothTitle).c_str());

@@ -80,6 +80,7 @@ class Information_t {
         struct Webradio
         {
             uint8_t station_index;
+            uint8_t station_index_select; // Used when selecting a different station
             String station_name;
             uint8_t station_count;
             uint8_t bufferPercentage;

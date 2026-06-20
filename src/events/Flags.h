@@ -28,7 +28,8 @@ class Flags_t
         bool passed1s;
         bool passed30min;
         bool passed1min;
-        bool userinput;
+        bool userinput_menu;
+        bool userinput_stationselect;
         bool displayrefresh;
     };
 
