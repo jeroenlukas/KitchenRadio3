@@ -111,6 +111,9 @@ void audioplayer_mode_set(soundMode_t mode)
     else if(information.audioPlayer.soundMode == BLUETOOTH)
     {
         i2sreceiver_stop();
+        information.audioPlayer.bluetoothArtist = ""; 
+        information.audioPlayer.bluetoothTitle = "";
+
     }
 
     LOGG_INFO("Soft reset VS1053");

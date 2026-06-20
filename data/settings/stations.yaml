@@ -5,6 +5,8 @@
   url: "http://icecast.omroep.nl/radio2-bb-mp3"
 - name: "NPO 3FM"
   url: "http://icecast.omroep.nl/3fm-bb-mp3"
+- name: "NPO Campus"
+  url: "http://icecast.omroep.nl/3fm-serioustalent-mp3"
 - name: "NPO Klassiek"
   url: "http://icecast.omroep.nl/radio4-bb-mp3"
 - name: "BNR Nieuwsradio"
