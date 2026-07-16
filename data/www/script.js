@@ -18,20 +18,6 @@ function getValuesHome()
 }
 
 
-function getValuesSystem()
-{
-    websocket.send("getValuesSystem");
-}
-
-function getValuesConfig()
-{
-    websocket.send("getValuesConfig");
-}
-
-function getValuesStations()
-{
-    websocket.send("getValuesStations");
-}
 
 function initWebSocket() {
     console.log('Trying to open a WebSocket connection…');
@@ -50,23 +36,19 @@ function onOpen(event) {
     if(window.location.pathname == "/")
     {
         // Home
-        let interval = setInterval(() => getValuesHome(), 1000);
+        //let interval = setInterval(() => getValuesHome(), 1000);
     }
-    else if(window.location.pathname == "/settings")
-    {
-        // Settings
-        let interval = setInterval(() => getValuesSystem(), 1000);
-    }
+    
     else if(window.location.pathname == "/config")
     {
         // Config (once)
-        getValuesConfig();
+        websocket.send(JSON.stringify({get: "configuration"}));
     }
 
     else if(window.location.pathname == "/stations")
     {
         // Stations (once)
-        getValuesStations();
+        websocket.send(JSON.stringify({get: "stations"}));
     }
 
     
@@ -108,20 +90,7 @@ function colorPickerChanged(picker)
     
     websocket.send('{"ledring": {"h": ' + picker.channel('H')/360.0 + ', "s": ' +picker.channel('S')/100.0 + ', "v": ' + picker.channel('V')/100.0 + '}}');
 }
-/*
-function buttonOffPressed(){
-    console.log('off pressed');
-    websocket.send('buttonOffPressed');
-}
 
-function buttonWebradioPressed(){
-    websocket.send('buttonWebradioPressed');
-}
-
-function buttonBluetoothPressed(){
-    websocket.send('buttonBluetoothPressed');
-}
-*/
 function buttonAudioPrevPressed(){
     websocket.send('buttonAudioPrevPressed');
 }

@@ -37,3 +37,24 @@ String filemgr_readfile(String path)
 
   return file_content;
 }
+
+bool filemgr_writefile(String path, String content)
+{
+  File file = LittleFS.open(path, "w");
+
+  if(!file)
+  {
+      LOGG_ERROR("Error: could not open " + path);
+      return false;
+  }
+
+  if(!file.print(content)) 
+  {
+    LOGG_ERROR("Could not write to file");
+    return false;
+  }
+
+  file.close();
+
+  return true;
+}

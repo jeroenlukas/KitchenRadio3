@@ -113,7 +113,7 @@ void display_draw_home() {
       u8g2.setFont(FONT_AUDIO);
       u8g2.setClipWindow(POSX_AUDIO, 43, 224, 64);
       if (information.audioPlayer.bluetoothArtist != "")
-        display_audio_title_width = u8g2.drawStr(POSX_AUDIO + display_audio_title_scroll_offset, POSY_AUDIO, String(information.audioPlayer.bluetoothArtist + " - " + information.audioPlayer.bluetoothTitle).c_str());hema
+        display_audio_title_width = u8g2.drawStr(POSX_AUDIO + display_audio_title_scroll_offset, POSY_AUDIO, String(information.audioPlayer.bluetoothArtist + " - " + information.audioPlayer.bluetoothTitle).c_str());
       else
         display_audio_title_width = u8g2.drawStr(POSX_AUDIO + display_audio_title_scroll_offset, POSY_AUDIO, String(information.audioPlayer.bluetoothConnectionStateStr).c_str());
       u8g2.setMaxClipWindow();
@@ -339,12 +339,12 @@ void display_set_brightness(uint8_t brightness) {
 void display_set_brightness_auto() {
   //uint8_t brightness = map(information.system.ldr, 0, 100, CONF_DISPLAY_AUTO_BRIGHTNESS_MIN, CONF_DISPLAY_AUTO_BRIGHTNESS_MAX);
 
-  int br_max = int(CONF_DISPLAY_AUTO_BRIGHTNESS_MAX);
-  int br_min = int(CONF_DISPLAY_AUTO_BRIGHTNESS_MIN);
+  //int br_max = int(settings.display.brightness_max);
+  //int br_min = int(settings.display.brightness_min);
 
-  if (br_max == 0) br_max = 100;
+  //if (br_max == 0) br_max = 100;
 
-  uint8_t brightness = map(information.system.ldr, 0, 100, br_min, br_max);
+  uint8_t brightness = map(information.system.ldr, 0, 100, settings.display.brightness_min, settings.display.brightness_max);
 
   display_set_brightness(brightness);
 }

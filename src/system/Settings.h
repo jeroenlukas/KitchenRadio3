@@ -8,6 +8,8 @@ class Settings_t {
         Settings_t()
         {
           Serial.println("Settings constructor!");            
+          display.brightness_min = 10;
+          display.brightness_max = 100;
         }
 
         String deviceName;
@@ -31,9 +33,16 @@ class Settings_t {
 
           Tonecontrol_t tonecontrol;
         };
+
+        struct Display_t
+        {
+          uint8_t brightness_min;
+          uint8_t brightness_max;
+        };
       
     Clock_t clock;
     Audio_t audio;
+    Display_t display;
 };
 
 extern bool settings_load();

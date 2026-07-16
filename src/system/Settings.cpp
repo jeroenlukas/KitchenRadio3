@@ -49,13 +49,12 @@ bool settings_load()
     settings.location = String(docSettings["location"]);
     settings.clock.timezone = String(docSettings["clock"]["timezone"]);
     settings.audio.tonecontrol.treble = docSettings["audio"]["tonecontrol"]["treble"];
-
-    Serial.println("settigs.deviceName2="  + settings.deviceName);
+    settings.display.brightness_min = docSettings["display"]["brightness_min"];
+    settings.display.brightness_max = docSettings["display"]["brightness_max"];
 
     LOGG_INFO("Devicename: " + settings.deviceName);
     LOGG_INFO("Timezone: " + settings.clock.timezone);
     LOGG_INFO("Location: " + settings.location);
-    LOGG_INFO("Treble: " + String(settings.audio.tonecontrol.treble));
 
     return true;
 }
