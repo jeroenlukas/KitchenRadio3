@@ -47,6 +47,7 @@ Command cmd_treble;
 Command cmd_bass;
 Command cmd_mem;
 Command cmd_profiler;
+Command cmd_popup;
 
 void cli_begin();
 void cli_handle();
@@ -306,10 +307,7 @@ void cb_bt(cmd* c)
     if(cmd.getArgument("end").isSet())
     {
         i2sreceiver_send("AT+END");
-    }
-    
-    
-    
+    }    
 }
 
 void cb_bootlog(cmd* c)
@@ -382,6 +380,12 @@ void cb_mem(cmd* c)
     LOGG_INFO("Heap: " + String(used_heap) + " B used out of " + String(size_heap) + " B (" + String(pct_heap) + "%)");
     LOGG_INFO("PSRAM: " + String(used_psram) + " B used out of " + String(size_psram) + " B (" + String(pct_psram) + "%)");
     
+}
+
+void cb_popup(cmd* c)
+{
+    Command cmd(c);
+    display_popup(cmd.getArg(0).getValue());
 }
 
 void cb_error(cmd_error* e) {
@@ -498,6 +502,10 @@ void cli_begin(void)
 
     
 */
+
+    // > popup
+    cmd_popup = kr_cli.addSingleArgumentCommand("popup", cb_popup);
+
 
     // > buzzer
     cmd_buzzer = kr_cli.addSingleArgCmd("buzzer", cb_buzzer);

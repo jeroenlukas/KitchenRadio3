@@ -382,6 +382,39 @@ class OptionItem : public MenuItem {
     }
 };
 
+
+// This is an info page item.
+// It should be used with the onShow callback, where a custom display is drawn.
+class ActionItem : public MenuItem {
+  private:
+    const char* name; // e.g. 'Restart'
+    void (*onExecute)() = nullptr;  // callback
+
+  public:
+    ActionItem(const char* n)
+      : name(n) {}
+
+    ItemType getType() const override {
+      return ACTION_ITEM;
+    }  
+
+    const char* getName() const override {
+      return name;
+    }
+
+    void setOnExecuteCallback(void (*cb)()) {
+      onExecute = cb;
+    }
+
+    void increase() override {} // Ignore
+    void decrease() override {} // Ignore
+
+    void execute()
+    {
+      onExecute();
+    }
+};
+
 // ============================================================================================================
 
 #define MAX_ITEMS 10

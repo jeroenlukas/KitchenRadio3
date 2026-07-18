@@ -5,6 +5,7 @@
 
 #include "../audio/Audioplayer.h"
 #include "../system/Settings.h"
+#include "../information/Weather.h"
 #include "Lamp.h"
 #include "Display.h"
 #include "Alarm.h"
@@ -22,6 +23,7 @@ Menu menuLamp("Lamp");
 InfoItem iiSystem("System Info");
 InfoItem iiSmiley("Smiley");
 InfoItem iiWeather("Weather");
+ActionItem aiTest("Update weather");
 
 // - [System] > [Audio]
 Menu menuSystem_Audio("Audio");
@@ -44,7 +46,7 @@ FloatItem fiSaturation("Saturation", &(information.lamp.saturation), 0.0, 1.0);
 Menu menuLamp_Effects("Effects");
 const char* oiEffectType_labels[] = { "None", "Rainbow", "Double Rainbow", "Pulse", "Wheel"};
 OptionItem oiEffectType("Effect Type", (int*)&(information.lamp.effect_type) , oiEffectType_labels, EFFECT_COUNT);
-IntItem iEffectSpeed("Effect Speed", &(information.lamp.effect_speed), 10, 200);
+IntItem iEffectSpeed("Effect Speed", &(information.lamp.effect_speed), 10, 500);
 
 // The menu manager
 MenuManager menuMgr;
@@ -52,6 +54,11 @@ MenuManager menuMgr;
 void onEffectChanged(int i)
 {  
   lamp_seteffecttype((lampEffectType_t)i);
+}
+
+void action_weather_retrieve()
+{
+  weather_retrieve();
 }
 
 void menu_begin()
@@ -65,6 +72,9 @@ void menu_begin()
 
   menuSystem.addItem(&iiWeather);
   iiWeather.setOnShowCallback(display_draw_custominfo_weather);
+
+  menuSystem.addItem(&aiTest);
+  aiTest.setOnExecuteCallback(action_weather_retrieve);
 
   // --- Audio submenu ---
   menuSystem.addItem(&menuSystem_Audio);

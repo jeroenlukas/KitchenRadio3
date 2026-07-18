@@ -38,12 +38,7 @@ void events_handle()
 
     tickers_userinput_reset();
     
-    
     flags.main.displayRedraw = true;
-
-    // Stop alarm
-    //if(information.alarm.state == ALARM_STATE_BUZZING)
-    //  information.alarm.state = ALARM_STATE_OFF;
 
     // Update frontpanel leds
     frontpanel_leds_handle();
@@ -161,9 +156,7 @@ void events_encoders()
       {      
         if(information.webRadio.station_index_select > 0)
         {
-          //webradio_disconnect();
           information.webRadio.station_index_select--;
-          //webradio_connect(information.webRadio.station_index);
         }
       }
     }
@@ -181,11 +174,9 @@ void events_encoders()
     {
       if(information.audioPlayer.soundMode == WEBRADIO)
       {      
-        if(information.webRadio.station_index_select < information.webRadio.station_count)
+        if(information.webRadio.station_index_select < information.webRadio.station_count -1)
         {
-          //webradio_disconnect();
           information.webRadio.station_index_select++;
-          //webradio_connect(information.webRadio.station_index);
         }
       }
     }
@@ -270,6 +261,12 @@ void events_buttons()
         LOGG_DEBUG("sub!!");
         
         menuMgr.enter();
+      }
+      else if(item->getType() == ACTION_ITEM)
+      {
+        LOGG_DEBUG("Action exec!");
+        ActionItem* ai = (ActionItem*)item;
+        ai->execute();
       }
     }
     else if(information.audioPlayer.soundMode == BLUETOOTH)

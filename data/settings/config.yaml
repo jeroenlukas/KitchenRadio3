@@ -1,4 +1,4 @@
-devicename: "KitchenRadio-slpkamer"
+devicename: "KitchenRadio-keuken"
 location: "Ouwerkerk,nl"
 clock:
   timezone: "Europe/Amsterdam"
@@ -11,4 +11,4 @@ audio:
 display:
   homedisplay: "normal"
   brightness_min: 5
-  brightness_max: 80
+  brightness_max: 100

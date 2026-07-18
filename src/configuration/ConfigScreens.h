@@ -1,6 +1,9 @@
 #ifndef KR_CONFIGSCREEN_H
 #define KR_CONFIGSCREEN_H
 
+#define WIDTH_SCREEN            256
+#define HEIGHT_SCREEN           64
+
 // Widget positions
 #define POSX_CLOCK              186
 #define POSY_CLOCK              26
@@ -16,6 +19,10 @@
 #define POSX_MENUITEM_VALUE     100
 #define POSX_MENUPATH           30
 #define POSY_MENUPATH           60
+
+#define POSX_CENTER             (WIDTH_SCREEN / 2)
+#define POSY_CENTER             (HEIGHT_SCREEN / 2)
+
 
 // Number of steps to perform at boot, should be set manually. Only used to display the bootup percentage
 #define BOOTLOG_STEPS           16

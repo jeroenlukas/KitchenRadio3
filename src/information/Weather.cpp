@@ -7,6 +7,8 @@
 #include "../configuration/Config.h"
 #include "../system/Settings.h"
 #include "../system/Logger.h"
+#include "../information/Weather.h"
+#include "../hmi/Display.h"
 
 int weather_statecode_to_glyph(int statecode);
 int weather_icon_to_glyph(String icon);
@@ -71,6 +73,8 @@ bool weather_retrieve()
 
     http.end();
     
+    display_popup("Updated weather info");
+
     return ret;
 }
 

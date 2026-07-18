@@ -14,6 +14,7 @@
 #include "../system/Settings.h"
 #include "../audio/Audioplayer.h"
 #include "../system/Stations.h"
+#include "../hmi/Display.h"
 
 void websocket_onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 
@@ -72,7 +73,8 @@ void webserver_begin()
       filemgr_writefile("/settings/config.yaml", new_content);
       
       // Reload config
-      delayMicroseconds(500000);
+      display_popup("Settings stored");
+      delayMicroseconds(500000);      
       settings_load();
 
       // Return to config file
@@ -105,7 +107,8 @@ void webserver_begin()
       filemgr_writefile("/settings/stations.yaml", new_content);
       
       // Reload config
-      delayMicroseconds(500000);
+      display_popup("Stations stored");
+      delayMicroseconds(500000);      
       stations_load();
 
       // Return to config file

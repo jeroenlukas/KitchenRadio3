@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <U8g2lib.h>
+#include <Ticker.h>
 
 #include "u8g2_font_climacons_40.h"
 #include "../system/Logger.h"
@@ -11,9 +12,12 @@
 #include "../system/Settings.h"
 #include "../system/Profiler.h"
 #include "../information/Weather.h"
+#include "../events/Flags.h"
 #include "../system/Stations.h"
 #include "XbmIcons.h"
 #include "Menu.h"
+
+//void display_popup(String message);
 
 TimeProfile tpDisplay("Display");
 
@@ -24,6 +28,11 @@ SPIClass* hspi = NULL;
 int16_t display_audio_title_scroll_offset = 0;
 bool display_audio_title_scroll_dir = true;
 uint16_t display_audio_title_width = 0;
+
+Ticker ticker_popup;
+void ticker_popup_cb();
+String popup_message;
+bool popup_show = false;
 
 void display_begin() {
   LOGG_INFO("Display init");
@@ -165,20 +174,28 @@ void display_draw_menu() {
   // For all setting types, draw the name of the setting.
   // For custominfo types, this is drawn in the path.
 
-  if (item->getType() == CUSTOMINFO_ITEM) {
+  if (item->getType() == CUSTOMINFO_ITEM) 
+  {
     // Draw breadcrumb + custominfo title
     u8g2.setFont(FONT_MENUPATH);
     u8g2.drawStr(POSX_MENUPATH, POSY_MENUPATH, String(menuMgr.currentMenu()->getPath() + " > " + item->getName()).c_str());  // Draw menu name/path
-  } else if (item->getType() == MENU_ITEM) {
+  } 
+  else if (item->getType() == MENU_ITEM) 
+  {
     u8g2.setFont(FONT_MENUITEM);
     u8g2.drawStr(POSX_MENUITEM, POSY_MENUITEM, String(String(item->getName()) + "...").c_str());  // Draw item name
 
     // Draw breadcrumb
     u8g2.setFont(FONT_MENUPATH);
     u8g2.drawStr(POSX_MENUPATH, POSY_MENUPATH, menuMgr.currentMenu()->getPath().c_str());  // Draw menu name/path
-  } else {
-    u8g2.setFont(FONT_MENUITEM);
-    u8g2.drawStr(POSX_MENUITEM, POSY_MENUITEM, item->getName());  // Draw item name
+  } 
+  else 
+  {
+    if(item->getType() != ACTION_ITEM)
+    {
+      u8g2.setFont(FONT_MENUITEM);
+      u8g2.drawStr(POSX_MENUITEM, POSY_MENUITEM, item->getName());  // Draw item name
+    }
 
     // Draw breadcrumb
     u8g2.setFont(FONT_MENUPATH);
@@ -188,7 +205,8 @@ void display_draw_menu() {
 
   u8g2.setFont(FONT_MENUITEM);
 
-  switch (item->getType()) {
+  switch (item->getType()) 
+  {
     case INT_ITEM:
       {
         IntItem* val = (IntItem*)item;
@@ -257,6 +275,17 @@ void display_draw_menu() {
       }
       break;
 
+    case ACTION_ITEM:
+      {
+        ActionItem* ai = (ActionItem*)item;
+        
+        int len = u8g2.getStrWidth(ai->getName());
+
+        u8g2.drawRFrame(POSX_CENTER - (len / 2), POSY_CENTER - 22 , len + 14, 20, 4);
+        u8g2.drawStr(POSX_CENTER - (len / 2) + 7, POSY_CENTER - 10,  ai->getName());
+      }
+      break;
+
     default:
       {
         LOGG_ERROR("Unknown menuitem type!");
@@ -284,6 +313,18 @@ void display_draw() {
     if (menuMgr.isActive()) {
       display_draw_menu();
     } else display_draw_home();
+
+    // Show popup regardless of menu
+    if(popup_show)
+    {      
+      int len = u8g2.getStrWidth(popup_message.c_str());
+      
+      u8g2.setDrawColor(0);
+      u8g2.drawBox(POSX_CENTER - (len / 2), POSY_CENTER -10 , len + 10, 16);
+      u8g2.setDrawColor(1);
+      u8g2.drawFrame(POSX_CENTER - (len / 2), POSY_CENTER -10 , len + 10, 16);
+      u8g2.drawStr(POSX_CENTER - (len / 2) + 5, POSY_CENTER, (popup_message).c_str());
+    }
 
   } while (u8g2.nextPage());
 
@@ -325,7 +366,8 @@ void display_draw_startup() {
 }
 
 
-void display_set_brightness(uint8_t brightness) {
+void display_set_brightness(uint8_t brightness) 
+{
   // Contrast (0-100)
   uint8_t contrast = map(brightness, 0, 100, 0, 50);
   u8g2.setContrast(contrast);
@@ -336,23 +378,34 @@ void display_set_brightness(uint8_t brightness) {
   u8g2.sendF("ca", 0xBB, pcv);
 }
 
-void display_set_brightness_auto() {
-  //uint8_t brightness = map(information.system.ldr, 0, 100, CONF_DISPLAY_AUTO_BRIGHTNESS_MIN, CONF_DISPLAY_AUTO_BRIGHTNESS_MAX);
-
-  //int br_max = int(settings.display.brightness_max);
-  //int br_min = int(settings.display.brightness_min);
-
-  //if (br_max == 0) br_max = 100;
+void display_set_brightness_auto() 
+{
 
   uint8_t brightness = map(information.system.ldr, 0, 100, settings.display.brightness_min, settings.display.brightness_max);
 
   display_set_brightness(brightness);
 }
 
+void ticker_popup_cb()
+{
+  popup_show = false;
+}
+
+void display_popup(String message, int length = 3000)
+{
+  ticker_popup.once_ms(5000, ticker_popup_cb);
+  
+  LOGG_DEBUG("Popup!");
+  flags.main.displayRedraw = true;
+  popup_message = message;
+  popup_show = true;
+}
+
 // ===  Custom info items ===
 
 // System stats
-void display_draw_custominfo_system() {
+void display_draw_custominfo_system() 
+{
   u8g2.setFont(FONT_S);
   u8g2.drawStr(10, 12, String(settings.deviceName).c_str());
   u8g2.drawStr(10, 22, "IP: ");
