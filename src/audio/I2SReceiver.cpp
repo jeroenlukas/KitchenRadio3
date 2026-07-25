@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <AudioTools.h>
 #include "../system/Logger.h"
+#include "../system/Settings.h"
 
 #include "Audioplayer.h"
 #include "../hmi/Display.h"
@@ -61,6 +62,7 @@ void i2sreceiver_init()
 
 void i2sreceiver_handle()
 {
+  if(i2scopier.available())
     i2scopier.copy();
 }
 
@@ -69,7 +71,7 @@ void i2sreceiver_handle()
 void i2sreceiver_start()
 {
     LOGG_DEBUG("i2sreceiver_start!");
-    i2sreceiver_send("AT+START");
+    i2sreceiver_send("AT+START=" + settings.deviceName);
 
     i2sStream.begin();
     i2scopier.begin();

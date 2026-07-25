@@ -150,7 +150,7 @@ void display_draw_home() {
           break;
       }
       break;
-      break;
+      
     default:
       break;
   }
