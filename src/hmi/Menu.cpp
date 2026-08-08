@@ -31,6 +31,10 @@ IntItem viTreble("Treble", &(settings.audio.tonecontrol.treble), 1,100);
 IntItem viBass("Bass", &(settings.audio.tonecontrol.bass), 1 ,100);
 BoolItem biSpeakerPhase("Speaker phase", &(settings.audio.phase), "in phase", "out of phase");
 
+// [System info]
+Menu menuSystem_Overview("Overview");
+InfoItem iiSystemAdvanced("Advanced");
+
 // [Alarm]
 //int dummy;
 //IntItem alarmDummy("(dummy)",&dummy,0,10);
@@ -64,8 +68,13 @@ void action_weather_retrieve()
 void menu_begin()
 {  
   // === System menu ===
-  menuSystem.addItem(&iiSystem);
-  iiSystem.setOnShowCallback(display_draw_custominfo_system);
+  //menuSystem.addItem(&iiSystem);
+  //iiSystem.setOnShowCallback(display_draw_custominfo_system);
+
+  menuSystem.addItem(&menuSystem_Overview);
+  menuSystem_Overview.setOnShowCallback(display_draw_systeminfo_overview);
+  menuSystem_Overview.addItem(&iiSystemAdvanced);
+  iiSystemAdvanced.setOnShowCallback(display_draw_systeminfo_advanced);
 
   menuSystem.addItem(&iiSmiley);
   iiSmiley.setOnShowCallback(display_draw_custominfo_smiley);

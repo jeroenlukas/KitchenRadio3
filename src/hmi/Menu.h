@@ -426,6 +426,9 @@ class Menu : public MenuItem {
     int selectedIndex = 0;
     Menu* parent = nullptr;
 
+    void (*onShow)() = nullptr;  // callback for optional onShow event
+    bool customDisplay = false;
+
   public:
     Menu(const char* t) : title(t) {}
 
@@ -446,6 +449,16 @@ class Menu : public MenuItem {
         path = String(String(parent->getName()) + " > ");
       }
       return String(path + title);
+    }
+
+    void setOnShowCallback(void (*cb)()) {
+      onShow = cb;
+      customDisplay = true;
+    }
+
+    bool hasCustomDisplay()
+    {
+      return customDisplay;
     }
 
     void increase() override {} // Ignore
@@ -491,7 +504,10 @@ class Menu : public MenuItem {
       selectedIndex = 0;
     }
 
-
+    void show()
+    {
+      onShow();
+    }
 
     void next() {
       if(selectedIndex < itemCount-1) selectedIndex++;

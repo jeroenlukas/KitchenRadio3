@@ -182,12 +182,22 @@ void display_draw_menu() {
   } 
   else if (item->getType() == MENU_ITEM) 
   {
-    u8g2.setFont(FONT_MENUITEM);
-    u8g2.drawStr(POSX_MENUITEM, POSY_MENUITEM, String(String(item->getName()) + "...").c_str());  // Draw item name
+    Menu* mn = (Menu*)item;
 
-    // Draw breadcrumb
-    u8g2.setFont(FONT_MENUPATH);
-    u8g2.drawStr(POSX_MENUPATH, POSY_MENUPATH, menuMgr.currentMenu()->getPath().c_str());  // Draw menu name/path
+    if(! mn->hasCustomDisplay())
+    {
+      u8g2.setFont(FONT_MENUITEM);
+      u8g2.drawStr(POSX_MENUITEM, POSY_MENUITEM, String(String(item->getName()) + "...").c_str());  // Draw item name
+      u8g2.setFont(FONT_MENUPATH);
+      u8g2.drawStr(POSX_MENUPATH, POSY_MENUPATH, menuMgr.currentMenu()->getPath().c_str());  // Draw menu name/path
+    }
+    else
+    {
+      u8g2.setFont(FONT_MENUPATH);
+      u8g2.drawStr(POSX_MENUPATH, POSY_MENUPATH, String(menuMgr.currentMenu()->getPath() + " > " + item->getName()).c_str());  // Draw menu name/path
+    }
+
+    u8g2.drawStr(220, POSY_AUDIO, "*"); // Indicate that its a submenu which can be entered
   } 
   else 
   {
@@ -264,7 +274,12 @@ void display_draw_menu() {
 
     case MENU_ITEM:
       {
-        u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, "[press TUNE to enter]");  // Draw item value
+        Menu* mn = (Menu*)item;
+        if(mn->hasCustomDisplay())
+          mn->show();
+
+        else
+          u8g2.drawStr(POSX_MENUITEM_VALUE, POSY_MENUITEM, "(press TUNE to enter)");  // Draw item value
       }
       break;
 
@@ -406,8 +421,24 @@ void display_popup(String message, int length = 3000)
 // System stats
 void display_draw_custominfo_system() 
 {
+ 
+
+}
+
+// Smiley icons
+void display_draw_custominfo_smiley() {
+  uint16_t rand = map(information.minute, 0, 59, 48, 688);  //random(48, 688);
+  u8g2.setFont(u8g2_font_streamline_all_t);
+  u8g2.drawGlyph(80, 30, rand);
+  u8g2.drawGlyph(150, 47, rand + 1);
+}
+
+// System  info overview
+void display_draw_systeminfo_overview() {
   u8g2.setFont(FONT_S);
+   
   u8g2.drawStr(10, 12, String(settings.deviceName).c_str());
+
   u8g2.drawStr(10, 22, "IP: ");
   u8g2.drawStr(70, 22, information.system.ipAddress.c_str());
   u8g2.drawStr(10, 32, "WiFi RSSI:");
@@ -425,18 +456,16 @@ void display_draw_custominfo_system()
   u8g2.drawStr(200, 12, time_convert(information.system.uptimeSeconds).c_str());
   u8g2.drawStr(150, 22, "Amb.light:");
   u8g2.drawStr(200, 22, (String(information.system.ldr) + "%").c_str());
-  u8g2.drawStr(150, 32, "Rst reason:");
-  u8g2.drawStr(200, 32, (String(information.system.lastResetReason)).c_str());
-  u8g2.drawStr(150, 42, "Underruns:");
-  u8g2.drawStr(200, 42, (String(information.webRadio.cntUnderruns)).c_str());
 }
 
-// Smiley icons
-void display_draw_custominfo_smiley() {
-  uint16_t rand = map(information.minute, 0, 59, 48, 688);  //random(48, 688);
-  u8g2.setFont(u8g2_font_streamline_all_t);
-  u8g2.drawGlyph(80, 30, rand);
-  u8g2.drawGlyph(150, 47, rand + 1);
+// System  info advanced
+void display_draw_systeminfo_advanced() {
+  u8g2.setFont(FONT_S);
+  
+  u8g2.drawStr(10, 22, "Rst reason:");
+  u8g2.drawStr(70, 22, (String(information.system.lastResetReason)).c_str());
+  u8g2.drawStr(10, 32, "Underruns:");
+  u8g2.drawStr(70, 32, (String(information.webRadio.cntUnderruns)).c_str());
 }
 
 // Weather info
