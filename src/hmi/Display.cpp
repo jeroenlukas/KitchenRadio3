@@ -14,6 +14,7 @@
 #include "../information/Weather.h"
 #include "../events/Flags.h"
 #include "../system/Stations.h"
+#include "../../version.h"
 #include "XbmIcons.h"
 #include "Menu.h"
 
@@ -197,7 +198,9 @@ void display_draw_menu() {
       u8g2.drawStr(POSX_MENUPATH, POSY_MENUPATH, String(menuMgr.currentMenu()->getPath() + " > " + item->getName()).c_str());  // Draw menu name/path
     }
 
-    u8g2.drawStr(220, POSY_AUDIO, "*"); // Indicate that its a submenu which can be entered
+    // Indicate that its a submenu which can be entered
+    u8g2.setFont(u8g2_font_open_iconic_all_1x_t);    
+    u8g2.drawGlyph(220, POSY_AUDIO, 64); 
   } 
   else 
   {
@@ -452,20 +455,25 @@ void display_draw_systeminfo_overview() {
     u8g2.drawStr(70, 42, (String(information.webRadio.bytesAvailable / 1024) + " kB").c_str());
   }
 
-  u8g2.drawStr(150, 12, "Uptime:");
-  u8g2.drawStr(200, 12, time_convert(information.system.uptimeSeconds).c_str());
-  u8g2.drawStr(150, 22, "Amb.light:");
-  u8g2.drawStr(200, 22, (String(information.system.ldr) + "%").c_str());
+  u8g2.drawStr(150, 12, "Version:");
+  u8g2.drawStr(200, 12, KR_VERSION);
+  u8g2.drawStr(150, 22, "Uptime:");
+  u8g2.drawStr(200, 22, time_convert(information.system.uptimeSeconds).c_str());
+  u8g2.drawStr(150, 32, "Amb.light:");
+  u8g2.drawStr(200, 32, (String(information.system.ldr) + "%").c_str());
 }
 
 // System  info advanced
 void display_draw_systeminfo_advanced() {
   u8g2.setFont(FONT_S);
   
+  u8g2.drawStr(10, 12, "Core Temp:");
+  u8g2.drawStr(70, 12, (String(information.system.coreTemperature) + " 'C").c_str());
   u8g2.drawStr(10, 22, "Rst reason:");
   u8g2.drawStr(70, 22, (String(information.system.lastResetReason)).c_str());
   u8g2.drawStr(10, 32, "Underruns:");
   u8g2.drawStr(70, 32, (String(information.webRadio.cntUnderruns)).c_str());
+  
 }
 
 // Weather info
@@ -486,6 +494,11 @@ void display_draw_custominfo_weather() {
   u8g2.drawStr(200, 22, (String(information.weather.sunrise_str)).c_str());
   u8g2.drawStr(150, 32, "Sunset:");
   u8g2.drawStr(200, 32, (String(information.weather.sunset_str)).c_str());
+}
+// Weather forecast
+void display_draw_weather_forecast() {
+  u8g2.setFont(FONT_S);
+  u8g2.drawStr(10, 12, "-- Forecast --");
 }
 
 

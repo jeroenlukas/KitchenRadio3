@@ -17,13 +17,8 @@ Menu menuSystem("System");
 Menu menuAlarm("Alarm");
 Menu menuLamp("Lamp");
 
-
-
 // [System]
-InfoItem iiSystem("System Info");
 InfoItem iiSmiley("Smiley");
-InfoItem iiWeather("Weather");
-ActionItem aiTest("Update weather");
 
 // - [System] > [Audio]
 Menu menuSystem_Audio("Audio");
@@ -31,13 +26,16 @@ IntItem viTreble("Treble", &(settings.audio.tonecontrol.treble), 1,100);
 IntItem viBass("Bass", &(settings.audio.tonecontrol.bass), 1 ,100);
 BoolItem biSpeakerPhase("Speaker phase", &(settings.audio.phase), "in phase", "out of phase");
 
-// [System info]
-Menu menuSystem_Overview("Overview");
+// [System] > [Info]
+Menu menuSystem_Overview("Info");
 InfoItem iiSystemAdvanced("Advanced");
 
+// [System] > [Weather]
+Menu menuSystem_Weather("Weather");
+InfoItem iiWeatherForecast("Forecast");
+ActionItem aiWeatherUpdate("Update weather");
+
 // [Alarm]
-//int dummy;
-//IntItem alarmDummy("(dummy)",&dummy,0,10);
 MinSecItem msiCountDownAlarm("Alarm Time", &(information.alarm.countdown_sec), 1, 36000);
 
 // [Lamp]
@@ -68,8 +66,6 @@ void action_weather_retrieve()
 void menu_begin()
 {  
   // === System menu ===
-  //menuSystem.addItem(&iiSystem);
-  //iiSystem.setOnShowCallback(display_draw_custominfo_system);
 
   menuSystem.addItem(&menuSystem_Overview);
   menuSystem_Overview.setOnShowCallback(display_draw_systeminfo_overview);
@@ -79,11 +75,15 @@ void menu_begin()
   menuSystem.addItem(&iiSmiley);
   iiSmiley.setOnShowCallback(display_draw_custominfo_smiley);
 
-  menuSystem.addItem(&iiWeather);
-  iiWeather.setOnShowCallback(display_draw_custominfo_weather);
+  menuSystem.addItem(&menuSystem_Weather);
+  menuSystem_Weather.setOnShowCallback(display_draw_custominfo_weather);
+  menuSystem_Weather.addItem(&iiWeatherForecast);
+  menuSystem_Weather.addItem(&aiWeatherUpdate);
+  aiWeatherUpdate.setOnExecuteCallback(action_weather_retrieve);
+  iiWeatherForecast.setOnShowCallback(display_draw_weather_forecast);
 
-  menuSystem.addItem(&aiTest);
-  aiTest.setOnExecuteCallback(action_weather_retrieve);
+  //menuSystem.addItem(&aiTest);
+  
 
   // --- Audio submenu ---
   menuSystem.addItem(&menuSystem_Audio);

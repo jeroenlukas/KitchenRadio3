@@ -10,6 +10,7 @@ extern void display_draw_custominfo_smiley();
 extern void display_draw_custominfo_weather();
 extern void display_draw_systeminfo_overview();
 extern void display_draw_systeminfo_advanced();
+extern void display_draw_weather_forecast();
 
 extern void display_reset_scroll();
 extern void display_update_scroll_offset();

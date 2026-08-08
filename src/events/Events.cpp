@@ -1,3 +1,4 @@
+#include "esp32-hal.h"
 #include "../configuration/Config.h"
 #include "../information/Information.h"
 
@@ -62,6 +63,8 @@ void events_tickers()
     information.system.wifiRSSI = WiFi.RSSI();
     information.system.uptimeSeconds++;
     time_update();
+
+    information.system.coreTemperature = (int)(temperatureRead());
 
     frontpanel_ldr_read();
     display_set_brightness_auto();    

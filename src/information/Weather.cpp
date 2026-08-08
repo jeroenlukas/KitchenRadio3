@@ -24,6 +24,59 @@ float windspeed = 0.0;
 
 int weather_temperature_int = 0;
 
+// Get lat/lon coordinates from a location string
+bool weather_geo(String location)
+{
+    LOGG_INFO("Retrieving geo info (Geocoding API 1.0)");
+    String endpoint = "http://api.openweathermap.org/geo/1.0/direct?q=" + location +"&appid=";
+    LOGG_DEBUG("Endpoint: " + endpoint);
+    bool ret = false;
+    http.begin(endpoint + key);
+
+    int httpCode = http.GET();
+
+    if (httpCode > 0)
+    {
+        String payload = http.getString();
+        JsonDocument doc;
+
+        deserializeJson(doc, payload);
+        Serial.print(payload);
+
+        information.weather.lat = (double)doc[0]["lat"];
+        information.weather.lon = (double)doc[0]["lon"];
+
+        LOGG_DEBUG("Lat: " + String(information.weather.lat, 5));
+
+        return true;
+    }
+
+    return false;
+}
+
+bool weather_retrieve_40()
+{
+    LOGG_INFO("Retrieving weather info (One Call 4.0)");
+    String endpoint = "http://api.openweathermap.org/data/4.0/onecall/current?lat=" + String(information.weather.lat, 5) + "&lon=" + String(information.weather.lon, 5) +"&units=metric&lang=nl&APPID=";
+    LOGG_DEBUG("Endpoint: " + endpoint);
+    bool ret = false;
+    http.begin(endpoint + key);
+
+    int httpCode = http.GET();
+
+    if (httpCode > 0)
+    {
+        String payload = http.getString();
+        JsonDocument doc;
+
+        deserializeJson(doc, payload);
+        Serial.print(payload);
+
+        return true;
+    }
+
+    return false;
+}
 
 bool weather_retrieve()
 {

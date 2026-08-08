@@ -6,7 +6,7 @@
 #include <SimpleCLI.h>
 
 #include "../audio/Webradio.h"
-
+#include "../system/Settings.h"
 #include "../audio/Audioplayer.h"
 #include "../audio/I2SReceiver.h"
 #include "../information/Weather.h"
@@ -330,7 +330,13 @@ void cb_log(cmd* c)
 */
 void cb_weather(cmd* c)
 {
-    weather_retrieve();
+    Command cmd(c);
+    if(cmd.getArgument("onecall40").isSet())
+        weather_retrieve_40();
+    else if(cmd.getArgument("geo").isSet())
+        weather_geo(settings.location);
+    else
+        weather_retrieve();
 }
 
 void cb_help(cmd* c)
@@ -371,9 +377,7 @@ void cb_mem(cmd* c)
     
     int size_sketch = ESP.getFreeSketchSpace() + ESP.getSketchSize(); // Max sketch size!
     int used_sketch = ESP.getSketchSize();
-    int pct_sketch = ((double)used_sketch / (double)size_sketch) * 100;
-    
-     
+    int pct_sketch = ((double)used_sketch / (double)size_sketch) * 100;     
 
     LOGG_INFO("--- MEMORY ---");
     LOGG_INFO("Sketch: " + String(used_sketch) + " B used out of " + String(size_sketch) + " B (" + String(pct_sketch) + "%)");
@@ -436,6 +440,8 @@ void cli_begin(void)
 
     // > weather
     cmd_weather = kr_cli.addCommand("weather", cb_weather);
+    cmd_weather.addFlagArgument("onecall40");
+    cmd_weather.addFlagArgument("geo");
     cmd_weather.setDescription("- Update weather info");
 
     // > i2cping

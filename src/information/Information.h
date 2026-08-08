@@ -41,6 +41,7 @@ class Information_t {
             bool nightmode;
 
             int lastResetReason;
+            int coreTemperature;
 
             String compilationDateTime;
         };
@@ -93,6 +94,9 @@ class Information_t {
 
         struct Weather
         {
+            double lat;
+            double lon;
+
             String stateShort;
             String stateLong;
             float temperature;
