@@ -335,8 +335,10 @@ void cb_weather(cmd* c)
         weather_retrieve_40();
     else if(cmd.getArgument("geo").isSet())
         weather_geo(settings.location);
+    else if(cmd.getArgument("forecast_1h").isSet())
+        weather_forecast_1h();
     else
-        weather_retrieve();
+        weather_retrieve_40();
 }
 
 void cb_help(cmd* c)
@@ -442,6 +444,7 @@ void cli_begin(void)
     cmd_weather = kr_cli.addCommand("weather", cb_weather);
     cmd_weather.addFlagArgument("onecall40");
     cmd_weather.addFlagArgument("geo");
+    cmd_weather.addFlagArgument("forecast_1h");
     cmd_weather.setDescription("- Update weather info");
 
     // > i2cping

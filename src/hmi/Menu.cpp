@@ -32,8 +32,10 @@ InfoItem iiSystemAdvanced("Advanced");
 
 // [System] > [Weather]
 Menu menuSystem_Weather("Weather");
-InfoItem iiWeatherForecast("Forecast");
+InfoItem iiWeatherHourlyForecast("Hourly forecast");
+InfoItem iiWeatherDailyForecast("Daily forecast");
 ActionItem aiWeatherUpdate("Update weather");
+
 
 // [Alarm]
 MinSecItem msiCountDownAlarm("Alarm Time", &(information.alarm.countdown_sec), 1, 36000);
@@ -60,7 +62,8 @@ void onEffectChanged(int i)
 
 void action_weather_retrieve()
 {
-  weather_retrieve();
+  weather_retrieve_40();
+  weather_forecast_1h();
 }
 
 void menu_begin()
@@ -72,17 +75,15 @@ void menu_begin()
   menuSystem_Overview.addItem(&iiSystemAdvanced);
   iiSystemAdvanced.setOnShowCallback(display_draw_systeminfo_advanced);
 
-  menuSystem.addItem(&iiSmiley);
-  iiSmiley.setOnShowCallback(display_draw_custominfo_smiley);
-
+  // --- Weather submenu ---
   menuSystem.addItem(&menuSystem_Weather);
   menuSystem_Weather.setOnShowCallback(display_draw_custominfo_weather);
-  menuSystem_Weather.addItem(&iiWeatherForecast);
+  menuSystem_Weather.addItem(&iiWeatherHourlyForecast);
+  menuSystem_Weather.addItem(&iiWeatherDailyForecast);
   menuSystem_Weather.addItem(&aiWeatherUpdate);
   aiWeatherUpdate.setOnExecuteCallback(action_weather_retrieve);
-  iiWeatherForecast.setOnShowCallback(display_draw_weather_forecast);
-
-  //menuSystem.addItem(&aiTest);
+  iiWeatherHourlyForecast.setOnShowCallback(display_draw_weather_forecast_hourly);
+  iiWeatherDailyForecast.setOnShowCallback(display_draw_weather_forecast_daily);
   
 
   // --- Audio submenu ---
@@ -96,6 +97,11 @@ void menu_begin()
   viBass.setCallback(audioplayer_bass_set);
 
   menuSystem_Audio.addItem(&biSpeakerPhase);
+
+  // --- Smiley ---
+  menuSystem.addItem(&iiSmiley);
+  iiSmiley.setOnShowCallback(display_draw_custominfo_smiley);
+
 
   // === Alarm menu ===
   menuAlarm.addItem(&msiCountDownAlarm);

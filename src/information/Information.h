@@ -102,6 +102,10 @@ class Information_t {
             float temperature;
             double windSpeedKmh;
             int windSpeedBft;
+
+            int wind_direction_deg;
+            String wind_direction_str;
+
             int stateCode;
             int pressure;
             float temperature_feelslike;
@@ -111,6 +115,12 @@ class Information_t {
             String icon;
             String sunrise_str;
             String sunset_str;
+
+            // Forecast data 1 hour (needs rework)
+            int forecast_1h_hour[8];
+            float forecast_1h_temp[8];
+            int forecast_1h_windspeed_bft[8];
+            String forecast_1h_description[8];
 
         };
         

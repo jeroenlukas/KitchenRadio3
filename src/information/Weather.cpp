@@ -46,7 +46,9 @@ bool weather_geo(String location)
         information.weather.lat = (double)doc[0]["lat"];
         information.weather.lon = (double)doc[0]["lon"];
 
+        LOGG_DEBUG("Lon: " + String(information.weather.lon, 5));
         LOGG_DEBUG("Lat: " + String(information.weather.lat, 5));
+
 
         return true;
     }
@@ -54,9 +56,50 @@ bool weather_geo(String location)
     return false;
 }
 
+// Convert wind direction degrees to string
+String weather_wind_direction_convert(int degrees) {
+    // Normalize to 0..359
+    degrees %= 360;
+    if (degrees < 0)
+        degrees += 360;
+
+    // 16 compass sectors, each 22.5 degrees
+    int index = (degrees + 11) / 22;
+
+    switch (index) {
+        case 0:
+        case 16: return "N";
+        case 1:   return "NNE";
+        case 2:   return "NE";
+        case 3:   return "ENE";
+        case 4:   return "E";
+        case 5:   return "ESE";
+        case 6:   return "SE";
+        case 7:   return "SSE";
+        case 8:   return "S";
+        case 9:   return "SSW";
+        case 10:  return "SW";
+        case 11:  return "WSW";
+        case 12:  return "W";
+        case 13:  return "WNW";
+        case 14:  return "NW";
+        case 15:  return "NNW";
+    }
+
+    return "?";
+}
+
 bool weather_retrieve_40()
 {
     LOGG_INFO("Retrieving weather info (One Call 4.0)");
+
+    if((information.weather.lon == 0) && (information.weather.lat == 0))
+    {
+        // Get geo coords first
+        if(!weather_geo(settings.location))
+            return false;
+    }
+
     String endpoint = "http://api.openweathermap.org/data/4.0/onecall/current?lat=" + String(information.weather.lat, 5) + "&lon=" + String(information.weather.lon, 5) +"&units=metric&lang=nl&APPID=";
     LOGG_DEBUG("Endpoint: " + endpoint);
     bool ret = false;
@@ -70,7 +113,74 @@ bool weather_retrieve_40()
         JsonDocument doc;
 
         deserializeJson(doc, payload);
-        Serial.print(payload);
+        LOGG_DEBUG(payload);
+
+        String weather_type = doc["data"][0]["weather"][0]["description"];        
+        information.weather.stateShort = weather_type;
+
+        information.weather.temperature = doc["data"][0]["temp"];        
+
+        information.weather.windSpeedKmh = ((double)(doc["data"][0]["wind_speed"])) * 3.6;
+        information.weather.windSpeedBft = weather_windkmh_to_beaufort(information.weather.windSpeedKmh);
+        information.weather.wind_direction_deg = doc["data"][0]["wind_deg"];
+        information.weather.wind_direction_str = weather_wind_direction_convert(information.weather.wind_direction_deg);
+
+        information.weather.stateCode = (int)(doc["data"][0]["weather"][0]["id"]);
+        information.weather.temperature_feelslike = doc["data"][0]["feels_like"];
+        information.weather.pressure = doc["data"][0]["pressure"];
+        information.weather.humidity = doc["data"][0]["humidity"];
+        
+        information.weather.sunrise = doc["data"][0]["sunrise"];
+        information.weather.sunset = doc["data"][0]["sunset"];                
+        information.weather.sunrise_str = tzLocal.dateTime(information.weather.sunrise, ezLocalOrUTC_t::UTC_TIME, "H:i");        
+        information.weather.sunset_str = tzLocal.dateTime(information.weather.sunset, ezLocalOrUTC_t::UTC_TIME, "H:i");
+
+
+        String weather_icon = doc["data"][0]["weather"][0]["icon"];
+        information.weather.icon = weather_icon;
+
+        return true;
+    }
+
+    return false;
+}
+
+bool weather_forecast_1h()
+{
+    LOGG_INFO("Retrieving weather forecast 1h (One Call 4.0)");
+
+    if((information.weather.lon == 0) && (information.weather.lat == 0))
+    {
+        // Get geo coords first
+        if(!weather_geo(settings.location))
+            return false;
+    }
+
+    String endpoint = "http://api.openweathermap.org/data/4.0/onecall/timeline/1h?lat=" + String(information.weather.lat, 5) + "&lon=" + String(information.weather.lon, 5) +"&units=metric&lang=nl&APPID=";
+    LOGG_DEBUG("Endpoint: " + endpoint);
+    bool ret = false;
+    http.begin(endpoint + key);
+
+    int httpCode = http.GET();
+
+    if (httpCode > 0)
+    {
+        String payload = http.getString();
+        JsonDocument doc;
+
+        deserializeJson(doc, payload);
+        LOGG_DEBUG(payload);
+
+        int hours = 7;
+        for(int i = 0; i < hours; i++)
+        {
+            information.weather.forecast_1h_temp[i] = doc["data"][i+1]["temp"];
+            information.weather.forecast_1h_hour[i] = tzLocal.hour(doc["data"][i+1]["dt"], UTC_TIME);
+            String weather_desc = doc["data"][i+1]["weather"][0]["description"];
+            information.weather.forecast_1h_description[i] = weather_desc;
+            information.weather.forecast_1h_windspeed_bft[i] = weather_windkmh_to_beaufort((double)doc["data"][i+1]["wind_speed"]*3.6);
+            LOGG_DEBUG(String("Temperature at " + String( information.weather.forecast_1h_hour[i]) + ":00 hour: " + String(information.weather.forecast_1h_temp[i])));
+        }
 
         return true;
     }
@@ -80,6 +190,9 @@ bool weather_retrieve_40()
 
 bool weather_retrieve()
 {
+    LOGG_ERROR("weather_retrieve is deprecated!");
+    return false;
+
     LOGG_INFO("Retrieving weather info");
     String endpoint = "http://api.openweathermap.org/data/2.5/weather?q=" + settings.location +"&units=metric&lang=nl&APPID=";
     LOGG_DEBUG("Endpoint: " + endpoint);

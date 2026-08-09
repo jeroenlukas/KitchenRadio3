@@ -68,7 +68,7 @@ void display_draw_home() {
   uint8_t w = u8g2.drawStr(42, 18, (String(information.weather.temperature, 1) + "  C").c_str());
   u8g2.drawGlyph((42 + w) - 13, 18, 0x00b0);
   u8g2.setFont(FONT_M);
-  u8g2.drawStr(42, 28, (String(information.weather.windSpeedBft) + " Bft").c_str());
+  u8g2.drawStr(42, 28, (String(information.weather.windSpeedBft) + " Bft " + information.weather.wind_direction_str).c_str());
   u8g2.drawStr(42, 38, (String(information.weather.stateShort)).c_str());
   u8g2.setFont(FONT_S);
 
@@ -430,10 +430,18 @@ void display_draw_custominfo_system()
 
 // Smiley icons
 void display_draw_custominfo_smiley() {
-  uint16_t rand = map(information.minute, 0, 59, 48, 688);  //random(48, 688);
+  static int x = 0;
+  static int glyph = 48;
+  if(x++ > WIDTH_SCREEN)
+  {
+    x = 0;
+    glyph = random(48, 688);
+  }
+  //uint16_t rand = map(information.minute, 0, 59, 48, 688);  //random(48, 688);
   u8g2.setFont(u8g2_font_streamline_all_t);
-  u8g2.drawGlyph(80, 30, rand);
-  u8g2.drawGlyph(150, 47, rand + 1);
+
+  u8g2.drawGlyph(x, 30, glyph);
+ 
 }
 
 // System  info overview
@@ -480,11 +488,11 @@ void display_draw_systeminfo_advanced() {
 void display_draw_custominfo_weather() {
   u8g2.setFont(FONT_S);
   u8g2.drawStr(10, 12, "Wind:");
-  u8g2.drawStr(70, 12, (String(information.weather.windSpeedKmh) + "km/h").c_str());
-  u8g2.drawStr(10, 22, "Temp:");
-  u8g2.drawStr(70, 22, (String(information.weather.temperature) + " 'C").c_str());
+  u8g2.drawStr(70, 12, (String(information.weather.windSpeedKmh, 1) + "km/h").c_str());
+  u8g2.drawStr(10, 22, "Temperature:");
+  u8g2.drawStr(70, 22, (String(information.weather.temperature, 1) + " 'C").c_str());
   u8g2.drawStr(10, 32, "Feels like:");
-  u8g2.drawStr(70, 32, (String(information.weather.temperature_feelslike) + " 'C").c_str());
+  u8g2.drawStr(70, 32, (String(information.weather.temperature_feelslike, 1) + " 'C").c_str());
   u8g2.drawStr(10, 42, "Humidity:");
   u8g2.drawStr(70, 42, (String(information.weather.humidity) + "%").c_str());
 
@@ -496,9 +504,24 @@ void display_draw_custominfo_weather() {
   u8g2.drawStr(200, 32, (String(information.weather.sunset_str)).c_str());
 }
 // Weather forecast
-void display_draw_weather_forecast() {
+void display_draw_weather_forecast_hourly() {
   u8g2.setFont(FONT_S);
-  u8g2.drawStr(10, 12, "-- Forecast --");
+  int hours = 4;
+  for(int i = 0; i < hours; i++)
+  {
+    u8g2.drawStr(10, 12 + (i*10), (String(information.weather.forecast_1h_hour[i]) + ":00").c_str());
+    
+    u8g2.drawStr(40, 12 + (i*10), (String(information.weather.forecast_1h_description[i]).c_str()));
+    u8g2.drawStr(100, 12 + (i*10), (String(information.weather.forecast_1h_temp[i], 1) + " 'C").c_str());
+    u8g2.drawStr(150, 12 + (i*10), (String(information.weather.forecast_1h_windspeed_bft[i]) + " Bft").c_str());
+  }
+}
+
+// Weather forecast
+void display_draw_weather_forecast_daily() {
+  u8g2.setFont(FONT_S);
+  
+  
 }
 
 

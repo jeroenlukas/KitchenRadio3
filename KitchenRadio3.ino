@@ -152,8 +152,9 @@ void setup()
   profiler.add(&tpAudio);
 
   // Get weather info
-  log_boot("Retrieve weather");
-  weather_retrieve();
+  log_boot("Retrieve weather and forecast");
+  weather_retrieve_40();
+  weather_forecast_1h();
 
   // Turn off leds
   frontpanel_leds_handle();

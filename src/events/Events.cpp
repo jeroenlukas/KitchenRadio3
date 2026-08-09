@@ -87,7 +87,8 @@ void events_tickers()
   if(flags.tickers.passed30min)
   {
     flags.tickers.passed30min = false;
-    weather_retrieve();
+    weather_retrieve_40();
+    weather_forecast_1h();
   }
 
   // No user input for x amount of time
