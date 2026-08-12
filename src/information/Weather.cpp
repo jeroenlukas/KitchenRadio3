@@ -139,6 +139,8 @@ bool weather_retrieve_40()
         String weather_icon = doc["data"][0]["weather"][0]["icon"];
         information.weather.icon = weather_icon;
 
+        display_popup("Weather info retrieved");
+
         return true;
     }
 
@@ -180,6 +182,52 @@ bool weather_forecast_1h()
             information.weather.forecast_1h_description[i] = weather_desc;
             information.weather.forecast_1h_windspeed_bft[i] = weather_windkmh_to_beaufort((double)doc["data"][i+1]["wind_speed"]*3.6);
             LOGG_DEBUG(String("Temperature at " + String( information.weather.forecast_1h_hour[i]) + ":00 hour: " + String(information.weather.forecast_1h_temp[i])));
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+// Get daily forecast
+// Daily forecast will also contain moon info (rise/set/phase)
+bool weather_forecast_1d()
+{
+    LOGG_INFO("Retrieving weather forecast 1d (One Call 4.0)");
+
+    if((information.weather.lon == 0) && (information.weather.lat == 0))
+    {
+        // Get geo coords first
+        if(!weather_geo(settings.location))
+            return false;
+    }
+
+    String endpoint = "http://api.openweathermap.org/data/4.0/onecall/timeline/1day?lat=" + String(information.weather.lat, 5) + "&lon=" + String(information.weather.lon, 5) +"&units=metric&lang=nl&APPID=";
+    LOGG_DEBUG("Endpoint: " + endpoint);
+    bool ret = false;
+    http.begin(endpoint + key);
+
+    int httpCode = http.GET();
+
+    if (httpCode > 0)
+    {
+        String payload = http.getString();
+        JsonDocument doc;
+
+        deserializeJson(doc, payload);
+        LOGG_DEBUG(payload);
+
+        int days = 4;
+        for(int i = 0; i < days; i++)
+        {
+            information.weather.forecast_1d_temp[i] = doc["data"][i]["temp"]["max"];
+            information.weather.forecast_1d_day[i] = tzLocal.dateTime(doc["data"][i]["dt"], UTC_TIME, "D"); //tzLocal.day(doc["data"][i]["dt"], UTC_TIME);
+            String weather_desc = doc["data"][i]["weather"][0]["description"];
+            information.weather.forecast_1d_description[i] = weather_desc;
+            information.weather.forecast_1d_windspeed_bft[i] = weather_windkmh_to_beaufort((double)doc["data"][i]["wind_speed"]*3.6);
+
+            LOGG_DEBUG(String("Temperature at day " + String( information.weather.forecast_1d_day[i]) + ": " + String(information.weather.forecast_1d_temp[i])));
         }
 
         return true;

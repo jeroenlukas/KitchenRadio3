@@ -39,7 +39,9 @@ void events_handle()
 
     tickers_userinput_reset();
     
-    flags.main.displayRedraw = true;
+    //flags.main.displayRedraw = true;
+    // Force a display refresh
+    flags.tickers.displayrefresh = true;
 
     // Update frontpanel leds
     frontpanel_leds_handle();
@@ -48,12 +50,8 @@ void events_handle()
 
 void events_tickers()
 {
-   // A display redraw is forced when a user event happens for example pushing a button  
-  if(flags.main.displayRedraw)
-  {
-    flags.main.displayRedraw = false;
-    display_draw();
-  }
+  // ------------------------------------------------
+  // Interval timers
 
   // Execute every second
   if(flags.tickers.passed1s)
@@ -67,28 +65,57 @@ void events_tickers()
     information.system.coreTemperature = (int)(temperatureRead());
 
     frontpanel_ldr_read();
-    display_set_brightness_auto();    
-  }
+    display_set_brightness_auto();  
+    alarm_handle();  
 
-  if(flags.tickers.displayrefresh)
-  {
-    flags.tickers.displayrefresh = false;
-    display_draw();
-    
+    information.clock.colon_state = !information.clock.colon_state;
   }
 
   // Execute every minute
   if(flags.tickers.passed1min)
   {
+    flags.tickers.passed1min = false;
     // ..
   }
 
-    // Execute every half hour
+  // Execute every half hour
   if(flags.tickers.passed30min)
   {
     flags.tickers.passed30min = false;
     weather_retrieve_40();
     weather_forecast_1h();
+  }
+
+  // Execute every hour
+  if(flags.tickers.passed1h)
+  {
+    flags.tickers.passed1h = false;
+  }
+
+  if(flags.tickers.passed3h)
+  {
+    flags.tickers.passed3h = false;
+  }
+
+  if(flags.tickers.passed6h)
+  {
+    flags.tickers.passed6h = false;
+    weather_forecast_1d();
+  }
+
+  if(flags.tickers.passed24h)
+  {
+    flags.tickers.passed24h = false;
+  }
+
+  // ------------------------------------------------
+  // Misc timers
+
+  // Refresh display, timer based or forced
+  if(flags.tickers.displayrefresh)
+  {
+    flags.tickers.displayrefresh = false;
+    display_draw();    
   }
 
   // No user input for x amount of time

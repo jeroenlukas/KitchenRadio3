@@ -20,12 +20,18 @@ class Information_t {
 
             alarm.mode = ALARM_KITCHEN;
             alarm.state = ALARM_STATE_OFF;
-        }
+        };
 
-        int hour;
-        int minute;
-        String timeShort;
-        String dateMid;        
+        struct Clock
+        {
+            int hour;
+            int minute;
+            String timeShort;
+            String dateMid;  
+
+            // Used for blinking the colon of the home screen clock      
+            bool colon_state;
+        };
 
         struct System
         {
@@ -42,6 +48,8 @@ class Information_t {
 
             int lastResetReason;
             int coreTemperature;
+
+            uint8_t display_brightness;
 
             String compilationDateTime;
         };
@@ -116,11 +124,18 @@ class Information_t {
             String sunrise_str;
             String sunset_str;
 
-            // Forecast data 1 hour (needs rework)
+            // Forecast data hourly (needs rework)
             int forecast_1h_hour[8];
             float forecast_1h_temp[8];
             int forecast_1h_windspeed_bft[8];
             String forecast_1h_description[8];
+
+            // Forecast data daily
+            String forecast_1d_day[5];
+            float forecast_1d_temp[5];
+            int forecast_1d_windspeed_bft[5];
+            String forecast_1d_description[5];
+
 
         };
         
@@ -134,6 +149,7 @@ class Information_t {
 
 
         System system;
+        Clock clock;
         AudioPlayer audioPlayer;
         Lamp lamp;
         Webradio webRadio;

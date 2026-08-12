@@ -155,6 +155,7 @@ void setup()
   log_boot("Retrieve weather and forecast");
   weather_retrieve_40();
   weather_forecast_1h();
+  weather_forecast_1d();
 
   // Turn off leds
   frontpanel_leds_handle();

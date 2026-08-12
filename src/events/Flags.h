@@ -20,7 +20,7 @@ class Flags_t
     struct flagsMain_t
     {
         bool updateLog;
-        bool displayRedraw;
+        //bool displayRedraw;
     };
 
     struct flagsTickers_t
@@ -28,8 +28,14 @@ class Flags_t
         bool passed1s;
         bool passed30min;
         bool passed1min;
+        bool passed1h;
+        bool passed3h;
+        bool passed6h;
+        bool passed24h;
+
         bool userinput_menu;
         bool userinput_stationselect;
+
         bool displayrefresh;
     };
 

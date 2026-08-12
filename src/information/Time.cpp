@@ -44,16 +44,16 @@ void time_waitForSync()
 
   time_update();
 
-  LOGG_DEBUG("Time: " + information.timeShort);
-  LOGG_DEBUG("Date: " + information.dateMid);
+  LOGG_DEBUG("Time: " + information.clock.timeShort);
+  LOGG_DEBUG("Date: " + information.clock.dateMid);
   return;
 }
 
 // Should be called every minute or second?
 void time_update()
 {
-    information.hour = tzLocal.hour(TIME_NOW, LOCAL_TIME);
-    information.minute = tzLocal.minute(TIME_NOW, LOCAL_TIME);
-    information.timeShort = tzLocal.dateTime("H:i"); //String(u8x8_u8toa(information.hour, 2)) + ":" + String(u8x8_u8toa(information.minute, 2));
-    information.dateMid = tzLocal.dateTime("D j M");
+    information.clock.hour = tzLocal.hour(TIME_NOW, LOCAL_TIME);
+    information.clock.minute = tzLocal.minute(TIME_NOW, LOCAL_TIME);
+    information.clock.timeShort = tzLocal.dateTime("H:i"); 
+    information.clock.dateMid = tzLocal.dateTime("D j M");
 }

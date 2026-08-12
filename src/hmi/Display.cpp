@@ -49,14 +49,14 @@ void display_draw_home() {
   // Clock
   u8g2.setFont(FONT_CLOCK);
   u8g2.setCursor(POSX_CLOCK, POSY_CLOCK);
-  u8g2.print(u8x8_u8toa(information.hour, 2));
-  u8g2.drawStr(POSX_CLOCK + 30, POSY_CLOCK - 2, ":");
+  u8g2.print(u8x8_u8toa(information.clock.hour, 2));
+  if(information.clock.colon_state) u8g2.drawStr(POSX_CLOCK + 30, POSY_CLOCK - 2, ":");
   u8g2.setCursor(POSX_CLOCK + 39, POSY_CLOCK);
-  u8g2.print(u8x8_u8toa(information.minute, 2));
+  u8g2.print(u8x8_u8toa(information.clock.minute, 2));
 
   // Date
   u8g2.setFont(FONT_S);
-  u8g2.drawStr(POSX_CLOCK + 10, POSY_CLOCK + 12, (information.dateMid).c_str());
+  u8g2.drawStr(POSX_CLOCK + 10, POSY_CLOCK + 12, (information.clock.dateMid).c_str());
 
   // Weather
   u8g2.setFont(FONT_WEATHERICONS);
@@ -398,10 +398,9 @@ void display_set_brightness(uint8_t brightness)
 
 void display_set_brightness_auto() 
 {
+  information.system.display_brightness = map(information.system.ldr, 0, 100, settings.display.brightness_min, settings.display.brightness_max);
 
-  uint8_t brightness = map(information.system.ldr, 0, 100, settings.display.brightness_min, settings.display.brightness_max);
-
-  display_set_brightness(brightness);
+  display_set_brightness(information.system.display_brightness);
 }
 
 void ticker_popup_cb()
@@ -414,19 +413,13 @@ void display_popup(String message, int length = 3000)
   ticker_popup.once_ms(5000, ticker_popup_cb);
   
   LOGG_DEBUG("Popup!");
-  flags.main.displayRedraw = true;
+  //flags.main.displayRedraw = true;
+  flags.tickers.displayrefresh = true;
   popup_message = message;
   popup_show = true;
 }
 
 // ===  Custom info items ===
-
-// System stats
-void display_draw_custominfo_system() 
-{
- 
-
-}
 
 // Smiley icons
 void display_draw_custominfo_smiley() {
@@ -465,10 +458,9 @@ void display_draw_systeminfo_overview() {
 
   u8g2.drawStr(150, 12, "Version:");
   u8g2.drawStr(200, 12, KR_VERSION);
-  u8g2.drawStr(150, 22, "Uptime:");
-  u8g2.drawStr(200, 22, time_convert(information.system.uptimeSeconds).c_str());
-  u8g2.drawStr(150, 32, "Amb.light:");
-  u8g2.drawStr(200, 32, (String(information.system.ldr) + "%").c_str());
+  u8g2.drawStr(200, 22, information.system.compilationDateTime.c_str());
+  u8g2.drawStr(150, 32, "Uptime:");
+  u8g2.drawStr(200, 32, time_convert(information.system.uptimeSeconds).c_str());  
 }
 
 // System  info advanced
@@ -481,7 +473,12 @@ void display_draw_systeminfo_advanced() {
   u8g2.drawStr(70, 22, (String(information.system.lastResetReason)).c_str());
   u8g2.drawStr(10, 32, "Underruns:");
   u8g2.drawStr(70, 32, (String(information.webRadio.cntUnderruns)).c_str());
-  
+
+  u8g2.drawStr(150, 12, "Amb.light:");
+  u8g2.drawStr(200, 12, (String(information.system.ldr) + "%").c_str());
+  u8g2.drawStr(150, 22, "Disp.bright:");
+  u8g2.drawStr(200, 22, (String(information.system.display_brightness) + "%").c_str());
+
 }
 
 // Weather info
@@ -503,7 +500,7 @@ void display_draw_custominfo_weather() {
   u8g2.drawStr(150, 32, "Sunset:");
   u8g2.drawStr(200, 32, (String(information.weather.sunset_str)).c_str());
 }
-// Weather forecast
+// Weather forecast hourly
 void display_draw_weather_forecast_hourly() {
   u8g2.setFont(FONT_S);
   int hours = 4;
@@ -512,16 +509,24 @@ void display_draw_weather_forecast_hourly() {
     u8g2.drawStr(10, 12 + (i*10), (String(information.weather.forecast_1h_hour[i]) + ":00").c_str());
     
     u8g2.drawStr(40, 12 + (i*10), (String(information.weather.forecast_1h_description[i]).c_str()));
-    u8g2.drawStr(100, 12 + (i*10), (String(information.weather.forecast_1h_temp[i], 1) + " 'C").c_str());
-    u8g2.drawStr(150, 12 + (i*10), (String(information.weather.forecast_1h_windspeed_bft[i]) + " Bft").c_str());
+    u8g2.drawStr(130, 12 + (i*10), (String(information.weather.forecast_1h_temp[i], 1) + " 'C").c_str());
+    u8g2.drawStr(180, 12 + (i*10), (String(information.weather.forecast_1h_windspeed_bft[i]) + " Bft").c_str());
   }
 }
 
-// Weather forecast
+// Weather forecast daily
 void display_draw_weather_forecast_daily() {
   u8g2.setFont(FONT_S);
   
-  
+  int days = 4;
+  for(int i = 0; i < days; i++)
+  {
+    u8g2.drawStr(10, 12 + (i*10), (String(information.weather.forecast_1d_day[i])).c_str());
+    
+    u8g2.drawStr(40, 12 + (i*10), (String(information.weather.forecast_1d_description[i]).c_str()));
+    u8g2.drawStr(130, 12 + (i*10), (String(information.weather.forecast_1d_temp[i], 1) + " 'C").c_str());
+    u8g2.drawStr(180, 12 + (i*10), (String(information.weather.forecast_1d_windspeed_bft[i]) + " Bft").c_str());
+  }
 }
 
 
