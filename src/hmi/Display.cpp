@@ -35,6 +35,8 @@ void ticker_popup_cb();
 String popup_message;
 bool popup_show = false;
 
+void display_draw_triangle_rotated(int cx, int cy, float angle);
+
 void display_begin() {
   LOGG_INFO("Display init");
   hspi = new SPIClass(HSPI);
@@ -69,6 +71,12 @@ void display_draw_home() {
   u8g2.drawGlyph((42 + w) - 13, 18, 0x00b0);
   u8g2.setFont(FONT_M);
   u8g2.drawStr(42, 28, (String(information.weather.windSpeedBft) + " Bft " + information.weather.wind_direction_str).c_str());
+
+ // drawWindArrow(100, 28, 10, information.system.uptimeSeconds);
+  //drawRotatedTriangle(100, 28, 10, 10, information.system.uptimeSeconds * 2);
+  
+  display_draw_triangle_rotated(100, 24, information.weather.wind_direction_deg);
+
   u8g2.drawStr(42, 38, (String(information.weather.stateShort)).c_str());
   u8g2.setFont(FONT_S);
 
@@ -500,6 +508,7 @@ void display_draw_custominfo_weather() {
   u8g2.drawStr(150, 32, "Sunset:");
   u8g2.drawStr(200, 32, (String(information.weather.sunset_str)).c_str());
 }
+
 // Weather forecast hourly
 void display_draw_weather_forecast_hourly() {
   u8g2.setFont(FONT_S);
@@ -510,7 +519,8 @@ void display_draw_weather_forecast_hourly() {
     
     u8g2.drawStr(40, 12 + (i*10), (String(information.weather.forecast_1h_description[i]).c_str()));
     u8g2.drawStr(130, 12 + (i*10), (String(information.weather.forecast_1h_temp[i], 1) + " 'C").c_str());
-    u8g2.drawStr(180, 12 + (i*10), (String(information.weather.forecast_1h_windspeed_bft[i]) + " Bft").c_str());
+    u8g2.drawStr(180, 12 + (i*10), (String(information.weather.forecast_1h_windspeed_bft[i])).c_str());
+    display_draw_triangle_rotated(192, 8 + (i*10), information.weather.forecast_1h_winddir[i]);
   }
 }
 
@@ -525,10 +535,36 @@ void display_draw_weather_forecast_daily() {
     
     u8g2.drawStr(40, 12 + (i*10), (String(information.weather.forecast_1d_description[i]).c_str()));
     u8g2.drawStr(130, 12 + (i*10), (String(information.weather.forecast_1d_temp[i], 1) + " 'C").c_str());
-    u8g2.drawStr(180, 12 + (i*10), (String(information.weather.forecast_1d_windspeed_bft[i]) + " Bft").c_str());
+    u8g2.drawStr(180, 12 + (i*10), (String(information.weather.forecast_1d_windspeed_bft[i])).c_str());
+    display_draw_triangle_rotated(192, 8 + (i*10), information.weather.forecast_1d_winddir[i]);
   }
 }
 
+
+void display_draw_triangle_rotated(int cx, int cy, float angle)
+{
+  // Turn around
+    if(angle < 180) angle += 180;
+    else angle -= 180;
+    float a = angle * PI / 180.0;
+
+    // Original triangle vertices, relative to center
+    float x1 =  0, y1 = -4;  // top
+    float x2 = -2, y2 =  4;  // bottom-left
+    float x3 =  2, y3 =  4;  // bottom-right
+
+    // Rotate + translate
+    int rx1 = cx + x1 * cos(a) - y1 * sin(a);
+    int ry1 = cy + x1 * sin(a) + y1 * cos(a);
+
+    int rx2 = cx + x2 * cos(a) - y2 * sin(a);
+    int ry2 = cy + x2 * sin(a) + y2 * cos(a);
+
+    int rx3 = cx + x3 * cos(a) - y3 * sin(a);
+    int ry3 = cy + x3 * sin(a) + y3 * cos(a);
+
+    u8g2.drawTriangle(rx1, ry1, rx2, ry2, rx3, ry3);
+}
 
 void display_reset_scroll() {
   display_audio_title_scroll_offset = 0;

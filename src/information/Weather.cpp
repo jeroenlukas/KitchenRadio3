@@ -122,7 +122,7 @@ bool weather_retrieve_40()
 
         information.weather.windSpeedKmh = ((double)(doc["data"][0]["wind_speed"])) * 3.6;
         information.weather.windSpeedBft = weather_windkmh_to_beaufort(information.weather.windSpeedKmh);
-        information.weather.wind_direction_deg = doc["data"][0]["wind_deg"];
+        information.weather.wind_direction_deg = round(((float)(doc["data"][0]["wind_deg"])+11) / 22.5) * 22.5;
         information.weather.wind_direction_str = weather_wind_direction_convert(information.weather.wind_direction_deg);
 
         information.weather.stateCode = (int)(doc["data"][0]["weather"][0]["id"]);
@@ -137,6 +137,8 @@ bool weather_retrieve_40()
 
 
         String weather_icon = doc["data"][0]["weather"][0]["icon"];
+
+        LOGG_DEBUG("Rounded wind direction: " + String(information.weather.wind_direction_deg) );
         information.weather.icon = weather_icon;
 
         display_popup("Weather info retrieved");
@@ -181,6 +183,7 @@ bool weather_forecast_1h()
             String weather_desc = doc["data"][i+1]["weather"][0]["description"];
             information.weather.forecast_1h_description[i] = weather_desc;
             information.weather.forecast_1h_windspeed_bft[i] = weather_windkmh_to_beaufort((double)doc["data"][i+1]["wind_speed"]*3.6);
+            information.weather.forecast_1h_winddir[i] = round(((float)(doc["data"][i+1]["wind_deg"])+11) / 22.5) * 22.5;   // round(((float)(doc["data"][0]["wind_deg"])+11) / 22.5) * 22.5;
             LOGG_DEBUG(String("Temperature at " + String( information.weather.forecast_1h_hour[i]) + ":00 hour: " + String(information.weather.forecast_1h_temp[i])));
         }
 
@@ -226,8 +229,9 @@ bool weather_forecast_1d()
             String weather_desc = doc["data"][i]["weather"][0]["description"];
             information.weather.forecast_1d_description[i] = weather_desc;
             information.weather.forecast_1d_windspeed_bft[i] = weather_windkmh_to_beaufort((double)doc["data"][i]["wind_speed"]*3.6);
+            information.weather.forecast_1d_winddir[i] = round(((float)(doc["data"][i+1]["wind_deg"])+11) / 22.5) * 22.5;
 
-            LOGG_DEBUG(String("Temperature at day " + String( information.weather.forecast_1d_day[i]) + ": " + String(information.weather.forecast_1d_temp[i])));
+            //LOGG_DEBUG(String("Temperature at day " + String( information.weather.forecast_1d_day[i]) + ": " + String(information.weather.forecast_1d_temp[i])));
         }
 
         return true;

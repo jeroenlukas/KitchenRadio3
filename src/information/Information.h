@@ -129,12 +129,14 @@ class Information_t {
             float forecast_1h_temp[8];
             int forecast_1h_windspeed_bft[8];
             String forecast_1h_description[8];
+            int forecast_1h_winddir[8];
 
             // Forecast data daily
             String forecast_1d_day[5];
             float forecast_1d_temp[5];
             int forecast_1d_windspeed_bft[5];
             String forecast_1d_description[5];
+            int forecast_1d_winddir[5];
 
 
         };

@@ -38,9 +38,10 @@ TickTwo ticker_100ms(ticker_100ms_cb, 100);
 TickTwo ticker_1s(ticker_1s_cb, ONESECOND);
 TickTwo ticker_30m(ticker_30m_cb, ONEMINUTE * 30);
 TickTwo ticker_1h(ticker_1h_cb, ONEHOUR);
-TickTwo ticker_3h(ticker_3h_cb, ONEHOUR * 3);
-TickTwo ticker_6h(ticker_6h_cb, ONEHOUR * 6);
-TickTwo ticker_24h(ticker_24h_cb, ONEHOUR * 24);
+// Add MILLIS for tickers with over 70 minutes interval!
+TickTwo ticker_3h(ticker_3h_cb, ONEHOUR * 3, 0, MILLIS);  
+TickTwo ticker_6h(ticker_6h_cb, ONEHOUR * 6, 0, MILLIS);
+TickTwo ticker_24h(ticker_24h_cb, ONEHOUR * 24, 0, MILLIS);
         
 // Special tickers
 TickTwo ticker_userinput_menu(ticker_userinput_menu_cb, CONF_MENU_RETURN_HOME_MS); // Return to home screen after x seconds of no user input
