@@ -1,2 +1,4 @@
 
 src/configuration/ConfigSecrets.h
+
+build/

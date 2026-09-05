@@ -550,8 +550,8 @@ void display_draw_triangle_rotated(int cx, int cy, float angle)
 
     // Original triangle vertices, relative to center
     float x1 =  0, y1 = -4;  // top
-    float x2 = -2, y2 =  4;  // bottom-left
-    float x3 =  2, y3 =  4;  // bottom-right
+    float x2 = -3, y2 =  4;  // bottom-left
+    float x3 =  3, y3 =  4;  // bottom-right
 
     // Rotate + translate
     int rx1 = cx + x1 * cos(a) - y1 * sin(a);
