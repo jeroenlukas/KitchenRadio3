@@ -54,6 +54,7 @@ void ticker_100ms_cb()
   frontpanel_buttons_read();
   display_update_scroll_offset();
   webradio_calculatebufferpct();
+  frontpanel_ldr_read();
 }
 
 // Executed every second

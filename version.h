@@ -1,1 +1,1 @@
-#define KR_VERSION "3.12.1"
+#define KR_VERSION "3.13.0"

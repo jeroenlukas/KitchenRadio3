@@ -58,27 +58,32 @@ void display_draw_home() {
 
   // Date
   u8g2.setFont(FONT_S);
-  u8g2.drawStr(POSX_CLOCK + 10, POSY_CLOCK + 12, (information.clock.dateMid).c_str());
+  u8g2.drawStr(POSX_CLOCK + 10, POSY_CLOCK + 13, (information.clock.dateMid).c_str());
 
   // Weather
-  u8g2.setFont(FONT_WEATHERICONS);
-  int weatherglyph = 0;
+  
   // https://openweathermap.org/weather-conditions
 
-  u8g2.drawGlyph(3, 42, weather_icon_to_glyph(information.weather.icon));
+  // - Weather icon
+  u8g2.setFont(FONT_WEATHERICONS);
+  u8g2.drawGlyph(4, 34, weather_icon_to_glyph(information.weather.icon));
+
+  // - Temperature
   u8g2.setFont(FONT_WEATHER_TEMPERATURE);
-  uint8_t w = u8g2.drawStr(42, 18, (String(information.weather.temperature, 1) + "  C").c_str());
-  u8g2.drawGlyph((42 + w) - 13, 18, 0x00b0);
-  u8g2.setFont(FONT_M);
-  u8g2.drawStr(42, 28, (String(information.weather.windSpeedBft) + " Bft " + information.weather.wind_direction_str).c_str());
-
- // drawWindArrow(100, 28, 10, information.system.uptimeSeconds);
-  //drawRotatedTriangle(100, 28, 10, 10, information.system.uptimeSeconds * 2);
+  uint8_t w = u8g2.drawStr(42, 16, (String(information.weather.temperature, 1) + "  C").c_str());
+  u8g2.drawGlyph((42 + w) - 13, 16, 0x00b0);
   
-  display_draw_triangle_rotated(100, 24, information.weather.wind_direction_deg);
+  // - Wind speed (Bft)
+  u8g2.setFont(FONT_M);  
+  u8g2.drawStr(42, 28, String(information.weather.windSpeedBft).c_str());
 
-  u8g2.drawStr(42, 38, (String(information.weather.stateShort)).c_str());
+  // - Wind direction arrow  
+  display_draw_triangle_rotated(54, 24, information.weather.wind_direction_deg);
+
+  // - Weather description
+  u8g2.drawStr(3, 42, String(information.weather.stateShort).c_str());
   u8g2.setFont(FONT_S);
+
 
   // Alarm (if active)
   if (information.alarm.state != ALARM_STATE_OFF) {
@@ -106,8 +111,8 @@ void display_draw_home() {
 
       // Draw buffer fill percentage, station index + count
       u8g2.setFont(FONT_S);
-      u8g2.drawStr(POSX_AUDIO - 20, POSY_AUDIO - 7, (String(information.webRadio.station_index_select + 1) + "/" + String(information.webRadio.station_count)).c_str());
-      u8g2.drawStr(POSX_AUDIO - 20, POSY_AUDIO + 1, (String(information.webRadio.bufferPercentage) + "%").c_str());
+      u8g2.drawStr(POSX_AUDIO - 20, POSY_AUDIO - 6, (String(information.webRadio.station_index_select + 1) + "/" + String(information.webRadio.station_count)).c_str());
+      u8g2.drawStr(POSX_AUDIO - 20, POSY_AUDIO + 2, (String(information.webRadio.bufferPercentage) + "%").c_str());
 
       // Draw station name in clipwindow
       u8g2.setFont(FONT_AUDIO);
@@ -118,14 +123,15 @@ void display_draw_home() {
         else
           display_audio_title_width = u8g2.drawStr(POSX_AUDIO + display_audio_title_scroll_offset, POSY_AUDIO, String(information.webRadio.metadataName).c_str());
         u8g2.setMaxClipWindow();
-      } else  // Draw select station
+      } 
+      else  // Draw select station
       {
         u8g2.drawStr(POSX_AUDIO, POSY_AUDIO, String(">>> " + stations[information.webRadio.station_index_select].name).c_str());
       }
       break;
     case BLUETOOTH:
       //u8g2.drawStr(10, 36, String("Bt: " + information.audioPlayer.bluetoothTitle).c_str());
-      u8g2.drawXBM(POSX_AUDIO_ICON, POSY_AUDIO_ICON - 16, xbm_bluetooth_width, xbm_bluetooth_height, xbm_bluetooth_bits);
+      u8g2.drawXBM(POSX_AUDIO_ICON, POSY_AUDIO_ICON - 15, xbm_bluetooth_width, xbm_bluetooth_height, xbm_bluetooth_bits);
 
       // Draw bluetooth title in clipwindow
       u8g2.setFont(FONT_AUDIO);
@@ -164,7 +170,8 @@ void display_draw_home() {
       break;
   }
 
-  u8g2.drawLine(0, 44, 256, 44);
+  // Footer line
+  u8g2.drawLine(0, 46, 256, 46);
 
   // Volume indicator
   u8g2.setFont(u8g2_font_open_iconic_all_1x_t);

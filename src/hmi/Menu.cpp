@@ -94,6 +94,7 @@ void menu_begin()
   viTreble.setCallback(audioplayer_treble_set);
   
   menuSystem_Audio.addItem(&viBass);
+  viBass.increment = 5;
   viBass.setCallback(audioplayer_bass_set);
 
   menuSystem_Audio.addItem(&biSpeakerPhase);

@@ -23,6 +23,9 @@ void audioplayer_volume_set(int volume);
 void audioplayer_pa_mute(bool mute);
 void audioplayer_mode_set( soundMode_t mode);
 
+void audioplayer_bass_set(int bass);
+void audioplayer_treble_set(int treble);
+
 void audioplayer_init()
 {
     LOGG_INFO("Audioplayer init");
@@ -43,6 +46,10 @@ void audioplayer_init()
 
     // Set soundmode to off
     audioplayer_mode_set(OFF);
+
+    // Set bass/treble
+    audioplayer_bass_set(settings.audio.tonecontrol.bass);
+    audioplayer_treble_set(settings.audio.tonecontrol.treble);
 
     // Set volume
     audioplayer_volume_set(40);
@@ -121,6 +128,8 @@ void audioplayer_mode_set(soundMode_t mode)
     vs1053.softReset();
 
     audioplayer_volume_set(information.audioPlayer.volume);
+    audioplayer_bass_set(settings.audio.tonecontrol.bass);
+    audioplayer_treble_set(settings.audio.tonecontrol.treble);
 
     // Begin the new sound mode
     switch(mode)
@@ -154,12 +163,16 @@ void audioplayer_bass_set(int bass)
 {
     LOGG_DEBUG("Setting bass to "  + String(bass));
     settings.audio.tonecontrol.bass = bass;
+    vs1053.setBassFrequencyLimit(settings.audio.tonecontrol.bass_freq);
+    vs1053.setBass((float)bass / 100.0);
+    LOGG_DEBUG("Setting real bass to "  + String((float)bass / 100.0));
 }
 
 void audioplayer_treble_set(int treble)
 {
     LOGG_DEBUG("Setting treble to "  + String(treble));
     settings.audio.tonecontrol.treble = treble;
+    vs1053.setTrebleFrequencyLimit(settings.audio.tonecontrol.treble_freq);
     vs1053.setTreble((float)treble / 100.0);
     LOGG_DEBUG("Setting real treble to "  + String((float)treble / 100.0));
 

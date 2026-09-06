@@ -33,9 +33,10 @@
 
 TaskHandle_t taskFrontpanel = NULL;
 
-
 TimeProfile tpEvents("Events");
 TimeProfile tpAudio("Audio");
+
+// https://thelastoutpostworkshop.github.io/ESPConnect/ for filesystem upload
 
 void taskFrontpanel_loop(void* parameter)
 {
@@ -143,9 +144,6 @@ void setup()
       &taskFrontpanel,
       1); // core0 = wifi/system, core1 = arduino //  Run on Core 0 (shared with WiFi & system tasks)  
 
-  // Tickers
-  log_boot("Start tickers");
-  tickers_init();
 
   // Profiler
   profiler.add(&tpEvents);
@@ -160,10 +158,15 @@ void setup()
   // Turn off leds
   frontpanel_leds_handle();
 
+  // Tickers
+  log_boot("Start tickers");
+  tickers_init();
+
+  // Finish
   information.system.bootTimeSeconds = millis() / 1000;
   log_boot("Init done! Boot took " + String(information.system.bootTimeSeconds) + " s" );
-  
-  delay(2000);
+
+  delay(500);
 }
 
 // Note:

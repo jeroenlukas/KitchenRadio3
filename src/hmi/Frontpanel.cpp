@@ -14,6 +14,8 @@ RotaryEncoder encoder2(CONFIG_PIN_ROTARY2_A, CONFIG_PIN_ROTARY2_B, RotaryEncoder
 
 Adafruit_MCP23X17 mcp;
 
+bool frontpanel_has_init = false;
+
 void frontpanel_encoders_read();
 void frontpanel_nightmode_handle();
 void frontpanel_leds_handle();
@@ -28,6 +30,7 @@ void frontpanel_begin()
     //LOGG_INFO("")
     // LDR
     pinMode(CONFIG_PIN_LDR, INPUT);
+    
 
     // MCP interrupts
     pinMode(CONFIG_PIN_MCP_INTA, INPUT);
@@ -70,7 +73,8 @@ void frontpanel_begin()
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_BLUETOOTH, HIGH);
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_ALARM, HIGH);
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_LAMP, HIGH);
-  
+ 
+    frontpanel_has_init = true;
 }
 
 void frontpanel_handle()
@@ -81,10 +85,27 @@ void frontpanel_handle()
 
 void frontpanel_ldr_read()
 {
+    static uint16_t ldr[10];
+    static uint16_t ldr_idx = 0;
+
+    if(!frontpanel_has_init)
+        return;    
+
     uint16_t an = analogRead(CONFIG_PIN_LDR);
     uint16_t adc = 4095 - an;
 
-    information.system.ldr = map(adc, 0, 4095, 0, 100);    
+    ldr[ldr_idx++] = adc;
+    if(ldr_idx > 9) ldr_idx = 0;
+
+    // Calculate avg
+    uint16_t adc_avg = 10; 
+    uint32_t adc_cum = 0;
+    for(int i = 0; i < 10; i++)
+        adc_cum += ldr[i];
+
+    adc_avg = adc_cum / 10;
+
+    information.system.ldr = map(adc_avg, 0, 4095, 0, 100);    
 }
 
 void frontpanel_nightmode_handle()

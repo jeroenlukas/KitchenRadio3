@@ -185,15 +185,20 @@ void cb_fake(cmd* c)
     Command cmd(c);
     if(cmd.getArgument("weatherstate").isSet())
     {
-        int code= cmd.getArgument("weatherstate").getValue().toInt();
+        int code = cmd.getArgument("weatherstate").getValue().toInt();
         LOGG_INFO("Faking weatherstate to " + String(code) );
         information.weather.stateCode = code;
     }
     if(cmd.getArgument("winddir").isSet())
     {
-        int code= cmd.getArgument("winddir").getValue().toInt();
+        int code = cmd.getArgument("winddir").getValue().toInt();
         LOGG_INFO("Faking wind direction to " + String(code) );
         information.weather.wind_direction_deg = code;
+    }
+    if(cmd.getArgument("weathericon").isSet())
+    {
+        LOGG_INFO("Faking weather icon to " + String(cmd.getArgument("weathericon").getValue()));
+        information.weather.icon = cmd.getArgument("weathericon").getValue();
     }
 }
 /*
@@ -501,6 +506,7 @@ void cli_begin(void)
     cmd_fake = kr_cli.addCmd("fake", cb_fake);
     cmd_fake.addArgument("weatherstate", "804");
     cmd_fake.addArgument("winddir", "180");
+    cmd_fake.addArgument("weathericon", "01d");
 /*
     // > oled
     cmd_oled = kr_cli.addCmd("oled", cb_oled);

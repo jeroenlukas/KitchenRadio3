@@ -49,6 +49,9 @@ bool settings_load()
     settings.location = String(docSettings["location"]);
     settings.clock.timezone = String(docSettings["clock"]["timezone"]);
     settings.audio.tonecontrol.treble = docSettings["audio"]["tonecontrol"]["treble"];
+    settings.audio.tonecontrol.treble_freq = docSettings["audio"]["tonecontrol"]["treble_freq"];
+    settings.audio.tonecontrol.bass = docSettings["audio"]["tonecontrol"]["bass"];
+    settings.audio.tonecontrol.bass_freq = docSettings["audio"]["tonecontrol"]["bass_freq"];
     settings.display.brightness_min = docSettings["display"]["brightness_min"];
     settings.display.brightness_max = docSettings["display"]["brightness_max"];
 

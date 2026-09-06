@@ -63,10 +63,10 @@ void events_tickers()
     time_update();
 
     information.system.coreTemperature = (int)(temperatureRead());
-
-    frontpanel_ldr_read();
+  
     display_set_brightness_auto();  
-    alarm_handle();  
+
+    alarm_handle();      
 
     information.clock.colon_state = !information.clock.colon_state;
   }
