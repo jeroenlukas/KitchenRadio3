@@ -98,15 +98,15 @@ void setup()
   // WiFi
   if(!information.system.setupMode)
   {
-    log_boot("Connect to WiFi ...");
+    log_boot("Connect to WiFi " + settings.secrets.wifi_ssid + "...");
     WiFi.mode(WIFI_STA);
     WiFi.setSleep(false);
     WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
     WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
     WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
-    WiFi.setHostname("KitchenRadio3");
+    WiFi.setHostname(settings.deviceName.c_str());
     WiFi.disconnect();
-    WiFi.begin(CONFIG_SECRETS_WIFI_SSID, CONFIG_SECRETS_WIFI_PASSWORD);
+    WiFi.begin(settings.secrets.wifi_ssid, settings.secrets.wifi_password);
   }
   else
   {
@@ -123,13 +123,41 @@ void setup()
   // Some seconds later
   if(!information.system.setupMode)
   {
-    while (WiFi.status() != WL_CONNECTED) 
+    // Wait for Wifi to connect, with a number of retries.
+    //int wifi_retries = 0;
+    /*while (WiFi.status() != WL_CONNECTED) 
     {
+      wifi_retries++;
       Serial.print('.');
       delay(500);
+    }*/
+
+    for(int i = 0; i < 40; i++)
+    {
+      Serial.print('.');
+      delay(250);
+      if(WiFi.status() == WL_CONNECTED)
+        break;
     }
-    information.system.ipAddress = WiFi.localIP().toString(); 
-    log_boot("WiFi connected: " + information.system.ipAddress);
+
+    log_boot("WiFi connection timeout!");
+
+    if(WiFi.status() == WL_CONNECTED)
+    {
+      // Wifi connected
+      information.system.ipAddress = WiFi.localIP().toString(); 
+      log_boot("WiFi connected: " + information.system.ipAddress);
+    }
+    else   
+    {
+      // Can't connect, start setup mode.
+      WiFi.disconnect();
+      WiFi.setAutoReconnect(false);
+      information.system.setupMode = true;
+      log_boot("Could not connect, starting WiFi AP...");
+      WiFi.softAP(settings.deviceName);
+      information.system.ipAddress = WiFi.softAPIP().toString();
+    }
   }  
   
   // Webserver

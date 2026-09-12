@@ -2,7 +2,7 @@
 #define KR_CONFIG_H
 
 #include "ConfigPinout.h"
-#include "ConfigSecrets.h"
+//#include "ConfigSecrets.h"
 #include "ConfigScreens.h"
 
 // AudioTools configuration
@@ -27,7 +27,7 @@
 #define CONF_NIGHTMODE_LEVEL              25      // Below this LDR%, the front panel LEDs will turn off
 
 // LED ring
-#define CONFIG_LED_RING_NUM_LEDS            24
+#define CONFIG_LED_RING_NUM_LEDS          24
 
 // Buzzer
 #define CONF_BUZZER_TICK_US               40

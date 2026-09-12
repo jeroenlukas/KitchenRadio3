@@ -16,8 +16,6 @@ int weather_windkmh_to_beaufort(double wind_kmh);
 
 HTTPClient http;
 
-const String key = CONFIG_SECRETS_OPENWEATHER_KEY;
-
 float weather_temperature = 0.0;
 float windspeed_kmh = 0.0;
 float windspeed = 0.0;
@@ -31,7 +29,7 @@ bool weather_geo(String location)
     String endpoint = "http://api.openweathermap.org/geo/1.0/direct?q=" + location +"&appid=";
     LOGG_DEBUG("Endpoint: " + endpoint);
     bool ret = false;
-    http.begin(endpoint + key);
+    http.begin(endpoint + settings.secrets.openweathermap_api_key);
 
     int httpCode = http.GET();
 
@@ -103,7 +101,7 @@ bool weather_retrieve_40()
     String endpoint = "http://api.openweathermap.org/data/4.0/onecall/current?lat=" + String(information.weather.lat, 5) + "&lon=" + String(information.weather.lon, 5) +"&units=metric&lang=nl&APPID=";
     LOGG_DEBUG("Endpoint: " + endpoint);
     bool ret = false;
-    http.begin(endpoint + key);
+    http.begin(endpoint +  settings.secrets.openweathermap_api_key);
 
     int httpCode = http.GET();
 
@@ -163,7 +161,7 @@ bool weather_forecast_1h()
     String endpoint = "http://api.openweathermap.org/data/4.0/onecall/timeline/1h?lat=" + String(information.weather.lat, 5) + "&lon=" + String(information.weather.lon, 5) +"&units=metric&lang=nl&APPID=";
     LOGG_DEBUG("Endpoint: " + endpoint);
     bool ret = false;
-    http.begin(endpoint + key);
+    http.begin(endpoint + settings.secrets.openweathermap_api_key);
 
     int httpCode = http.GET();
 
@@ -209,7 +207,7 @@ bool weather_forecast_1d()
     String endpoint = "http://api.openweathermap.org/data/4.0/onecall/timeline/1day?lat=" + String(information.weather.lat, 5) + "&lon=" + String(information.weather.lon, 5) +"&units=metric&lang=nl&APPID=";
     LOGG_DEBUG("Endpoint: " + endpoint);
     bool ret = false;
-    http.begin(endpoint + key);
+    http.begin(endpoint + settings.secrets.openweathermap_api_key);
 
     int httpCode = http.GET();
 
@@ -249,7 +247,7 @@ bool weather_retrieve()
     String endpoint = "http://api.openweathermap.org/data/2.5/weather?q=" + settings.location +"&units=metric&lang=nl&APPID=";
     LOGG_DEBUG("Endpoint: " + endpoint);
     bool ret = false;
-    http.begin(endpoint + key);
+    http.begin(endpoint + settings.secrets.openweathermap_api_key);
 
     int httpCode = http.GET();
 

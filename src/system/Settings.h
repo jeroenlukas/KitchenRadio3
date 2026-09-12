@@ -20,6 +20,13 @@ class Settings_t {
           String timezone;
         };
 
+        struct Secrets_t
+        {
+          String wifi_ssid;
+          String wifi_password;
+          String openweathermap_api_key;
+        };
+
         struct Audio_t
         {
           bool phase; // Whether speakers are in or out of phase
@@ -41,6 +48,7 @@ class Settings_t {
         };
       
     Clock_t clock;
+    Secrets_t secrets;
     Audio_t audio;
     Display_t display;
 };

@@ -2,3 +2,5 @@
 src/configuration/ConfigSecrets.h
 
 build/
+
+data/settings/secrets.yaml
