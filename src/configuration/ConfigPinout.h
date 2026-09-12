@@ -15,7 +15,7 @@
 // MCP I/O
 // https://github.com/adafruit/Adafruit-MCP23017-Arduino-Library/tree/master?tab=readme-ov-file#pin-addressing
 #define CONFIG_PIN_MCP_INTA            15
-#define CONFIG_PIN_MCP_INTB            16
+//#define CONFIG_PIN_MCP_INTB            16 not used anymore
 
 // LEDs
 #define CONFIG_PIN_MCP_LED_WEBRADIO   3

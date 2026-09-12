@@ -94,6 +94,11 @@ void tickers_init()
   ticker_displayrefresh.start();
 }
 
+void tickers_displayrefresh_setinterval(uint32_t ms)
+{
+  ticker_displayrefresh.interval(ms);
+}
+
 void tickers_handle()
 {
   ticker_100ms.update();

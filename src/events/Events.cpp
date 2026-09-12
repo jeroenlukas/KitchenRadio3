@@ -29,6 +29,8 @@ void events_tickers();
 
 void events_handle()
 {
+  static bool prev_menu_active = false;
+
   events_encoders();
   events_buttons();
   events_tickers();
@@ -46,6 +48,20 @@ void events_handle()
     // Update frontpanel leds
     frontpanel_leds_handle();
   }
+
+  if(menuMgr.isActive() && !prev_menu_active)
+  {
+    LOGG_DEBUG("Menu entered");
+    display_set_refresh_interval(CONF_DISPLAYREFRESH_MS);
+  }
+  else if(!menuMgr.isActive() && prev_menu_active)
+  {
+    LOGG_DEBUG("Homescreen entered");
+    display_set_refresh_interval(80);
+  }
+
+
+  prev_menu_active = menuMgr.isActive();
 }
 
 void events_tickers()

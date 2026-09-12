@@ -43,6 +43,7 @@ function onOpen(event) {
     {
         // Config (once)
         websocket.send(JSON.stringify({get: "configuration"}));
+        websocket.send(JSON.stringify({get: "secrets"}));
     }
 
     else if(window.location.pathname == "/stations")

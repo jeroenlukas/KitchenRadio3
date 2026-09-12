@@ -8,5 +8,6 @@ extern void frontpanel_leds_handle();
 extern void frontpanel_buttons_read();
 extern void frontpanel_ldr_read();
 extern void frontpanel_buzzer_beep(uint16_t duration);
+extern bool frontpanel_check_button_state(uint8_t button);
 
 #endif

@@ -17,6 +17,7 @@
 #include "../../version.h"
 #include "XbmIcons.h"
 #include "Menu.h"
+#include "../system/Tickers.h"
 
 //void display_popup(String message);
 
@@ -37,6 +38,8 @@ bool popup_show = false;
 
 void display_draw_triangle_rotated(int cx, int cy, float angle);
 
+void display_set_refresh_interval(uint32_t ms);
+
 void display_begin() {
   LOGG_INFO("Display init");
   hspi = new SPIClass(HSPI);
@@ -47,42 +50,57 @@ void display_begin() {
 }
 
 // === Home screen ===
-void display_draw_home() {
-  // Clock
-  u8g2.setFont(FONT_CLOCK);
-  u8g2.setCursor(POSX_CLOCK, POSY_CLOCK);
-  u8g2.print(u8x8_u8toa(information.clock.hour, 2));
-  if(information.clock.colon_state) u8g2.drawStr(POSX_CLOCK + 30, POSY_CLOCK - 2, ":");
-  u8g2.setCursor(POSX_CLOCK + 39, POSY_CLOCK);
-  u8g2.print(u8x8_u8toa(information.clock.minute, 2));
+void display_draw_home() 
+{
+  if(information.system.setupMode)
+  {
+    u8g2.setFont(FONT_S);
+    u8g2.drawStr(4, 16, "=== SETUP MODE ===");
+    u8g2.drawStr(4, 26, String("Connect to: " + settings.deviceName).c_str());
+    u8g2.drawStr(4, 36, String("IP address: " + information.system.ipAddress).c_str());
 
-  // Date
-  u8g2.setFont(FONT_S);
-  u8g2.drawStr(POSX_CLOCK + 10, POSY_CLOCK + 13, (information.clock.dateMid).c_str());
+    u8g2.setFont(u8g2_font_streamline_all_t);
 
-  // Weather
-  
-  // https://openweathermap.org/weather-conditions
+    u8g2.drawGlyph(230, 32, 508);
+  }
+  else
+  {
+    // Clock
+    u8g2.setFont(FONT_CLOCK);
+    u8g2.setCursor(POSX_CLOCK, POSY_CLOCK);
+    u8g2.print(u8x8_u8toa(information.clock.hour, 2));
+    if(information.clock.colon_state) u8g2.drawStr(POSX_CLOCK + 30, POSY_CLOCK - 2, ":");
+    u8g2.setCursor(POSX_CLOCK + 39, POSY_CLOCK);
+    u8g2.print(u8x8_u8toa(information.clock.minute, 2));
 
-  // - Weather icon
-  u8g2.setFont(FONT_WEATHERICONS);
-  u8g2.drawGlyph(4, 34, weather_icon_to_glyph(information.weather.icon));
+    // Date
+    u8g2.setFont(FONT_S);
+    u8g2.drawStr(POSX_CLOCK + 10, POSY_CLOCK + 13, (information.clock.dateMid).c_str());
 
-  // - Temperature
-  u8g2.setFont(FONT_WEATHER_TEMPERATURE);
-  uint8_t w = u8g2.drawStr(42, 16, (String(information.weather.temperature, 1) + "  C").c_str());
-  u8g2.drawGlyph((42 + w) - 13, 16, 0x00b0);
-  
-  // - Wind speed (Bft)
-  u8g2.setFont(FONT_M);  
-  u8g2.drawStr(42, 28, String(information.weather.windSpeedBft).c_str());
+    // Weather
+    
+    // https://openweathermap.org/weather-conditions
 
-  // - Wind direction arrow  
-  display_draw_triangle_rotated(54, 24, information.weather.wind_direction_deg);
+    // - Weather icon
+    u8g2.setFont(FONT_WEATHERICONS);
+    u8g2.drawGlyph(4, 34, weather_icon_to_glyph(information.weather.icon));
 
-  // - Weather description
-  u8g2.drawStr(3, 42, String(information.weather.stateShort).c_str());
-  u8g2.setFont(FONT_S);
+    // - Temperature
+    u8g2.setFont(FONT_WEATHER_TEMPERATURE);
+    uint8_t w = u8g2.drawStr(42, 16, (String(information.weather.temperature, 1) + "  C").c_str());
+    u8g2.drawGlyph((42 + w) - 13, 16, 0x00b0);
+    
+    // - Wind speed (Bft)
+    u8g2.setFont(FONT_M);  
+    u8g2.drawStr(42, 28, String(information.weather.windSpeedBft).c_str());
+
+    // - Wind direction arrow  
+    display_draw_triangle_rotated(56, 24, information.weather.wind_direction_deg);
+
+    // - Weather description
+    u8g2.drawStr(3, 42, String(information.weather.stateShort).c_str());
+    u8g2.setFont(FONT_S);
+  }
 
 
   // Alarm (if active)
@@ -343,9 +361,12 @@ void display_draw() {
 
   u8g2.firstPage();
   do {
-    if (menuMgr.isActive()) {
+    if (menuMgr.isActive()) 
+    {
       display_draw_menu();
-    } else display_draw_home();
+    } 
+    else 
+      display_draw_home();
 
     // Show popup regardless of menu
     if(popup_show)
@@ -367,7 +388,7 @@ void display_draw() {
 // Draws the boot screen with boot log. Called from logger.
 void display_draw_startup() {
   int bootup_pct = constrain(((double)bootlog_cnt / (double)BOOTLOG_STEPS) * 100, 0, 100);
-  Serial.println("pct: " + String(bootup_pct));
+  //Serial.println("pct: " + String(bootup_pct));
 
   // Draw last x bootlog lines
   int lines_max = 6;
@@ -418,6 +439,11 @@ void display_set_brightness_auto()
   display_set_brightness(information.system.display_brightness);
 }
 
+void display_set_refresh_interval(uint32_t ms)
+{
+  tickers_displayrefresh_setinterval(ms);
+}
+
 void ticker_popup_cb()
 {
   popup_show = false;
@@ -428,7 +454,7 @@ void display_popup(String message, int length = 3000)
   ticker_popup.once_ms(5000, ticker_popup_cb);
   
   LOGG_DEBUG("Popup!");
-  //flags.main.displayRedraw = true;
+  
   flags.tickers.displayrefresh = true;
   popup_message = message;
   popup_show = true;
@@ -493,6 +519,8 @@ void display_draw_systeminfo_advanced() {
   u8g2.drawStr(200, 12, (String(information.system.ldr) + "%").c_str());
   u8g2.drawStr(150, 22, "Disp.bright:");
   u8g2.drawStr(200, 22, (String(information.system.display_brightness) + "%").c_str());
+  u8g2.drawStr(150, 32, "LDR raw:");
+  u8g2.drawStr(200, 32, (String(information.system.ldr_raw)).c_str());
 
 }
 
@@ -560,15 +588,18 @@ void display_draw_triangle_rotated(int cx, int cy, float angle)
     float x2 = -3, y2 =  4;  // bottom-left
     float x3 =  3, y3 =  4;  // bottom-right
 
+    float sin_a = sin(a);
+    float cos_a = cos(a);
+
     // Rotate + translate
-    int rx1 = cx + x1 * cos(a) - y1 * sin(a);
-    int ry1 = cy + x1 * sin(a) + y1 * cos(a);
+    int rx1 = cx + x1 * cos_a - y1 * sin_a;
+    int ry1 = cy + x1 * sin_a + y1 * cos_a;
 
-    int rx2 = cx + x2 * cos(a) - y2 * sin(a);
-    int ry2 = cy + x2 * sin(a) + y2 * cos(a);
+    int rx2 = cx + x2 * cos_a - y2 * sin_a;
+    int ry2 = cy + x2 * sin_a + y2 * cos_a;
 
-    int rx3 = cx + x3 * cos(a) - y3 * sin(a);
-    int ry3 = cy + x3 * sin(a) + y3 * cos(a);
+    int rx3 = cx + x3 * cos_a - y3 * sin_a;
+    int ry3 = cy + x3 * sin_a + y3 * cos_a;
 
     u8g2.drawTriangle(rx1, ry1, rx2, ry2, rx3, ry3);
 }

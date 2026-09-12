@@ -19,4 +19,6 @@ extern void display_set_brightness_auto();
 
 extern void display_popup(String message, int length = 3000);
 
+extern void display_set_refresh_interval(uint32_t ms);
+
 #endif

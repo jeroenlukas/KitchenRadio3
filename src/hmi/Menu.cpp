@@ -36,6 +36,7 @@ InfoItem iiWeatherHourlyForecast("Hourly forecast");
 InfoItem iiWeatherDailyForecast("Daily forecast");
 ActionItem aiWeatherUpdate("Update weather");
 
+ActionItem aiReboot("Reboot device");
 
 // [Alarm]
 MinSecItem msiCountDownAlarm("Alarm Time", &(information.alarm.countdown_sec), 1, 36000);
@@ -66,6 +67,13 @@ void action_weather_retrieve()
   weather_forecast_1h();
 }
 
+void action_reboot()
+{
+  display_popup("I will reboot!");
+  delay(1000);
+  ESP.restart();
+}
+
 void menu_begin()
 {  
   // === System menu ===
@@ -74,7 +82,7 @@ void menu_begin()
   menuSystem_Overview.setOnShowCallback(display_draw_systeminfo_overview);
   menuSystem_Overview.addItem(&iiSystemAdvanced);
   iiSystemAdvanced.setOnShowCallback(display_draw_systeminfo_advanced);
-
+  
   // --- Weather submenu ---
   menuSystem.addItem(&menuSystem_Weather);
   menuSystem_Weather.setOnShowCallback(display_draw_custominfo_weather);
@@ -103,6 +111,9 @@ void menu_begin()
   menuSystem.addItem(&iiSmiley);
   iiSmiley.setOnShowCallback(display_draw_custominfo_smiley);
 
+  // --- Reboot button ---
+  menuSystem.addItem(&aiReboot);
+  aiReboot.setOnExecuteCallback(action_reboot);
 
   // === Alarm menu ===
   menuAlarm.addItem(&msiCountDownAlarm);

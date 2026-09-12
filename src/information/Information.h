@@ -17,6 +17,7 @@ class Information_t {
             
             audioPlayer.soundMode = OFF;
             system.compilationDateTime = __DATE__ ;
+            system.setupMode = false;
 
             alarm.mode = ALARM_KITCHEN;
             alarm.state = ALARM_STATE_OFF;
@@ -44,7 +45,10 @@ class Information_t {
             String ipAddress;
 
             uint8_t ldr;
+            uint16_t ldr_raw;
             bool nightmode;
+
+            bool setupMode;
 
             int lastResetReason;
             int coreTemperature;

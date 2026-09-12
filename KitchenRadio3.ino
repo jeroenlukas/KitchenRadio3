@@ -86,30 +86,52 @@ void setup()
   // Frontpanel
   frontpanel_begin();
 
+  if(frontpanel_check_button_state(CONFIG_PIN_MCP_BTN_SYSTEM))
+  {
+    information.system.setupMode = true;
+    log_boot("Working in setup mode!");
+    delay(500);
+  }
+
+  //while(true);
+
   // WiFi
-  log_boot("Connect to WiFi ...");
-  WiFi.mode(WIFI_STA);
-  WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
-  WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
-  WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
-  WiFi.setHostname("KitchenRadio3");
-  WiFi.disconnect();
-  WiFi.begin(CONFIG_SECRETS_WIFI_SSID, CONFIG_SECRETS_WIFI_PASSWORD);
+  if(!information.system.setupMode)
+  {
+    log_boot("Connect to WiFi ...");
+    WiFi.mode(WIFI_STA);
+    WiFi.setSleep(false);
+    WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
+    WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
+    WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
+    WiFi.setHostname("KitchenRadio3");
+    WiFi.disconnect();
+    WiFi.begin(CONFIG_SECRETS_WIFI_SSID, CONFIG_SECRETS_WIFI_PASSWORD);
+  }
+  else
+  {
+    // Start access point
+    log_boot("Starting WiFi AP");
+    WiFi.softAP(settings.deviceName);
+    information.system.ipAddress = WiFi.softAPIP().toString();
+  }
 
   // Audio - we setup the audioplayer while the WiFi is connecting, this shaves a few seconds off the startup time.
   log_boot("Init audioplayer");
   audioplayer_init();
 
   // Some seconds later
-  while (WiFi.status() != WL_CONNECTED) 
+  if(!information.system.setupMode)
   {
-    Serial.print('.');
-    delay(500);
-  }
+    while (WiFi.status() != WL_CONNECTED) 
+    {
+      Serial.print('.');
+      delay(500);
+    }
+    information.system.ipAddress = WiFi.localIP().toString(); 
+    log_boot("WiFi connected: " + information.system.ipAddress);
+  }  
   
-  information.system.ipAddress = WiFi.localIP().toString(); 
-  log_boot("WiFi connected: " + information.system.ipAddress);
-
   // Webserver
   log_boot("Start webserver");
   webserver_begin();
@@ -119,13 +141,16 @@ void setup()
   lamp_init();
 
   // Time
-  log_boot("Init time");
-  time_begin();
-  time_waitForSync();
+  if(!information.system.setupMode)
+  {
+    log_boot("Init time");
+    time_begin();
+    time_waitForSync();
 
-  // Webradio
-  log_boot("Init webradio");
-  webradio_init();
+    // Webradio
+    log_boot("Init webradio");
+    webradio_init();
+  }
 
   // I2S
   log_boot("Init bluetooth module");
@@ -149,11 +174,14 @@ void setup()
   profiler.add(&tpEvents);
   profiler.add(&tpAudio);
 
-  // Get weather info
-  log_boot("Retrieve weather and forecast");
-  weather_retrieve_40();
-  weather_forecast_1h();
-  weather_forecast_1d();
+  if(!information.system.setupMode)
+  {
+    // Get weather info
+    log_boot("Retrieve weather and forecast");
+    weather_retrieve_40();
+    weather_forecast_1h();
+    weather_forecast_1d();
+  }
 
   // Turn off leds
   frontpanel_leds_handle();
@@ -185,7 +213,7 @@ void loop()
   tpEvents.stop();
 
   // Handle webserver
-  webserver_cleanup();
+  webserver_handle();
 
   // Handle audio stuff
   tpAudio.start();

@@ -7,6 +7,7 @@
 #include <ESPAsyncWebServer.h>
 #include <LittleFS.h>
 #include <ArduinoJson.h>
+#include <ElegantOTA.h>
 
 #include "../system/Filemanager.h"
 #include "../system/Logger.h"
@@ -15,8 +16,12 @@
 #include "../audio/Audioplayer.h"
 #include "../system/Stations.h"
 #include "../hmi/Display.h"
+#include "../hmi/Buzzer.h"
 
 void websocket_onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
+void webserver_ota_start();
+void webserver_ota_end(bool success);
+void webserver_ota_progress(size_t current, size_t final);
 
 AsyncWebServer webserver(80);
 
@@ -80,6 +85,20 @@ void webserver_begin()
       // Return to config file
       request->send(200, "text/html", html_header + html_config +  html_footer);
     }
+    else if (request->hasParam("secrets_content", true)) {
+      new_content = request->getParam("secrets_content", true)->value();
+
+      // Write to settings.json
+      filemgr_writefile("/settings/secrets.yaml", new_content);
+      
+      // Reload config
+      display_popup("Secrets stored");
+      delayMicroseconds(500000);      
+      settings_load();
+
+      // Return to config file
+      request->send(200, "text/html", html_header + html_config +  html_footer);
+    }
     
   });
 
@@ -126,9 +145,14 @@ void webserver_begin()
   websocket.onEvent(websocket_onEvent);
   webserver.addHandler(&websocket);
 
+  // ElegantOTA  
+  ElegantOTA.begin(&webserver);
+  ElegantOTA.onStart(webserver_ota_start);
+  ElegantOTA.onEnd(webserver_ota_end);
+  ElegantOTA.onProgress(webserver_ota_progress);
+
+  // Start webserver
   webserver.begin();
-
-
 }
 
 void websocket_handlemessage(void *arg, uint8_t *data, size_t len) 
@@ -175,6 +199,17 @@ void websocket_handlemessage(void *arg, uint8_t *data, size_t len)
         serializeJson(docReply, jsonString);
         websocket.textAll(jsonString);
       }
+      else if(docMessage["get"] == "secrets")
+      {
+        String configuration = filemgr_readfile("/settings/secrets.yaml");
+
+        JsonDocument docReply;
+        String jsonString;
+        docReply["secrets_content"] = configuration;
+
+        serializeJson(docReply, jsonString);
+        websocket.textAll(jsonString);        
+      }
     }
 
     else if(docMessage["soundmode"])
@@ -214,7 +249,45 @@ void websocket_onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, Aws
   }
 }
 
-void webserver_cleanup(void)
+void webserver_handle(void)
 {
     websocket.cleanupClients();
+    ElegantOTA.loop();
+}
+
+void webserver_ota_start()
+{
+  buzzer_beep(500 * 1000);
+  display_popup("OTA start");  
+  LOGG_INFO("OTA start");
+}
+
+void webserver_ota_end(bool success)
+{
+  buzzer_beep(250 * 1000);
+  
+  if(success)
+  {
+    display_popup("OTA succeeded. I will reboot!");
+    LOGG_INFO("OTA succeeded, I will reboot!");
+  }
+  else
+  {
+    display_popup("OTA failed!");
+    LOGG_ERROR("OTA failed!");
+  }
+}
+
+void webserver_ota_progress(size_t current, size_t final)
+{
+  static uint32_t ota_progress_millis = 0;
+
+  if (millis() - ota_progress_millis > 500) 
+  {
+    ota_progress_millis = millis();
+    double perc = ((double)current / (double)final) * 100.0;
+    String message = String("OTA progress: " + String(perc, 0) + "%");
+    LOGG_INFO(message);
+    display_popup(message);
+  }
 }

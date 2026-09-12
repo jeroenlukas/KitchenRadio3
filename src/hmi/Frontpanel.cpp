@@ -34,7 +34,6 @@ void frontpanel_begin()
 
     // MCP interrupts
     pinMode(CONFIG_PIN_MCP_INTA, INPUT);
-    pinMode(CONFIG_PIN_MCP_INTB, INPUT);
 
     Wire.setPins(CONFIG_PIN_SDA, CONFIG_PIN_SCL);
     Wire.begin();
@@ -73,6 +72,8 @@ void frontpanel_begin()
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_BLUETOOTH, HIGH);
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_ALARM, HIGH);
     mcp.digitalWrite(CONFIG_PIN_MCP_LED_LAMP, HIGH);
+
+    mcp.setupInterrupts(true, false, false);
  
     frontpanel_has_init = true;
 }
@@ -92,6 +93,7 @@ void frontpanel_ldr_read()
         return;    
 
     uint16_t an = analogRead(CONFIG_PIN_LDR);
+    
     uint16_t adc = 4095 - an;
 
     ldr[ldr_idx++] = adc;
@@ -106,6 +108,9 @@ void frontpanel_ldr_read()
     adc_avg = adc_cum / 10;
 
     information.system.ldr = map(adc_avg, 0, 4095, 0, 100);    
+    information.system.ldr_raw = adc;
+
+    //LOGG_DEBUG("adc: " + String(adc) + " ldr: " + String(information.system.ldr ));
 }
 
 void frontpanel_nightmode_handle()
@@ -154,9 +159,7 @@ void frontpanel_buttons_read()
     static uint8_t lastbutton = 0xFF;
     static uint32_t lastpressdown = 0;
 
-
     int mcp_inta = !digitalRead(CONFIG_PIN_MCP_INTA); // Interrupt for encoder switches
-    int mcp_intb = !digitalRead(CONFIG_PIN_MCP_INTB); // Interrupt
     
     // Handle long press stuff
     if((lastpressdown > 0) && (lastbutton != 0xFF))
@@ -201,7 +204,7 @@ void frontpanel_buttons_read()
         }
     }
 
-    if(mcp_inta || mcp_intb) // Button was pushed or released
+    if(mcp_inta) // Button was pushed or released
     {        
         uint8_t button = mcp.getLastInterruptPin();
         uint16_t value = !((mcp.getCapturedInterrupt() >> button) & 1);
@@ -256,6 +259,15 @@ void frontpanel_buttons_read()
 
         flags.frontPanel.buttonAnyPressed = true;
     }
+}
+
+// Read the state of a button directly. Mostly useful for checking button state during startup sequence.
+// Returns false when button not pressed, or true when pressed
+bool frontpanel_check_button_state(uint8_t button)
+{
+    bool state = !(mcp.digitalRead(button));
+    LOGG_DEBUG("Button state: " + String(state));
+    return state;
 }
 
 void frontpanel_encoders_read()
