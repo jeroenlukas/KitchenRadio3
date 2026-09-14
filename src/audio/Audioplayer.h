@@ -21,6 +21,8 @@ extern void audioplayer_mode_set( soundMode_t mode);
 extern void audioplayer_bass_set(int bass);
 extern void audioplayer_treble_set(int treble);
 
+extern void audioplayer_pa_mute(bool mute);
+
 extern VS1053Stream vs1053; // final audio output
 
 #endif

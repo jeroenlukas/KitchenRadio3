@@ -93,8 +93,6 @@ void setup()
     delay(500);
   }
 
-  //while(true);
-
   // WiFi
   if(!information.system.setupMode)
   {
@@ -124,15 +122,7 @@ void setup()
   if(!information.system.setupMode)
   {
     // Wait for Wifi to connect, with a number of retries.
-    //int wifi_retries = 0;
-    /*while (WiFi.status() != WL_CONNECTED) 
-    {
-      wifi_retries++;
-      Serial.print('.');
-      delay(500);
-    }*/
-
-    for(int i = 0; i < 40; i++)
+    for(int i = 0; i < CONF_WIFI_CONNECT_RETRIES; i++)
     {
       Serial.print('.');
       delay(250);

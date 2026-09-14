@@ -154,7 +154,7 @@ void display_draw_home()
       // Draw bluetooth title in clipwindow
       u8g2.setFont(FONT_AUDIO);
       u8g2.setClipWindow(POSX_AUDIO, 43, 224, 64);
-      if (information.audioPlayer.bluetoothArtist != "")
+      if ((information.audioPlayer.bluetoothMode == BT_PLAYING) || (information.audioPlayer.bluetoothMode == BT_PAUSED) && (information.audioPlayer.bluetoothArtist != ""))
         display_audio_title_width = u8g2.drawStr(POSX_AUDIO + display_audio_title_scroll_offset, POSY_AUDIO, String(information.audioPlayer.bluetoothArtist + " - " + information.audioPlayer.bluetoothTitle).c_str());
       else
         display_audio_title_width = u8g2.drawStr(POSX_AUDIO + display_audio_title_scroll_offset, POSY_AUDIO, String(information.audioPlayer.bluetoothConnectionStateStr).c_str());

@@ -60,6 +60,7 @@ void audioplayer_pa_mute(bool mute)
 {
     // Toggle power amp mute pin
     digitalWrite(CONFIG_PIN_PA_MUTE, !mute);
+    LOGG_DEBUG("Set mute: " + String(mute));
 }
 
 // Set mute by user

@@ -31,6 +31,8 @@ uint8_t bt_wav_header[44] =
 I2SStream i2sStream;
 StreamCopy i2scopier(vs1053, i2sStream); 
 
+uint32_t last_bluetooth_activity = 0;
+
 void i2sreceiver_command_parse(String command);
 void i2sreceiver_send(String str);
 void i2sreceiver_playpause();
@@ -64,6 +66,19 @@ void i2sreceiver_handle()
 {
   if(i2scopier.available())
     i2scopier.copy();
+
+  // Handle bluetooth activity - disconnect if bluetooth inactive for certain amount of time
+  if(information.audioPlayer.bluetoothMode == BT_PLAYING)// || ( information.audioPlayer.bluetoothMode == BT_PAUSED))
+  {
+    last_bluetooth_activity = millis();
+  }
+
+  if((millis() - last_bluetooth_activity) > (CONF_BLUETOOTH_AUTO_DISCONNECT_S * 1000))
+  {
+    LOGG_INFO("Auto disconnect!");
+    audioplayer_mode_set(OFF);
+  }
+  
 }
 
 
@@ -71,13 +86,16 @@ void i2sreceiver_handle()
 void i2sreceiver_start()
 {
     LOGG_DEBUG("i2sreceiver_start!");
+
+    last_bluetooth_activity = millis();
+
     i2sreceiver_send("AT+START=" + settings.deviceName);
 
     i2sStream.begin();
     i2scopier.begin();
     
     vs1053.write(bt_wav_header, 44); 
-    
+
 }
 
 void i2sreceiver_stop()
@@ -117,6 +135,9 @@ void i2sreceiver_playpause()
 
 void i2sreceiver_command_parse(String command)
 {
+  last_bluetooth_activity = millis();
+
+  // Playing state, for bluetoothMode
   if(command == "AT+AUDIOSTATE=PLAYING")
   {
     LOGG_INFO("Playing");
@@ -132,6 +153,34 @@ void i2sreceiver_command_parse(String command)
     LOGG_INFO("Stopped");
     information.audioPlayer.bluetoothMode = BT_STOPPED;
   }
+
+  // Connection state - combined into bluetoothMode
+  else if(command == "AT+CONNSTATE=Connecting")
+  {
+    information.audioPlayer.bluetoothConnectionStateStr = command.substring(13);
+    information.audioPlayer.bluetoothMode = BT_CONNECTING;
+    LOGG_DEBUG("* Connecting");
+  }
+  else if(command == "AT+CONNSTATE=Connected")
+  {
+    information.audioPlayer.bluetoothConnectionStateStr = command.substring(13);
+    information.audioPlayer.bluetoothMode = BT_CONNECTED;
+    LOGG_DEBUG("* Connected");
+  }
+  else if(command == "AT+CONNSTATE=Disconnecting")
+  {
+    information.audioPlayer.bluetoothConnectionStateStr = command.substring(13);
+    information.audioPlayer.bluetoothMode = BT_DISCONNECTING;
+    LOGG_DEBUG("* Disconnecting");
+  }
+   else if(command == "AT+CONNSTATE=Disconnected")
+  {
+    information.audioPlayer.bluetoothConnectionStateStr = command.substring(13);
+    information.audioPlayer.bluetoothMode = BT_NOTCONNECTED;
+    LOGG_DEBUG("* Disconnected");
+  }  
+
+  // Track info
   else if(command.startsWith("AT+TITLE"))
   {
     information.audioPlayer.bluetoothTitle = command.substring(9);
@@ -143,12 +192,12 @@ void i2sreceiver_command_parse(String command)
     display_reset_scroll();
   }
 
-  else if(command.startsWith("AT+CONNSTATE"))
-  {
-    information.audioPlayer.bluetoothConnectionStateStr = command.substring(13);
-  }
+  // RSSI
   else if(command.startsWith("AT+RSSI"))
   {
     information.audioPlayer.bluetoothRSSI = command.substring(8).toInt();
   }
+
+  // Mute if not playing  
+  audioplayer_pa_mute(information.audioPlayer.bluetoothMode == BT_PLAYING ? false : true);
 }
