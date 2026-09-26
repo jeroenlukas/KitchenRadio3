@@ -108,13 +108,15 @@ void display_draw_home()
     u8g2.setFont(u8g2_font_open_iconic_all_2x_t);
     u8g2.drawGlyph(POSX_ALARM, POSY_ALARM + 2, 93);
     u8g2.setFont(FONT_ALARM);
-    u8g2.drawFrame(POSX_ALARM - 5, POSY_ALARM - 18, 60, 25);
+    
 
     if (information.alarm.state == ALARM_STATE_COUNTDOWN || information.alarm.state == ALARM_STATE_PAUSED) {
-      u8g2.drawStr(POSX_ALARM + 20, POSY_ALARM, (information.alarm.countdown_minsec).c_str());
+      u8g2.drawFrame(POSX_ALARM - 5, POSY_ALARM - 18, 60, 25);
+      u8g2.drawStr(POSX_ALARM + 20, POSY_ALARM, (information.alarm.countdown_minsec).c_str());      
     }
 
     else if (information.alarm.state == ALARM_STATE_BUZZING) {
+      u8g2.drawFrame(POSX_ALARM - 5, POSY_ALARM - 18, 70, 25);
       u8g2.drawStr(POSX_ALARM + 20, POSY_ALARM, "ALARM!");
     }
   }
@@ -129,8 +131,8 @@ void display_draw_home()
 
       // Draw buffer fill percentage, station index + count
       u8g2.setFont(FONT_S);
-      u8g2.drawStr(POSX_AUDIO - 20, POSY_AUDIO - 6, (String(information.webRadio.station_index_select + 1) + "/" + String(information.webRadio.station_count)).c_str());
-      u8g2.drawStr(POSX_AUDIO - 20, POSY_AUDIO + 2, (String(information.webRadio.bufferPercentage) + "%").c_str());
+      u8g2.drawStr(POSX_AUDIO - 22, POSY_AUDIO - 6, (String(information.webRadio.station_index_select + 1) + "/" + String(information.webRadio.station_count)).c_str());
+      u8g2.drawStr(POSX_AUDIO - 22, POSY_AUDIO + 2, (String(information.webRadio.bufferPercentage) + "%").c_str());
 
       // Draw station name in clipwindow
       u8g2.setFont(FONT_AUDIO);
@@ -153,7 +155,7 @@ void display_draw_home()
 
       // Draw bluetooth title in clipwindow
       u8g2.setFont(FONT_AUDIO);
-      u8g2.setClipWindow(POSX_AUDIO, 43, 224, 64);
+      u8g2.setClipWindow(POSX_AUDIO, 43, 222, 64);
       if ((information.audioPlayer.bluetoothMode == BT_PLAYING) || (information.audioPlayer.bluetoothMode == BT_PAUSED) && (information.audioPlayer.bluetoothArtist != ""))
         display_audio_title_width = u8g2.drawStr(POSX_AUDIO + display_audio_title_scroll_offset, POSY_AUDIO, String(information.audioPlayer.bluetoothArtist + " - " + information.audioPlayer.bluetoothTitle).c_str());
       else
@@ -182,6 +184,10 @@ void display_draw_home()
           u8g2.drawStr(POSX_AUDIO - 20, POSY_AUDIO, "?");
           break;
       }
+      break;
+    case TESTTONE:
+      u8g2.setFont(FONT_AUDIO);
+      u8g2.drawStr(POSX_AUDIO, POSY_AUDIO, String("Test tone: " + String(information.audioPlayer.testToneFrequency) + " Hz").c_str());
       break;
       
     default:

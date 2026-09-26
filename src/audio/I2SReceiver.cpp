@@ -11,23 +11,6 @@
 
 HardwareSerial serial_bt(2);
 
-uint8_t bt_wav_header[44] = 
-{
-    0x52, 0x49, 0x46, 0x46, // RIFF
-    0xFF, 0xFF, 0xFF, 0xFF, // size
-    0x57, 0x41, 0x56, 0x45, // WAVE
-    0x66, 0x6d, 0x74, 0x20, // fmt
-    0x10, 0x00, 0x00, 0x00, // subchunk1size
-    0x01, 0x00,             // audio format - pcm
-    0x02, 0x00,             // numof channels
-    0x44, 0xac, 0x00, 0x00, //, //samplerate 44k1: 0x44, 0xac, 0x00, 0x00       48k: 48000: 0x80, 0xbb, 0x00, 0x00,
-    0x10, 0xb1, 0x02, 0x00, //byterate
-    0x04, 0x00,             // blockalign
-    0x10, 0x00,             // bits per sample - 16
-    0x64, 0x61, 0x74, 0x61, // subchunk3id -"data"
-    0xFF, 0xFF, 0xFF, 0xFF  // subchunk3size (endless)
-};
-
 I2SStream i2sStream;
 StreamCopy i2scopier(vs1053, i2sStream); 
 
@@ -68,7 +51,7 @@ void i2sreceiver_handle()
     i2scopier.copy();
 
   // Handle bluetooth activity - disconnect if bluetooth inactive for certain amount of time
-  if(information.audioPlayer.bluetoothMode == BT_PLAYING)// || ( information.audioPlayer.bluetoothMode == BT_PAUSED))
+  if(information.audioPlayer.bluetoothMode == BT_PLAYING)
   {
     last_bluetooth_activity = millis();
   }
@@ -88,6 +71,8 @@ void i2sreceiver_start()
     LOGG_DEBUG("i2sreceiver_start!");
 
     last_bluetooth_activity = millis();
+
+    information.audioPlayer.bluetoothMode = BT_NOTCONNECTED;
 
     i2sreceiver_send("AT+START=" + settings.deviceName);
 
@@ -135,8 +120,6 @@ void i2sreceiver_playpause()
 
 void i2sreceiver_command_parse(String command)
 {
-  last_bluetooth_activity = millis();
-
   // Playing state, for bluetoothMode
   if(command == "AT+AUDIOSTATE=PLAYING")
   {

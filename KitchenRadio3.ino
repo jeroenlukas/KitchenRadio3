@@ -212,6 +212,8 @@ void setup()
   information.system.bootTimeSeconds = millis() / 1000;
   log_boot("Init done! Boot took " + String(information.system.bootTimeSeconds) + " s" );
 
+  display_set_refresh_interval(80);
+
   delay(500);
 }
 

@@ -48,6 +48,7 @@ Command cmd_bass;
 Command cmd_mem;
 Command cmd_profiler;
 Command cmd_popup;
+Command cmd_testtone;
 
 void cli_begin();
 void cli_handle();
@@ -121,6 +122,17 @@ void cb_soundmode(cmd* c)
     else if(cmd.getArg("b").isSet()) audioplayer_mode_set(BLUETOOTH);
     
     else LOGG_ERROR("Error: invalid soundmode");   
+}
+
+void cb_testtone(cmd * c)
+{
+    Command cmd(c);
+
+    if(cmd.getArgument(0).isSet())
+    {
+        information.audioPlayer.testToneFrequency = cmd.getArgument(0).getValue().toInt();
+    }
+    audioplayer_mode_set(TESTTONE);
 }
 
 void cb_volume(cmd* c)
@@ -467,6 +479,10 @@ void cli_begin(void)
     cmd_treble.setDescription("- Set the treble (0..100)");
 
     // > bass
+
+    // > testtone
+    cmd_testtone = kr_cli.addSingleArgCmd("testtone", cb_testtone);
+    cmd_testtone.setDescription("- Generate test tone with given frequency in Hz");
 
     
     // > mem

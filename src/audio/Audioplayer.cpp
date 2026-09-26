@@ -8,16 +8,23 @@
 #include <AudioToolsConfig.h>
 #include <AudioTools/AudioLibs/VS1053Stream.h>
 
+#include "Audioplayer.h"
+
 #include "../system/Logger.h"
 
 #include "../system/Settings.h"
 #include "../hmi/Frontpanel.h"
 
-
 #include "Webradio.h"
 #include "I2SReceiver.h"
 
 VS1053Stream vs1053; // final audio output
+
+// For test tone
+AudioInfo info(44100, 2, 16);
+SineWaveGenerator<int16_t> sineWave(30000);                // subclass of SoundGenerator with max amplitude of 32000
+GeneratedSoundStream<int16_t> sound(sineWave);             // Stream generated from sine wave
+StreamCopy Testtone_copier(vs1053, sound);  
 
 void audioplayer_volume_set(int volume);
 void audioplayer_pa_mute(bool mute);
@@ -25,6 +32,23 @@ void audioplayer_mode_set( soundMode_t mode);
 
 void audioplayer_bass_set(int bass);
 void audioplayer_treble_set(int treble);
+
+uint8_t bt_wav_header[44] = 
+{
+    0x52, 0x49, 0x46, 0x46, // RIFF
+    0xFF, 0xFF, 0xFF, 0xFF, // size
+    0x57, 0x41, 0x56, 0x45, // WAVE
+    0x66, 0x6d, 0x74, 0x20, // fmt
+    0x10, 0x00, 0x00, 0x00, // subchunk1size
+    0x01, 0x00,             // audio format - pcm
+    0x02, 0x00,             // numof channels
+    0x44, 0xac, 0x00, 0x00, //, //samplerate 44k1: 0x44, 0xac, 0x00, 0x00       48k: 48000: 0x80, 0xbb, 0x00, 0x00,
+    0x10, 0xb1, 0x02, 0x00, //byterate
+    0x04, 0x00,             // blockalign
+    0x10, 0x00,             // bits per sample - 16
+    0x64, 0x61, 0x74, 0x61, // subchunk3id -"data"
+    0xFF, 0xFF, 0xFF, 0xFF  // subchunk3size (endless)
+};
 
 void audioplayer_init()
 {
@@ -87,6 +111,9 @@ void audioplayer_handle()
         case BLUETOOTH:
             i2sreceiver_handle();
             break;
+        case TESTTONE:
+            //LOGG_DEBUG("tone");
+            Testtone_copier.copy();
         default:
             break;
     }
@@ -121,7 +148,10 @@ void audioplayer_mode_set(soundMode_t mode)
         i2sreceiver_stop();
         information.audioPlayer.bluetoothArtist = ""; 
         information.audioPlayer.bluetoothTitle = "";
-
+    }
+    else if(information.audioPlayer.soundMode == TESTTONE)
+    {
+        sineWave.end();
     }
 
     LOGG_INFO("Soft reset VS1053");
@@ -146,6 +176,14 @@ void audioplayer_mode_set(soundMode_t mode)
             information.audioPlayer.soundMode = BLUETOOTH;
             i2sreceiver_start();
             audioplayer_pa_mute(false);
+            break;
+        case TESTTONE:
+            information.audioPlayer.soundMode = TESTTONE;
+            audioplayer_pa_mute(false);            
+            sound.begin();
+            sineWave.begin(info, (float)information.audioPlayer.testToneFrequency);
+            vs1053.write(bt_wav_header, 44); 
+
             break;
         case OFF:
             information.audioPlayer.soundMode = OFF;

@@ -49,8 +49,6 @@ bool settings_load()
     settings.deviceName = String(docSettings["devicename"]);
     settings.location = String(docSettings["location"]);
     settings.clock.timezone = String(docSettings["clock"]["timezone"]);
-    settings.secrets.wifi_ssid = String(docSettings["secrets"]["ssid"]);
-    settings.secrets.wifi_password = String(docSettings["secrets"]["password"]);
     settings.audio.tonecontrol.treble = docSettings["audio"]["tonecontrol"]["treble"];
     settings.audio.tonecontrol.treble_freq = docSettings["audio"]["tonecontrol"]["treble_freq"];
     settings.audio.tonecontrol.bass = docSettings["audio"]["tonecontrol"]["bass"];

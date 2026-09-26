@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-enum soundMode_t { OFF, WEBRADIO, BLUETOOTH, CHANGING };
+enum soundMode_t { OFF, WEBRADIO, BLUETOOTH, TESTTONE, CHANGING };
 enum bluetoothMode_t { BT_OFF, BT_NOTCONNECTED, BT_CONNECTED, BT_CONNECTING, BT_DISCONNECTING, BT_PLAYING, BT_PAUSED, BT_STOPPED, BT_UNKNOWN };
 enum lampEffectType_t { EFFECT_NONE, EFFECT_RAINBOW, EFFECT_DOUBLERAINBOW, EFFECT_PULSE, EFFECT_WHEEL, EFFECT_COUNT };
 enum alarmMode_t { ALARM_KITCHEN, ALARM_WAKEUP};
@@ -78,6 +78,8 @@ class Information_t {
             String bluetoothArtist;
             String bluetoothConnectionStateStr;
             int8_t bluetoothRSSI;
+
+            uint32_t testToneFrequency;
         };
 
         struct Lamp
