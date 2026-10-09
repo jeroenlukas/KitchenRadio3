@@ -182,5 +182,6 @@ void i2sreceiver_command_parse(String command)
   }
 
   // Mute if not playing  
-  audioplayer_pa_mute(information.audioPlayer.bluetoothMode == BT_PLAYING ? false : true);
+  if(information.audioPlayer.soundMode == BLUETOOTH)
+    audioplayer_pa_mute(information.audioPlayer.bluetoothMode == BT_PLAYING ? false : true);
 }

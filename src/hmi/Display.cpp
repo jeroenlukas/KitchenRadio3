@@ -37,7 +37,7 @@ String popup_message;
 bool popup_show = false;
 
 void display_draw_triangle_rotated(int cx, int cy, float angle);
-
+void display_drawStr_center_hor(u8g2_uint_t x_center, u8g2_uint_t y, const char *s);
 void display_set_refresh_interval(uint32_t ms);
 
 void display_begin() {
@@ -65,17 +65,18 @@ void display_draw_home()
   }
   else
   {
-    // Clock
+    // Clock    
     u8g2.setFont(FONT_CLOCK);
     u8g2.setCursor(POSX_CLOCK, POSY_CLOCK);
     u8g2.print(u8x8_u8toa(information.clock.hour, 2));
-    if(information.clock.colon_state) u8g2.drawStr(POSX_CLOCK + 30, POSY_CLOCK - 2, ":");
+    if(information.clock.colon_state) display_drawStr_center_hor(POSX_CLOCK + 34, POSY_CLOCK-2, ":"); //u8g2.drawStr(POSX_CLOCK + 30, POSY_CLOCK - 2, ":");
     u8g2.setCursor(POSX_CLOCK + 39, POSY_CLOCK);
     u8g2.print(u8x8_u8toa(information.clock.minute, 2));
 
     // Date
     u8g2.setFont(FONT_S);
-    u8g2.drawStr(POSX_CLOCK + 10, POSY_CLOCK + 13, (information.clock.dateMid).c_str());
+    //u8g2.drawStr(POSX_CLOCK + 10, POSY_CLOCK + 13, (information.clock.dateMid).c_str());
+    display_drawStr_center_hor(POSX_CLOCK + 34, POSY_CLOCK + 13, (information.clock.dateMid).c_str());
 
     // Weather
     
@@ -360,6 +361,13 @@ void display_draw_menu() {
 
   u8g2.setFont(FONT_S);
   u8g2.drawStr(238, POSY_AUDIO - 1, String(String(menuMgr.currentMenu()->getItemIndex() + 1) + "/" + String(menuMgr.currentMenu()->getItemCount())).c_str());  // Index
+}
+
+void display_drawStr_center_hor(u8g2_uint_t x_center, u8g2_uint_t y, const char *s)
+{
+  int len = u8g2.getStrWidth(s);
+  u8g2.drawStr(x_center - (len / 2), y, s);
+
 }
 
 void display_draw() {
