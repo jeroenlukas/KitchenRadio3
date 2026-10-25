@@ -129,6 +129,7 @@ class Information_t {
             String icon;
             String sunrise_str;
             String sunset_str;
+            double moonphase;
 
             // Forecast data hourly (needs rework)
             int forecast_1h_hour[8];

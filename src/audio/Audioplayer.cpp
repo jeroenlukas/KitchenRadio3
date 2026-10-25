@@ -135,6 +135,9 @@ void audioplayer_mode_set(soundMode_t mode)
 {
     //LOGG_INFO("Set mode to " + String(mode));
 
+    if(information.audioPlayer.soundMode == mode)
+        return;
+
     information.audioPlayer.changing = true;
 
     // Stop the current sound mode

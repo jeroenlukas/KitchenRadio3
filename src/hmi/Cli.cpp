@@ -212,6 +212,10 @@ void cb_fake(cmd* c)
         LOGG_INFO("Faking weather icon to " + String(cmd.getArgument("weathericon").getValue()));
         information.weather.icon = cmd.getArgument("weathericon").getValue();
     }
+    if(cmd.getArgument("moonphase").isSet())
+    {
+        information.weather.moonphase = cmd.getArgument("moonphase").getValue().toDouble();
+    }
 }
 /*
 void cb_oled(cmd* c) 
@@ -523,6 +527,7 @@ void cli_begin(void)
     cmd_fake.addArgument("weatherstate", "804");
     cmd_fake.addArgument("winddir", "180");
     cmd_fake.addArgument("weathericon", "01d");
+    cmd_fake.addArgument("moonphase", "0.5");
 /*
     // > oled
     cmd_oled = kr_cli.addCmd("oled", cb_oled);

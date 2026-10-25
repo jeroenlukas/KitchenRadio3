@@ -219,6 +219,8 @@ bool weather_forecast_1d()
         deserializeJson(doc, payload);
         LOGG_DEBUG(payload);
 
+        information.weather.moonphase = doc["data"][0]["moon_phase"];
+
         int days = 4;
         for(int i = 0; i < days; i++)
         {

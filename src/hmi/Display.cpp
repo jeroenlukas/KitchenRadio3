@@ -69,7 +69,7 @@ void display_draw_home()
     u8g2.setFont(FONT_CLOCK);
     u8g2.setCursor(POSX_CLOCK, POSY_CLOCK);
     u8g2.print(u8x8_u8toa(information.clock.hour, 2));
-    if(information.clock.colon_state) display_drawStr_center_hor(POSX_CLOCK + 34, POSY_CLOCK-2, ":"); //u8g2.drawStr(POSX_CLOCK + 30, POSY_CLOCK - 2, ":");
+    if(information.clock.colon_state) display_drawStr_center_hor(POSX_CLOCK + 34, POSY_CLOCK-2, ":"); 
     u8g2.setCursor(POSX_CLOCK + 39, POSY_CLOCK);
     u8g2.print(u8x8_u8toa(information.clock.minute, 2));
 
@@ -538,6 +538,57 @@ void display_draw_systeminfo_advanced() {
 
 }
 
+
+void drawMoonPhase(int x, int y, int r, int phase) 
+{
+  phase = phase % 8;
+
+  u8g2.setDrawColor(1);
+  u8g2.drawCircle(x, y, r, U8G2_DRAW_ALL);
+
+  switch (phase) {
+    case 0: //New moon
+      break;
+
+    case 1: // Waxing Crescent
+      u8g2.drawDisc(x, y, r, U8G2_DRAW_UPPER_RIGHT | U8G2_DRAW_LOWER_RIGHT);
+      u8g2.setDrawColor(0);
+      u8g2.drawFilledEllipse(x, y, r * 0.5, r, U8G2_DRAW_ALL);
+      break;
+
+    case 2: // First Quarter 
+      u8g2.drawDisc(x, y, r, U8G2_DRAW_UPPER_RIGHT | U8G2_DRAW_LOWER_RIGHT);
+      break;
+
+    case 3: // Waxing Gibbous
+      u8g2.drawDisc(x, y, r, U8G2_DRAW_UPPER_RIGHT | U8G2_DRAW_LOWER_RIGHT);
+      u8g2.drawFilledEllipse(x, y, r * 0.5, r, U8G2_DRAW_ALL);
+      break;
+
+    case 4: // Full moon
+      u8g2.drawDisc(x, y, r, U8G2_DRAW_ALL);
+      break;
+
+    case 5: // Waning Gibbous
+      u8g2.drawDisc(x, y, r, U8G2_DRAW_UPPER_LEFT | U8G2_DRAW_LOWER_LEFT);
+      u8g2.drawFilledEllipse(x, y, r * 0.5, r, U8G2_DRAW_ALL);
+      break;
+
+    case 6: // Third Quarter
+      u8g2.drawDisc(x, y, r, U8G2_DRAW_UPPER_LEFT | U8G2_DRAW_LOWER_LEFT);
+      break;
+
+    case 7: // Waning Crescent
+      u8g2.drawDisc(x, y, r, U8G2_DRAW_UPPER_LEFT | U8G2_DRAW_LOWER_LEFT);
+      u8g2.setDrawColor(0);
+      u8g2.drawFilledEllipse(x, y, r * 0.5, r, U8G2_DRAW_ALL);
+      break;
+  }
+
+  u8g2.setDrawColor(1);
+}
+
+
 // Weather info
 void display_draw_custominfo_weather() {
   u8g2.setFont(FONT_S);
@@ -556,6 +607,8 @@ void display_draw_custominfo_weather() {
   u8g2.drawStr(200, 22, (String(information.weather.sunrise_str)).c_str());
   u8g2.drawStr(150, 32, "Sunset:");
   u8g2.drawStr(200, 32, (String(information.weather.sunset_str)).c_str());
+  u8g2.drawStr(150, 42, "Moon:");  
+  drawMoonPhase(204, 40, 4, 8*information.weather.moonphase);
 }
 
 // Weather forecast hourly
