@@ -98,7 +98,9 @@ void webradio_handle()
       
       information.webRadio.cntUnderruns++;
       docopy = false;
-      webradio_connect(0);
+      
+      // Reconnect
+      webradio_connect(information.webRadio.station_index);
     }
 
     information.webRadio.bytesAvailable = circBuffer.available();
